@@ -71,8 +71,14 @@
     - Test that ipcRenderer is not directly accessible
     - _Requirements: 8.4_
 
-- [ ] 4. Implement FileManager for file operations
-  - [ ] 4.1 Create FileManager class with open/save/saveAs methods
+- [x] 4. Implement FileManager for file operations
+
+
+
+
+  - [x] 4.1 Create FileManager class with open/save/saveAs methods
+
+
     - Implement openFile() with dialog.showOpenDialog
     - Implement saveFile() with fs.writeFile
     - Implement saveFileAs() with dialog.showSaveDialog
