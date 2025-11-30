@@ -60,7 +60,13 @@
     - Never expose full ipcRenderer module
     - _Requirements: 3.1, 3.2, 3.3, 5.1, 5.2, 6.3, 8.4_
   
-  - [ ]* 3.2 Write unit tests for preload API exposure
+  - [x] 3.2 Write unit tests for preload API exposure
+
+
+
+
+
+
     - Test that contextBridge exposes correct API shape
     - Test that ipcRenderer is not directly accessible
     - _Requirements: 8.4_
