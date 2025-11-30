@@ -352,8 +352,13 @@
     - Test replace operations
     - _Requirements: 7.1, 7.3, 7.4, 7.5_
 
-- [ ] 15. Implement ThemeManager
-  - [ ] 15.1 Create ThemeManager class
+- [x] 15. Implement ThemeManager
+
+
+
+  - [x] 15.1 Create ThemeManager class
+
+
     - Implement setTheme method to toggle CSS classes
     - Implement getCurrentTheme method
     - Implement toggleTheme method
