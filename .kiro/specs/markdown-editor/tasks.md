@@ -86,7 +86,13 @@
     - Sanitize and validate all file paths for security
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 4.5_
   
-  - [ ]* 4.2 Write property test for file operations
+  - [x] 4.2 Write property test for file operations
+
+
+
+
+
+
     - **Property 8: File save-load round trip**
     - **Validates: Requirements 3.2**
   
