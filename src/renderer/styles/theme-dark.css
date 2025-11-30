@@ -50,6 +50,19 @@
     --table-header-bg: #161b22;
     --table-row-bg: #0d1117;
     --table-row-alt-bg: #161b22;
+
+    /* Status Bar */
+    --status-bar-bg: #161b22;
+    --status-bar-border: #30363d;
+    --status-saving-bg: #3d3000;
+    --status-saving-text: #ffd966;
+    --status-saving-border: #5a4700;
+    --status-saved-bg: #0f3d1a;
+    --status-saved-text: #7ee787;
+    --status-saved-border: #1a5c2a;
+    --status-error-bg: #4a1a1f;
+    --status-error-text: #ff7b72;
+    --status-error-border: #6e2a2f;
 }
 
 body.theme-dark {

@@ -48,6 +48,19 @@
     --table-header-bg: #f6f8fa;
     --table-row-bg: #ffffff;
     --table-row-alt-bg: #f6f8fa;
+
+    /* Status Bar */
+    --status-bar-bg: #f6f8fa;
+    --status-bar-border: #e1e4e8;
+    --status-saving-bg: #fff3cd;
+    --status-saving-text: #856404;
+    --status-saving-border: #ffeaa7;
+    --status-saved-bg: #d4edda;
+    --status-saved-text: #155724;
+    --status-saved-border: #c3e6cb;
+    --status-error-bg: #f8d7da;
+    --status-error-text: #721c24;
+    --status-error-border: #f5c6cb;
 }
 
 body.theme-light {

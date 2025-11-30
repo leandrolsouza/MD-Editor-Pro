@@ -13,6 +13,7 @@ const Preview = require('./preview.js');
 const SearchManager = require('./search.js');
 const ThemeManager = require('./theme.js');
 const ViewModeManager = require('./view-mode.js');
+const AutoSaveManager = require('./auto-save.js');
 
 // Application state
 let editor = null;
@@ -20,6 +21,7 @@ let preview = null;
 let searchManager = null;
 let themeManager = null;
 let viewModeManager = null;
+let autoSaveManager = null;
 
 // Document state
 let currentFilePath = null;
@@ -70,6 +72,11 @@ async function initialize() {
         viewModeManager = new ViewModeManager();
         await viewModeManager.initialize();
         console.log('ViewModeManager initialized');
+
+        // Initialize AutoSaveManager
+        autoSaveManager = new AutoSaveManager(editor);
+        await autoSaveManager.initialize();
+        console.log('AutoSaveManager initialized');
 
         // Connect editor changes to preview updates
         editor.onContentChange((content) => {
@@ -209,6 +216,13 @@ async function handleNewFile() {
     currentFilePath = null;
     isDirty = false;
     lastSavedContent = '';
+
+    // Update auto-save manager
+    if (autoSaveManager) {
+        autoSaveManager.setCurrentFilePath(null);
+        autoSaveManager.setLastSavedContent('');
+    }
+
     preview.render('');
 }
 
@@ -263,6 +277,12 @@ async function loadFile(filePath, content = null) {
         isDirty = false;
         lastSavedContent = content;
 
+        // Update auto-save manager
+        if (autoSaveManager) {
+            autoSaveManager.setCurrentFilePath(filePath);
+            autoSaveManager.setLastSavedContent(content);
+        }
+
         // Update preview
         preview.render(content);
 
@@ -285,6 +305,12 @@ async function handleSaveFile() {
             await window.electronAPI.saveFile(currentFilePath, content);
             lastSavedContent = content;
             isDirty = false;
+
+            // Update auto-save manager
+            if (autoSaveManager) {
+                autoSaveManager.setLastSavedContent(content);
+            }
+
             console.log('File saved:', currentFilePath);
         } else {
             // No file path, use save as
@@ -308,6 +334,13 @@ async function handleSaveFileAs() {
             currentFilePath = result.filePath;
             lastSavedContent = content;
             isDirty = false;
+
+            // Update auto-save manager
+            if (autoSaveManager) {
+                autoSaveManager.setCurrentFilePath(result.filePath);
+                autoSaveManager.setLastSavedContent(content);
+            }
+
             console.log('File saved as:', currentFilePath);
         }
     } catch (error) {
@@ -503,6 +536,9 @@ function cleanup() {
     }
     if (preview) {
         preview.destroy();
+    }
+    if (autoSaveManager) {
+        autoSaveManager.destroy();
     }
 }
 
