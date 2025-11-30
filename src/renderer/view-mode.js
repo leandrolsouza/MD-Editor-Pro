@@ -1,0 +1,137 @@
+/**
+ * ViewModeManager - Manages view mode switching between editor, preview, and split views
+ * Controls visibility of editor and preview panes
+ * Persists view mode preference using ConfigStore
+ * Requirements: 6.2, 6.3, 6.4
+ */
+
+class ViewModeManager {
+    constructor() {
+        this.currentViewMode = 'split' // Default view mode
+        this.initialized = false
+        this.editorPane = null
+        this.previewPane = null
+        this.divider = null
+    }
+
+    /**
+     * Initialize the view mode manager
+     * Loads saved view mode preference from ConfigStore and applies it
+     * @returns {Promise<void>}
+     */
+    async initialize() {
+        if (this.initialized) {
+            return
+        }
+
+        // Get DOM elements
+        this.editorPane = document.getElementById('editor-pane')
+        this.previewPane = document.getElementById('preview-pane')
+        this.divider = document.getElementById('divider')
+
+        if (!this.editorPane || !this.previewPane) {
+            console.error('Required DOM elements not found')
+            return
+        }
+
+        try {
+            // Load view mode preference from ConfigStore
+            const savedViewMode = await window.electronAPI.getConfig('viewMode')
+
+            // Use saved view mode if available, otherwise default to 'split'
+            if (savedViewMode === 'editor' || savedViewMode === 'preview' || savedViewMode === 'split') {
+                this.currentViewMode = savedViewMode
+            }
+
+            // Apply the view mode
+            this.applyViewMode(this.currentViewMode)
+            this.initialized = true
+        } catch (error) {
+            console.error('Failed to initialize view mode:', error)
+            // Fall back to default split view
+            this.applyViewMode('split')
+            this.initialized = true
+        }
+    }
+
+    /**
+     * Set the view mode
+     * @param {string} mode - 'editor', 'preview', or 'split'
+     */
+    async setViewMode(mode) {
+        if (mode !== 'editor' && mode !== 'preview' && mode !== 'split') {
+            console.error(`Invalid view mode: ${mode}. Must be 'editor', 'preview', or 'split'`)
+            return
+        }
+
+        this.currentViewMode = mode
+        this.applyViewMode(mode)
+
+        // Persist view mode preference to ConfigStore
+        try {
+            await window.electronAPI.setConfig('viewMode', mode)
+        } catch (error) {
+            console.error('Failed to save view mode preference:', error)
+        }
+    }
+
+    /**
+     * Get the current view mode
+     * @returns {string} Current view mode ('editor', 'preview', or 'split')
+     */
+    getCurrentViewMode() {
+        return this.currentViewMode
+    }
+
+    /**
+     * Apply view mode by showing/hiding appropriate containers
+     * @private
+     * @param {string} mode - 'editor', 'preview', or 'split'
+     */
+    applyViewMode(mode) {
+        if (!this.editorPane || !this.previewPane) {
+            console.error('DOM elements not initialized')
+            return
+        }
+
+        // Remove all view mode classes first
+        this.editorPane.classList.remove('hidden', 'full-width')
+        this.previewPane.classList.remove('hidden', 'full-width')
+        if (this.divider) {
+            this.divider.classList.remove('hidden')
+        }
+
+        switch (mode) {
+            case 'editor':
+                // Show only editor
+                this.editorPane.classList.add('full-width')
+                this.previewPane.classList.add('hidden')
+                if (this.divider) {
+                    this.divider.classList.add('hidden')
+                }
+                break
+
+            case 'preview':
+                // Show only preview
+                this.editorPane.classList.add('hidden')
+                this.previewPane.classList.add('full-width')
+                if (this.divider) {
+                    this.divider.classList.add('hidden')
+                }
+                break
+
+            case 'split':
+                // Show both editor and preview (default state)
+                // No additional classes needed, both are visible by default
+                break
+
+            default:
+                console.error(`Unknown view mode: ${mode}`)
+        }
+    }
+}
+
+// Export for use in other modules
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = ViewModeManager
+}

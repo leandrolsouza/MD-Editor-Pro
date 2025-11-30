@@ -356,6 +356,7 @@
 
 
 
+
   - [x] 15.1 Create ThemeManager class
 
 
@@ -375,8 +376,13 @@
     - Test CSS class application
     - _Requirements: 6.1_
 
-- [ ] 16. Implement ViewModeManager
-  - [ ] 16.1 Create ViewModeManager class
+- [x] 16. Implement ViewModeManager
+
+
+
+
+  - [x] 16.1 Create ViewModeManager class
+
     - Implement setViewMode method (editor/preview/split)
     - Show/hide appropriate containers based on mode
     - Save view mode preference to ConfigStore

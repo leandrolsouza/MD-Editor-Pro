@@ -171,3 +171,8 @@ body {
 .hidden {
     display: none !important;
 }
+
+.full-width {
+    flex: 1 !important;
+    width: 100% !important;
+}
