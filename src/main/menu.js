@@ -207,6 +207,17 @@ function createApplicationMenu(windowManager, fileManager, exporter) {
                     ]
                 },
                 { type: 'separator' },
+                {
+                    label: 'Focus Mode',
+                    accelerator: 'F11',
+                    click: () => {
+                        const mainWindow = windowManager.getMainWindow();
+                        if (mainWindow) {
+                            mainWindow.webContents.send('menu:action', 'focus-mode');
+                        }
+                    }
+                },
+                { type: 'separator' },
                 { role: 'reload' },
                 { role: 'forceReload' },
                 { role: 'toggleDevTools' },

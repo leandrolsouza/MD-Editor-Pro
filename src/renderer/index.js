@@ -16,6 +16,7 @@ const ViewModeManager = require('./view-mode.js');
 const AutoSaveManager = require('./auto-save.js');
 const StatisticsCalculator = require('./statistics.js');
 const TabBar = require('./tab-bar.js');
+const FocusMode = require('./focus-mode.js');
 
 // Application state
 let editor = null;
@@ -26,6 +27,7 @@ let viewModeManager = null;
 let autoSaveManager = null;
 let statisticsCalculator = null;
 let tabBar = null;
+let focusMode = null;
 
 // Document state
 let currentFilePath = null;
@@ -99,6 +101,11 @@ async function initialize() {
 
         // Setup tab bar event handlers
         setupTabBarHandlers();
+
+        // Initialize FocusMode
+        focusMode = new FocusMode(editor);
+        focusMode.initialize();
+        console.log('FocusMode initialized');
 
         // Try to restore tabs from previous session
         await restoreTabsFromSession();
@@ -219,6 +226,11 @@ async function handleMenuAction(action) {
                 break;
             case 'view-mode-split':
                 await viewModeManager.setViewMode('split');
+                break;
+            case 'focus-mode':
+                if (focusMode) {
+                    focusMode.toggle();
+                }
                 break;
             default:
                 console.warn('Unknown menu action:', action);
@@ -468,10 +480,21 @@ function setupKeyboardShortcuts() {
             await handleNewFile();
         }
 
-        // Escape: Close search if open
-        if (e.key === 'Escape' && searchManager.isVisible()) {
+        // Escape: Close search if open, or exit focus mode
+        if (e.key === 'Escape') {
+            if (searchManager.isVisible()) {
+                e.preventDefault();
+                searchManager.hide();
+            }
+            // Focus mode handles its own Escape key
+        }
+
+        // F11: Toggle focus mode
+        if (e.key === 'F11') {
             e.preventDefault();
-            searchManager.hide();
+            if (focusMode) {
+                focusMode.toggle();
+            }
         }
     });
 }
@@ -727,6 +750,9 @@ function cleanup() {
     }
     if (tabBar) {
         tabBar.destroy();
+    }
+    if (focusMode) {
+        focusMode.destroy();
     }
 }
 
