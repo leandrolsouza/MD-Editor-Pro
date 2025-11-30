@@ -14,6 +14,7 @@ const SearchManager = require('./search.js');
 const ThemeManager = require('./theme.js');
 const ViewModeManager = require('./view-mode.js');
 const AutoSaveManager = require('./auto-save.js');
+const StatisticsCalculator = require('./statistics.js');
 
 // Application state
 let editor = null;
@@ -22,6 +23,7 @@ let searchManager = null;
 let themeManager = null;
 let viewModeManager = null;
 let autoSaveManager = null;
+let statisticsCalculator = null;
 
 // Document state
 let currentFilePath = null;
@@ -77,6 +79,11 @@ async function initialize() {
         autoSaveManager = new AutoSaveManager(editor);
         await autoSaveManager.initialize();
         console.log('AutoSaveManager initialized');
+
+        // Initialize StatisticsCalculator
+        statisticsCalculator = new StatisticsCalculator(editor);
+        await statisticsCalculator.initialize();
+        console.log('StatisticsCalculator initialized');
 
         // Connect editor changes to preview updates
         editor.onContentChange((content) => {
@@ -539,6 +546,9 @@ function cleanup() {
     }
     if (autoSaveManager) {
         autoSaveManager.destroy();
+    }
+    if (statisticsCalculator) {
+        statisticsCalculator.destroy();
     }
 }
 

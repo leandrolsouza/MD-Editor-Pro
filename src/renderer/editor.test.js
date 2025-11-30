@@ -251,11 +251,11 @@ describe('Editor', () => {
             expect(editor.view).toBeNull();
         });
 
-        it('should clear content change callback', () => {
+        it('should clear content change callbacks', () => {
             editor.initialize(container);
             editor.onContentChange(() => { });
             editor.destroy();
-            expect(editor.contentChangeCallback).toBeNull();
+            expect(editor.contentChangeCallbacks).toEqual([]);
         });
     });
 });

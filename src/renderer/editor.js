@@ -12,7 +12,7 @@ const { search, highlightSelectionMatches } = require('@codemirror/search');
 class Editor {
     constructor() {
         this.view = null;
-        this.contentChangeCallback = null;
+        this.contentChangeCallbacks = [];
     }
 
     /**
@@ -36,8 +36,13 @@ class Editor {
                     ...historyKeymap
                 ]),
                 EditorView.updateListener.of((update) => {
-                    if (update.docChanged && this.contentChangeCallback) {
-                        this.contentChangeCallback(this.getValue());
+                    if (update.docChanged) {
+                        const content = this.getValue();
+                        this.contentChangeCallbacks.forEach(callback => {
+                            if (callback) {
+                                callback(content);
+                            }
+                        });
                     }
                 }),
                 EditorView.lineWrapping
@@ -180,7 +185,7 @@ class Editor {
         if (typeof callback !== 'function') {
             throw new Error('Callback must be a function');
         }
-        this.contentChangeCallback = callback;
+        this.contentChangeCallbacks.push(callback);
     }
 
     /**
@@ -229,7 +234,7 @@ class Editor {
             this.view.destroy();
             this.view = null;
         }
-        this.contentChangeCallback = null;
+        this.contentChangeCallbacks = [];
     }
 }
 
