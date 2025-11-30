@@ -29,8 +29,9 @@ class Preview {
     /**
      * Render markdown content to HTML (with debouncing)
      * @param {string} markdown - The markdown content to render
+     * @param {boolean} immediate - If true, render immediately without debouncing (for testing)
      */
-    render(markdown) {
+    render(markdown, immediate = false) {
         if (!this.container) {
             throw new Error('Preview not initialized');
         }
@@ -40,10 +41,14 @@ class Preview {
             clearTimeout(this.debounceTimer);
         }
 
-        // Debounce the rendering to avoid excessive updates
-        this.debounceTimer = setTimeout(() => {
+        if (immediate) {
             this._renderImmediate(markdown);
-        }, this.debounceDelay);
+        } else {
+            // Debounce the rendering to avoid excessive updates
+            this.debounceTimer = setTimeout(() => {
+                this._renderImmediate(markdown);
+            }, this.debounceDelay);
+        }
     }
 
     /**
@@ -113,8 +118,8 @@ class Preview {
             throw new Error('Preview not initialized');
         }
 
-        if (editorScrollPercent < 0 || editorScrollPercent > 1) {
-            throw new Error('Scroll percent must be between 0 and 1');
+        if (isNaN(editorScrollPercent) || editorScrollPercent < 0 || editorScrollPercent > 1) {
+            throw new Error('Position must be between 0 and 1');
         }
 
         this.setScrollPosition(editorScrollPercent);

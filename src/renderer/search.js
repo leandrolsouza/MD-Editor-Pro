@@ -400,6 +400,15 @@ class SearchManager {
         }
         return !this.searchPanel.classList.contains('hidden');
     }
+
+    /**
+     * Get the current match index (0-based for testing compatibility)
+     * @returns {number} Current match index (0-based)
+     */
+    get currentIndex() {
+        // Convert from 1-based to 0-based for test compatibility
+        return this.currentMatchIndex > 0 ? this.currentMatchIndex - 1 : 0;
+    }
 }
 
 export default SearchManager;

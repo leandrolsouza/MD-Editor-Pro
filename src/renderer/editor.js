@@ -212,7 +212,7 @@ class Editor {
             throw new Error('Editor not initialized');
         }
 
-        if (position < 0 || position > 1) {
+        if (isNaN(position) || position < 0 || position > 1) {
             throw new Error('Position must be between 0 and 1');
         }
 

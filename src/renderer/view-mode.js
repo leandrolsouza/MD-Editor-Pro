@@ -105,7 +105,9 @@ class ViewModeManager {
             case 'editor':
                 // Show only editor
                 this.editorPane.classList.add('full-width')
+                this.editorPane.style.display = ''
                 this.previewPane.classList.add('hidden')
+                this.previewPane.style.display = 'none'
                 if (this.divider) {
                     this.divider.classList.add('hidden')
                 }
@@ -114,7 +116,9 @@ class ViewModeManager {
             case 'preview':
                 // Show only preview
                 this.editorPane.classList.add('hidden')
+                this.editorPane.style.display = 'none'
                 this.previewPane.classList.add('full-width')
+                this.previewPane.style.display = ''
                 if (this.divider) {
                     this.divider.classList.add('hidden')
                 }
@@ -123,6 +127,8 @@ class ViewModeManager {
             case 'split':
                 // Show both editor and preview (default state)
                 // No additional classes needed, both are visible by default
+                this.editorPane.style.display = ''
+                this.previewPane.style.display = ''
                 break
 
             default:
@@ -131,7 +137,4 @@ class ViewModeManager {
     }
 }
 
-// Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = ViewModeManager
-}
+export default ViewModeManager;

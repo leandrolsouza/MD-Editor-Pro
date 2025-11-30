@@ -119,10 +119,6 @@ class ThemeManager {
     }
 }
 
-// Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = ThemeManager
-}
+export default ThemeManager;
 
-</content >
-</invoke >
+
