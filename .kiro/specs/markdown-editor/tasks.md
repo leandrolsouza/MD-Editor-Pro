@@ -34,7 +34,13 @@
     - Setup window state management
     - _Requirements: 4.1, 4.2, 4.3, 8.4_
   
-  - [ ]* 2.3 Write property test for window creation
+  - [x] 2.3 Write property test for window creation
+
+
+
+
+
+
     - **Property 10: Keyboard shortcuts adapt to platform**
     - **Validates: Requirements 4.4**
 
