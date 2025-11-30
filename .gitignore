@@ -24,3 +24,6 @@ coverage/
 
 # Electron
 out/
+
+# Kiro
+.kiro
