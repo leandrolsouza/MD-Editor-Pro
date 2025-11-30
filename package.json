@@ -1,0 +1,63 @@
+{
+  "name": "md-editor-pro",
+  "version": "1.0.0",
+  "description": "A cross-platform markdown editor built with Electron",
+  "main": "src/main/index.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --inspect",
+    "test": "vitest --run",
+    "test:watch": "vitest",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux"
+  },
+  "keywords": [
+    "markdown",
+    "editor",
+    "electron",
+    "commonmark",
+    "gfm"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "codemirror": "^6.0.2",
+    "electron": "^39.2.4",
+    "electron-store": "^11.0.2",
+    "highlight.js": "^11.11.1",
+    "markdown-it": "^14.1.0",
+    "markdown-it-task-lists": "^2.1.1"
+  },
+  "devDependencies": {
+    "electron-builder": "^26.0.12",
+    "fast-check": "^4.3.0",
+    "vitest": "^4.0.14"
+  },
+  "build": {
+    "appId": "com.mdeditorpro.app",
+    "productName": "MD Editor Pro",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "build/icon.icns"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "build/icon.png",
+      "category": "Office"
+    }
+  }
+}
