@@ -1,0 +1,18 @@
+/* Editor Specific Styles */
+
+#editor-container {
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* CodeMirror will inject its own styles, this is for customization */
+.cm-editor {
+    height: 100%;
+}
+
+.cm-scroller {
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+
+/* Editor will be fully styled when CodeMirror is integrated in task 12 */

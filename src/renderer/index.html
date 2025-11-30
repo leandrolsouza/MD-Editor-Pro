@@ -4,12 +4,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MD Editor Pro</title>
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'">
+    <title>Markdown Editor</title>
+
+    <!-- Theme Stylesheets -->
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/editor.css">
+    <link rel="stylesheet" href="styles/preview.css">
+    <link rel="stylesheet" href="styles/theme-light.css" id="theme-light">
+    <link rel="stylesheet" href="styles/theme-dark.css" id="theme-dark" disabled>
 </head>
 
-<body>
-    <h1>MD Editor Pro</h1>
-    <p>Renderer process will be implemented in subsequent tasks</p>
+<body class="theme-light">
+    <!-- Main Container -->
+    <div id="app-container">
+        <!-- Editor Pane -->
+        <div id="editor-pane" class="pane">
+            <div id="editor-container"></div>
+        </div>
+
+        <!-- Resizable Divider -->
+        <div id="divider" class="divider"></div>
+
+        <!-- Preview Pane -->
+        <div id="preview-pane" class="pane">
+            <div id="preview-container" class="markdown-preview"></div>
+        </div>
+    </div>
+
+    <!-- Search UI (Hidden by default) -->
+    <div id="search-panel" class="search-panel hidden">
+        <div class="search-controls">
+            <input type="text" id="search-input" placeholder="Find..." class="search-input">
+            <button id="search-prev" class="search-button" title="Previous">↑</button>
+            <button id="search-next" class="search-button" title="Next">↓</button>
+            <span id="search-results" class="search-results"></span>
+            <button id="search-close" class="search-button" title="Close">✕</button>
+        </div>
+        <div class="replace-controls hidden">
+            <input type="text" id="replace-input" placeholder="Replace..." class="search-input">
+            <button id="replace-current" class="search-button">Replace</button>
+            <button id="replace-all" class="search-button">Replace All</button>
+        </div>
+        <button id="toggle-replace" class="toggle-replace-button">▼</button>
+    </div>
+
+    <!-- Renderer Script -->
+    <script src="index.js"></script>
 </body>
 
 </html>

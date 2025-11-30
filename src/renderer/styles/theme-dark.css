@@ -1,0 +1,60 @@
+/* Dark Theme */
+
+.theme-dark {
+    --bg-primary: #0d1117;
+    --bg-secondary: #161b22;
+    --text-primary: #c9d1d9;
+    --text-secondary: #8b949e;
+    --border-color: #30363d;
+
+    /* Divider */
+    --divider-color: #30363d;
+    --divider-hover-color: #484f58;
+    --divider-active-color: #6e7681;
+
+    /* Search Panel */
+    --search-bg: #161b22;
+    --search-border: #30363d;
+
+    /* Inputs */
+    --input-bg: #0d1117;
+    --input-text: #c9d1d9;
+    --input-border: #30363d;
+    --input-focus-border: #58a6ff;
+
+    /* Buttons */
+    --button-bg: #21262d;
+    --button-text: #c9d1d9;
+    --button-border: #30363d;
+    --button-hover-bg: #30363d;
+    --button-active-bg: #484f58;
+
+    /* Code */
+    --code-bg: rgba(110, 118, 129, 0.4);
+    --code-block-bg: #161b22;
+
+    /* Markdown Elements */
+    --link-color: #58a6ff;
+    --quote-color: #8b949e;
+    --quote-border: #3b434b;
+    --hr-color: #21262d;
+
+    /* Tables */
+    --table-border: #30363d;
+    --table-header-bg: #161b22;
+    --table-row-bg: #0d1117;
+    --table-row-alt-bg: #161b22;
+}
+
+body.theme-dark {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.theme-dark #editor-pane {
+    background-color: var(--bg-primary);
+}
+
+.theme-dark #preview-pane {
+    background-color: var(--bg-primary);
+}

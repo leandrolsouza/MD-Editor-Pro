@@ -1,0 +1,60 @@
+/* Light Theme */
+
+.theme-light {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f6f8fa;
+    --text-primary: #24292e;
+    --text-secondary: #586069;
+    --border-color: #e1e4e8;
+
+    /* Divider */
+    --divider-color: #e1e4e8;
+    --divider-hover-color: #d1d5da;
+    --divider-active-color: #959da5;
+
+    /* Search Panel */
+    --search-bg: #ffffff;
+    --search-border: #d1d5da;
+
+    /* Inputs */
+    --input-bg: #ffffff;
+    --input-text: #24292e;
+    --input-border: #d1d5da;
+    --input-focus-border: #0366d6;
+
+    /* Buttons */
+    --button-bg: #fafbfc;
+    --button-text: #24292e;
+    --button-border: #d1d5da;
+    --button-hover-bg: #f3f4f6;
+    --button-active-bg: #edeff2;
+
+    /* Code */
+    --code-bg: rgba(27, 31, 35, 0.05);
+    --code-block-bg: #f6f8fa;
+
+    /* Markdown Elements */
+    --link-color: #0366d6;
+    --quote-color: #6a737d;
+    --quote-border: #dfe2e5;
+    --hr-color: #e1e4e8;
+
+    /* Tables */
+    --table-border: #dfe2e5;
+    --table-header-bg: #f6f8fa;
+    --table-row-bg: #ffffff;
+    --table-row-alt-bg: #f6f8fa;
+}
+
+body.theme-light {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.theme-light #editor-pane {
+    background-color: var(--bg-primary);
+}
+
+.theme-light #preview-pane {
+    background-color: var(--bg-primary);
+}
