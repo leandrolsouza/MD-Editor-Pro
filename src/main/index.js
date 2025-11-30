@@ -8,6 +8,7 @@ const WindowManager = require('./window');
 const FileManager = require('./file-manager');
 const Exporter = require('./exporter');
 const ConfigStore = require('./config-store');
+const { createApplicationMenu } = require('./menu');
 
 // Enable sandbox for all renderers BEFORE app.whenReady()
 // This is a critical security measure
@@ -121,6 +122,9 @@ function registerIPCHandlers() {
 app.whenReady().then(() => {
     // Register IPC handlers
     registerIPCHandlers();
+
+    // Create application menu
+    createApplicationMenu(windowManager, fileManager, exporter);
 
     windowManager.createMainWindow();
 

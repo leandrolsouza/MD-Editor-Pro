@@ -182,8 +182,14 @@
     - Test error propagation through IPC
     - _Requirements: 8.4_
 
-- [ ] 8. Implement application menu
-  - [ ] 8.1 Create Menu with File, Edit, View, and Help menus
+- [x] 8. Implement application menu
+
+
+
+
+  - [x] 8.1 Create Menu with File, Edit, View, and Help menus
+
+
     - Implement File menu (New, Open, Save, Save As, Export)
     - Implement Edit menu (Undo, Redo, Cut, Copy, Paste, Find)
     - Implement View menu (Toggle Theme, View Mode)
