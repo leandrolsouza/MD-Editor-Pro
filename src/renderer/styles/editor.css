@@ -15,4 +15,17 @@
     font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
 }
 
+/* Accessibility - Focus Indicators for Editor */
+.cm-editor.cm-focused {
+    outline: 2px solid var(--input-focus-border, #4a90e2);
+    outline-offset: -2px;
+}
+
+/* High Contrast Mode for Editor */
+@media (prefers-contrast: high) {
+    .cm-editor {
+        border: 2px solid var(--border-color, #000);
+    }
+}
+
 /* Editor will be fully styled when CodeMirror is integrated in task 12 */

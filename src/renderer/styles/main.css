@@ -167,6 +167,14 @@ body {
     background-color: var(--button-hover-bg, #e0e0e0);
 }
 
+/* Accessibility - Focus Indicators */
+button:focus-visible,
+input:focus-visible,
+.search-button:focus-visible {
+    outline: 2px solid var(--input-focus-border, #4a90e2);
+    outline-offset: 2px;
+}
+
 /* Utility Classes */
 .hidden {
     display: none !important;
@@ -175,4 +183,25 @@ body {
 .full-width {
     flex: 1 !important;
     width: 100% !important;
+}
+
+/* High Contrast Support */
+@media (prefers-contrast: high) {
+    .divider {
+        background-color: var(--text-primary, #000);
+    }
+
+    .search-input,
+    .search-button {
+        border-width: 2px;
+    }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
 }

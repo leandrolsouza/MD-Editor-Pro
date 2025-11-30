@@ -162,3 +162,26 @@
 .markdown-preview del {
     text-decoration: line-through;
 }
+
+/* Accessibility - Focus Indicators for Links */
+.markdown-preview a:focus-visible {
+    outline: 2px solid var(--input-focus-border, #4a90e2);
+    outline-offset: 2px;
+}
+
+/* High Contrast Mode for Preview */
+@media (prefers-contrast: high) {
+    .markdown-preview {
+        color: var(--text-primary, #000);
+    }
+
+    .markdown-preview a {
+        text-decoration: underline;
+        font-weight: 600;
+    }
+
+    .markdown-preview code,
+    .markdown-preview pre {
+        border: 2px solid var(--border-color, #000);
+    }
+}
