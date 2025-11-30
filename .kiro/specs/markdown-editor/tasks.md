@@ -319,8 +319,14 @@
     - Test debouncing
     - _Requirements: 2.1, 2.5_
 
-- [ ] 14. Implement SearchManager for find and replace
-  - [ ] 14.1 Create SearchManager class
+- [x] 14. Implement SearchManager for find and replace
+
+
+
+
+  - [x] 14.1 Create SearchManager class
+
+
     - Implement show/hide methods for search UI
     - Implement search method with highlighting
     - Implement navigateNext/navigatePrevious methods

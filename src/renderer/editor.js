@@ -7,6 +7,7 @@ import { EditorView, keymap } from '@codemirror/view';
 import { EditorState } from '@codemirror/state';
 import { defaultKeymap, history, historyKeymap, undo, redo } from '@codemirror/commands';
 import { markdown } from '@codemirror/lang-markdown';
+import { search, highlightSelectionMatches } from '@codemirror/search';
 
 class Editor {
     constructor() {
@@ -28,6 +29,8 @@ class Editor {
             extensions: [
                 markdown(),
                 history(),
+                search(),
+                highlightSelectionMatches(),
                 keymap.of([
                     ...defaultKeymap,
                     ...historyKeymap
