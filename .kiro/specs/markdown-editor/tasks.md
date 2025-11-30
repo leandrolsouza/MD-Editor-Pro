@@ -111,8 +111,14 @@
     - Test error handling for disk full
     - _Requirements: 3.1, 3.2, 3.3_
 
-- [ ] 5. Implement ConfigStore for settings persistence
-  - [ ] 5.1 Create ConfigStore class using electron-store
+- [x] 5. Implement ConfigStore for settings persistence
+
+
+
+
+  - [x] 5.1 Create ConfigStore class using electron-store
+
+
     - Implement get/set methods
     - Implement getTheme/setTheme methods
     - Implement getViewMode/setViewMode methods
