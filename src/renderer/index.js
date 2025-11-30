@@ -15,6 +15,7 @@ const ThemeManager = require('./theme.js');
 const ViewModeManager = require('./view-mode.js');
 const AutoSaveManager = require('./auto-save.js');
 const StatisticsCalculator = require('./statistics.js');
+const TabBar = require('./tab-bar.js');
 
 // Application state
 let editor = null;
@@ -24,11 +25,13 @@ let themeManager = null;
 let viewModeManager = null;
 let autoSaveManager = null;
 let statisticsCalculator = null;
+let tabBar = null;
 
 // Document state
 let currentFilePath = null;
 let isDirty = false;
 let lastSavedContent = '';
+let currentTabId = null;
 
 // Event listener cleanup functions
 let removeFileDroppedListener = null;
@@ -85,10 +88,30 @@ async function initialize() {
         await statisticsCalculator.initialize();
         console.log('StatisticsCalculator initialized');
 
+        // Initialize TabBar
+        const tabBarContainer = document.getElementById('tab-bar');
+        if (!tabBarContainer) {
+            throw new Error('Tab bar container not found');
+        }
+        tabBar = new TabBar(tabBarContainer);
+        tabBar.initialize();
+        console.log('TabBar initialized');
+
+        // Setup tab bar event handlers
+        setupTabBarHandlers();
+
+        // Try to restore tabs from previous session
+        await restoreTabsFromSession();
+
         // Connect editor changes to preview updates
         editor.onContentChange((content) => {
             preview.render(content);
             updateDirtyState(content);
+
+            // Update current tab content
+            if (currentTabId) {
+                window.electronAPI.updateTabContent(currentTabId, content);
+            }
         });
 
         // Setup editor scroll synchronization with preview
@@ -210,27 +233,8 @@ async function handleMenuAction(action) {
  * Handle new file action
  */
 async function handleNewFile() {
-    // Check for unsaved changes
-    if (isDirty) {
-        const shouldSave = confirm('You have unsaved changes. Do you want to save them?');
-        if (shouldSave) {
-            await handleSaveFile();
-        }
-    }
-
-    // Clear editor and reset state
-    editor.setValue('');
-    currentFilePath = null;
-    isDirty = false;
-    lastSavedContent = '';
-
-    // Update auto-save manager
-    if (autoSaveManager) {
-        autoSaveManager.setCurrentFilePath(null);
-        autoSaveManager.setLastSavedContent('');
-    }
-
-    preview.render('');
+    // Create a new tab instead of clearing current one
+    await createNewTab();
 }
 
 /**
@@ -240,20 +244,13 @@ async function handleOpenFile() {
     try {
         console.log('handleOpenFile called');
 
-        // Check for unsaved changes
-        if (isDirty) {
-            const shouldSave = confirm('You have unsaved changes. Do you want to save them?');
-            if (shouldSave) {
-                await handleSaveFile();
-            }
-        }
-
         console.log('Calling window.electronAPI.openFile()...');
         const result = await window.electronAPI.openFile();
         console.log('openFile result:', result);
 
         if (result && result.filePath && result.content !== undefined) {
-            await loadFile(result.filePath, result.content);
+            // Create a new tab for the opened file
+            await createNewTab(result.filePath, result.content);
         }
     } catch (error) {
         console.error('Error opening file:', error);
@@ -261,44 +258,7 @@ async function handleOpenFile() {
     }
 }
 
-/**
- * Load a file into the editor
- * @param {string} filePath - Path to the file
- * @param {string} content - File content (optional, will be loaded if not provided)
- */
-async function loadFile(filePath, content = null) {
-    try {
-        // If content not provided, load it
-        if (content === null) {
-            const result = await window.electronAPI.openFile();
-            if (!result || !result.content) {
-                return;
-            }
-            content = result.content;
-            filePath = result.filePath;
-        }
 
-        // Set editor content
-        editor.setValue(content);
-        currentFilePath = filePath;
-        isDirty = false;
-        lastSavedContent = content;
-
-        // Update auto-save manager
-        if (autoSaveManager) {
-            autoSaveManager.setCurrentFilePath(filePath);
-            autoSaveManager.setLastSavedContent(content);
-        }
-
-        // Update preview
-        preview.render(content);
-
-        console.log('File loaded:', filePath);
-    } catch (error) {
-        console.error('Error loading file:', error);
-        alert('Failed to load file: ' + error.message);
-    }
-}
 
 /**
  * Handle save file action
@@ -312,6 +272,12 @@ async function handleSaveFile() {
             await window.electronAPI.saveFile(currentFilePath, content);
             lastSavedContent = content;
             isDirty = false;
+
+            // Update tab state
+            if (currentTabId) {
+                await window.electronAPI.markTabModified(currentTabId, false);
+                tabBar.markTabModified(currentTabId, false);
+            }
 
             // Update auto-save manager
             if (autoSaveManager) {
@@ -341,6 +307,19 @@ async function handleSaveFileAs() {
             currentFilePath = result.filePath;
             lastSavedContent = content;
             isDirty = false;
+
+            // Update tab state
+            if (currentTabId) {
+                await window.electronAPI.updateTabFilePath(currentTabId, result.filePath);
+                await window.electronAPI.markTabModified(currentTabId, false);
+
+                // Update tab title
+                const tabResult = await window.electronAPI.getTab(currentTabId);
+                if (tabResult.success && tabResult.tab) {
+                    tabBar.updateTabTitle(currentTabId, tabResult.tab.title);
+                    tabBar.markTabModified(currentTabId, false);
+                }
+            }
 
             // Update auto-save manager
             if (autoSaveManager) {
@@ -396,6 +375,14 @@ async function handleExportPDF() {
  */
 function updateDirtyState(content) {
     isDirty = content !== lastSavedContent;
+
+    // Update tab modified indicator
+    if (currentTabId) {
+        window.electronAPI.markTabModified(currentTabId, isDirty).catch(err => {
+            console.error('Error marking tab modified:', err);
+        });
+        tabBar.markTabModified(currentTabId, isDirty);
+    }
 }
 
 /**
@@ -407,8 +394,34 @@ function setupKeyboardShortcuts() {
         const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
         const modifier = isMac ? e.metaKey : e.ctrlKey;
 
+        // Ctrl/Cmd + Tab: Next tab (Requirements: 3.7)
+        if (modifier && e.key === 'Tab' && !e.shiftKey) {
+            e.preventDefault();
+            const result = await window.electronAPI.getNextTab();
+            if (result.success && result.tabId) {
+                await switchToTab(result.tabId);
+            }
+        }
+
+        // Ctrl/Cmd + Shift + Tab: Previous tab
+        if (modifier && e.shiftKey && e.key === 'Tab') {
+            e.preventDefault();
+            const result = await window.electronAPI.getPreviousTab();
+            if (result.success && result.tabId) {
+                await switchToTab(result.tabId);
+            }
+        }
+
+        // Ctrl/Cmd + W: Close tab (Requirements: 3.8)
+        if (modifier && e.key === 'w') {
+            e.preventDefault();
+            if (currentTabId) {
+                await closeTab(currentTabId);
+            }
+        }
+
         // Ctrl/Cmd + B: Bold
-        if (modifier && e.key === 'b') {
+        if (modifier && e.key === 'b' && !e.shiftKey) {
             e.preventDefault();
             editor.applyFormatting('bold');
         }
@@ -498,23 +511,12 @@ function setupDragAndDrop() {
 
             // Check if it's a markdown file
             if (file.name.endsWith('.md') || file.name.endsWith('.markdown')) {
-                // Check for unsaved changes
-                if (isDirty) {
-                    const shouldSave = confirm('You have unsaved changes. Do you want to save them?');
-                    if (shouldSave) {
-                        await handleSaveFile();
-                    }
-                }
-
                 // Read file content
                 const reader = new FileReader();
                 reader.onload = async (event) => {
                     const content = event.target.result;
-                    editor.setValue(content);
-                    currentFilePath = file.path;
-                    isDirty = false;
-                    lastSavedContent = content;
-                    preview.render(content);
+                    // Create a new tab for the dropped file
+                    await createNewTab(file.path, content);
                     console.log('File loaded via drag-and-drop:', file.path);
                 };
                 reader.readAsText(file);
@@ -526,9 +528,182 @@ function setupDragAndDrop() {
 }
 
 /**
+ * Setup tab bar event handlers
+ */
+function setupTabBarHandlers() {
+    // Handle tab clicks
+    tabBar.onTabClick(async (tabId) => {
+        await switchToTab(tabId);
+    });
+
+    // Handle tab close
+    tabBar.onTabClose(async (tabId) => {
+        await closeTab(tabId);
+    });
+}
+
+/**
+ * Restore tabs from previous session
+ */
+async function restoreTabsFromSession() {
+    try {
+        const result = await window.electronAPI.restoreTabs();
+        if (result.success) {
+            const tabsResult = await window.electronAPI.getAllTabs();
+            if (tabsResult.success && tabsResult.tabs.length > 0) {
+                // Add tabs to UI
+                for (const tab of tabsResult.tabs) {
+                    tabBar.addTab(tab.id, tab.title, false, tab.isModified);
+                }
+
+                // Switch to active tab
+                const activeResult = await window.electronAPI.getActiveTab();
+                if (activeResult.success && activeResult.tab) {
+                    await switchToTab(activeResult.tab.id);
+                }
+
+                document.body.classList.add('has-tabs');
+                return;
+            }
+        }
+
+        // If no tabs restored, create a new empty tab
+        await createNewTab();
+    } catch (error) {
+        console.error('Error restoring tabs:', error);
+        // Create a new empty tab on error
+        await createNewTab();
+    }
+}
+
+/**
+ * Create a new tab
+ * @param {string|null} filePath - File path or null for new document
+ * @param {string} content - Document content
+ */
+async function createNewTab(filePath = null, content = '') {
+    try {
+        const result = await window.electronAPI.createTab(filePath, content);
+        if (result.success && result.tab) {
+            const tab = result.tab;
+            tabBar.addTab(tab.id, tab.title, true, tab.isModified);
+            currentTabId = tab.id;
+
+            // Load content into editor
+            editor.setValue(content);
+            currentFilePath = filePath;
+            isDirty = false;
+            lastSavedContent = content;
+
+            if (autoSaveManager) {
+                autoSaveManager.setCurrentFilePath(filePath);
+                autoSaveManager.setLastSavedContent(content);
+            }
+
+            preview.render(content);
+            document.body.classList.add('has-tabs');
+        }
+    } catch (error) {
+        console.error('Error creating tab:', error);
+        alert('Failed to create tab: ' + error.message);
+    }
+}
+
+/**
+ * Switch to a different tab
+ * @param {string} tabId - Tab ID to switch to
+ */
+async function switchToTab(tabId) {
+    try {
+        // Save current tab state before switching
+        if (currentTabId) {
+            const scrollPos = editor.getScrollPosition();
+            await window.electronAPI.updateTabScroll(currentTabId, scrollPos);
+        }
+
+        const result = await window.electronAPI.switchTab(tabId);
+        if (result.success && result.tab) {
+            const tab = result.tab;
+
+            // Update UI
+            tabBar.setActiveTab(tabId);
+            currentTabId = tabId;
+
+            // Load tab content
+            editor.setValue(tab.content);
+            currentFilePath = tab.filePath;
+            isDirty = tab.isModified;
+            lastSavedContent = tab.isModified ? '' : tab.content;
+
+            if (autoSaveManager) {
+                autoSaveManager.setCurrentFilePath(tab.filePath);
+                autoSaveManager.setLastSavedContent(tab.isModified ? '' : tab.content);
+            }
+
+            // Restore scroll position
+            if (tab.scrollPosition) {
+                editor.setScrollPosition(tab.scrollPosition);
+            }
+
+            preview.render(tab.content);
+        }
+    } catch (error) {
+        console.error('Error switching tab:', error);
+        alert('Failed to switch tab: ' + error.message);
+    }
+}
+
+/**
+ * Close a tab
+ * @param {string} tabId - Tab ID to close
+ */
+async function closeTab(tabId) {
+    try {
+        // Check if tab is modified
+        const tabResult = await window.electronAPI.getTab(tabId);
+        if (tabResult.success && tabResult.tab && tabResult.tab.isModified) {
+            const confirmed = await tabBar.showCloseConfirmation(tabResult.tab.title);
+            if (!confirmed) {
+                return;
+            }
+        }
+
+        // Close the tab
+        const result = await window.electronAPI.closeTab(tabId);
+        if (result.success) {
+            tabBar.removeTab(tabId);
+
+            // If this was the current tab, switch to another
+            if (currentTabId === tabId) {
+                const activeResult = await window.electronAPI.getActiveTab();
+                if (activeResult.success && activeResult.tab) {
+                    await switchToTab(activeResult.tab.id);
+                } else {
+                    // No tabs left, create a new one
+                    await createNewTab();
+                }
+            }
+
+            // Save tabs state
+            await window.electronAPI.saveTabs();
+        }
+    } catch (error) {
+        console.error('Error closing tab:', error);
+        alert('Failed to close tab: ' + error.message);
+    }
+}
+
+/**
  * Cleanup function for when the window is closed
  */
 function cleanup() {
+    // Save tabs before closing
+    if (window.electronAPI && window.electronAPI.saveTabs) {
+        window.electronAPI.saveTabs().catch(err => {
+            console.error('Error saving tabs on cleanup:', err);
+        });
+    }
+
     // Remove event listeners
     if (removeFileDroppedListener) {
         removeFileDroppedListener();
@@ -549,6 +724,9 @@ function cleanup() {
     }
     if (statisticsCalculator) {
         statisticsCalculator.destroy();
+    }
+    if (tabBar) {
+        tabBar.destroy();
     }
 }
 

@@ -63,6 +63,19 @@
     --status-error-bg: #4a1a1f;
     --status-error-text: #ff7b72;
     --status-error-border: #6e2a2f;
+
+    /* Tab Bar */
+    --tab-bar-bg: #161b22;
+    --tab-bar-border: #30363d;
+    --tab-bg: #0d1117;
+    --tab-hover-bg: #21262d;
+    --tab-active-bg: #0d1117;
+    --tab-active-border: #58a6ff;
+    --tab-border: #30363d;
+    --modified-indicator-color: #f39c12;
+    --close-button-hover-bg: rgba(255, 255, 255, 0.1);
+    --close-button-active-bg: rgba(255, 255, 255, 0.2);
+    --scrollbar-thumb: #484f58;
 }
 
 body.theme-dark {

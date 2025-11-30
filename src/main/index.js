@@ -8,6 +8,7 @@ const WindowManager = require('./window');
 const FileManager = require('./file-manager');
 const Exporter = require('./exporter');
 const ConfigStore = require('./config-store');
+const TabManager = require('./tab-manager');
 const { createApplicationMenu } = require('./menu');
 
 // Sandbox disabled to allow nodeIntegration in renderer
@@ -25,6 +26,9 @@ const exporter = new Exporter(windowManager);
 
 // Create config store instance
 const configStore = new ConfigStore();
+
+// Create tab manager instance
+const tabManager = new TabManager(configStore);
 
 /**
  * Register IPC handlers for all main process operations
@@ -113,6 +117,158 @@ function registerIPCHandlers() {
             return { success: true };
         } catch (error) {
             console.error('Error setting config:', error);
+            throw error;
+        }
+    });
+
+    // Tab operations
+    ipcMain.handle('tab:create', async (event, filePath, content) => {
+        try {
+            const tab = tabManager.createTab(filePath, content);
+            return { success: true, tab };
+        } catch (error) {
+            console.error('Error creating tab:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('tab:close', async (event, tabId) => {
+        try {
+            const result = tabManager.closeTab(tabId);
+            return { success: result };
+        } catch (error) {
+            console.error('Error closing tab:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('tab:switch', async (event, tabId) => {
+        try {
+            const tab = tabManager.switchTab(tabId);
+            return { success: !!tab, tab };
+        } catch (error) {
+            console.error('Error switching tab:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('tab:get', async (event, tabId) => {
+        try {
+            const tab = tabManager.getTab(tabId);
+            return { success: !!tab, tab };
+        } catch (error) {
+            console.error('Error getting tab:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('tab:get-all', async () => {
+        try {
+            const tabs = tabManager.getAllTabs();
+            return { success: true, tabs };
+        } catch (error) {
+            console.error('Error getting all tabs:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('tab:get-active', async () => {
+        try {
+            const tab = tabManager.getActiveTab();
+            const tabId = tabManager.getActiveTabId();
+            return { success: true, tab, tabId };
+        } catch (error) {
+            console.error('Error getting active tab:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('tab:mark-modified', async (event, tabId, isModified) => {
+        try {
+            const result = tabManager.markTabModified(tabId, isModified);
+            return { success: result };
+        } catch (error) {
+            console.error('Error marking tab modified:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('tab:update-content', async (event, tabId, content) => {
+        try {
+            const result = tabManager.updateTabContent(tabId, content);
+            return { success: result };
+        } catch (error) {
+            console.error('Error updating tab content:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('tab:update-scroll', async (event, tabId, position) => {
+        try {
+            const result = tabManager.updateTabScrollPosition(tabId, position);
+            return { success: result };
+        } catch (error) {
+            console.error('Error updating tab scroll:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('tab:update-cursor', async (event, tabId, position) => {
+        try {
+            const result = tabManager.updateTabCursorPosition(tabId, position);
+            return { success: result };
+        } catch (error) {
+            console.error('Error updating tab cursor:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('tab:update-filepath', async (event, tabId, filePath) => {
+        try {
+            const result = tabManager.updateTabFilePath(tabId, filePath);
+            return { success: result };
+        } catch (error) {
+            console.error('Error updating tab filepath:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('tab:save', async () => {
+        try {
+            tabManager.saveTabs();
+            return { success: true };
+        } catch (error) {
+            console.error('Error saving tabs:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('tab:restore', async () => {
+        try {
+            const result = tabManager.restoreTabs();
+            return { success: result };
+        } catch (error) {
+            console.error('Error restoring tabs:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('tab:get-next', async () => {
+        try {
+            const tabId = tabManager.getNextTabId();
+            return { success: true, tabId };
+        } catch (error) {
+            console.error('Error getting next tab:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('tab:get-previous', async () => {
+        try {
+            const tabId = tabManager.getPreviousTabId();
+            return { success: true, tabId };
+        } catch (error) {
+            console.error('Error getting previous tab:', error);
             throw error;
         }
     });

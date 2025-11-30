@@ -33,7 +33,24 @@ const electronAPI = {
         ipcRenderer.on('menu:action', subscription)
         // Return cleanup function
         return () => ipcRenderer.removeListener('menu:action', subscription)
-    }
+    },
+
+    // Tab operations
+    createTab: (filePath, content) => ipcRenderer.invoke('tab:create', filePath, content),
+    closeTab: (tabId) => ipcRenderer.invoke('tab:close', tabId),
+    switchTab: (tabId) => ipcRenderer.invoke('tab:switch', tabId),
+    getTab: (tabId) => ipcRenderer.invoke('tab:get', tabId),
+    getAllTabs: () => ipcRenderer.invoke('tab:get-all'),
+    getActiveTab: () => ipcRenderer.invoke('tab:get-active'),
+    markTabModified: (tabId, isModified) => ipcRenderer.invoke('tab:mark-modified', tabId, isModified),
+    updateTabContent: (tabId, content) => ipcRenderer.invoke('tab:update-content', tabId, content),
+    updateTabScroll: (tabId, position) => ipcRenderer.invoke('tab:update-scroll', tabId, position),
+    updateTabCursor: (tabId, position) => ipcRenderer.invoke('tab:update-cursor', tabId, position),
+    updateTabFilePath: (tabId, filePath) => ipcRenderer.invoke('tab:update-filepath', tabId, filePath),
+    saveTabs: () => ipcRenderer.invoke('tab:save'),
+    restoreTabs: () => ipcRenderer.invoke('tab:restore'),
+    getNextTab: () => ipcRenderer.invoke('tab:get-next'),
+    getPreviousTab: () => ipcRenderer.invoke('tab:get-previous')
 }
 
 // Expose API directly to window when contextIsolation is disabled
