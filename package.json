@@ -32,13 +32,13 @@
     "@codemirror/state": "^6.5.2",
     "@codemirror/view": "^6.38.8",
     "codemirror": "^6.0.2",
-    "electron": "^39.2.4",
     "electron-store": "^11.0.2",
     "highlight.js": "^11.11.1",
     "markdown-it": "^14.1.0",
     "markdown-it-task-lists": "^2.1.1"
   },
   "devDependencies": {
+    "electron": "^39.2.4",
     "electron-builder": "^26.0.12",
     "fast-check": "^4.3.0",
     "happy-dom": "^20.0.11",
@@ -99,7 +99,6 @@
         }
       ],
       "icon": "build/icon.ico",
-      "publisherName": "MD Editor Pro",
       "verifyUpdateCodeSignature": false,
       "artifactName": "${productName}-${version}-${arch}.${ext}"
     },
@@ -185,10 +184,12 @@
       "synopsis": "A cross-platform markdown editor",
       "description": "MD Editor Pro is a powerful markdown editor with live preview, CommonMark and GFM support, and export capabilities.",
       "desktop": {
-        "Name": "MD Editor Pro",
-        "Comment": "Markdown Editor",
-        "Categories": "Office;TextEditor;",
-        "MimeType": "text/markdown;text/x-markdown;"
+        "entry": {
+          "Name": "MD Editor Pro",
+          "Comment": "Markdown Editor",
+          "Categories": "Office;TextEditor;",
+          "MimeType": "text/markdown;text/x-markdown;"
+        }
       },
       "artifactName": "${productName}-${version}-${arch}.${ext}"
     }
