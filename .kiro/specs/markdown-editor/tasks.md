@@ -135,8 +135,14 @@
     - Test corrupted config handling
     - _Requirements: 6.3, 6.4_
 
-- [ ] 6. Implement Exporter for HTML and PDF export
-  - [ ] 6.1 Create Exporter class with exportToHTML and exportToPDF methods
+- [x] 6. Implement Exporter for HTML and PDF export
+
+
+
+
+  - [x] 6.1 Create Exporter class with exportToHTML and exportToPDF methods
+
+
     - Implement exportToHTML() using markdown-it to generate standalone HTML
     - Implement exportToPDF() using Electron's printToPDF API
     - Include CSS styling in HTML exports
