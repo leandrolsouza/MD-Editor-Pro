@@ -119,6 +119,6 @@ class ThemeManager {
     }
 }
 
-export default ThemeManager;
+module.exports = ThemeManager;
 
 

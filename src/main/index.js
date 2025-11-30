@@ -10,9 +10,9 @@ const Exporter = require('./exporter');
 const ConfigStore = require('./config-store');
 const { createApplicationMenu } = require('./menu');
 
-// Enable sandbox for all renderers BEFORE app.whenReady()
-// This is a critical security measure
-app.enableSandbox();
+// Sandbox disabled to allow nodeIntegration in renderer
+// Note: This is less secure and should be replaced with a bundler in production
+// app.enableSandbox();
 
 // Create window manager instance
 const windowManager = new WindowManager();
@@ -35,7 +35,10 @@ function registerIPCHandlers() {
     // File operations
     ipcMain.handle('file:open', async () => {
         try {
-            return await fileManager.openFile();
+            console.log('IPC handler file:open called');
+            const result = await fileManager.openFile();
+            console.log('fileManager.openFile result:', result);
+            return result;
         } catch (error) {
             console.error('Error opening file:', error);
             throw error;

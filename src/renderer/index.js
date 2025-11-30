@@ -4,11 +4,15 @@
  * Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 2.1, 3.4, 3.5, 7.1
  */
 
-import Editor from './editor.js';
-import Preview from './preview.js';
-import SearchManager from './search.js';
-import ThemeManager from './theme.js';
-import ViewModeManager from './view-mode.js';
+console.log('typeof require:', typeof require);
+console.log('typeof window.require:', typeof window.require);
+console.log('process:', typeof process !== 'undefined' ? process.versions : 'undefined');
+
+const Editor = require('./editor.js');
+const Preview = require('./preview.js');
+const SearchManager = require('./search.js');
+const ThemeManager = require('./theme.js');
+const ViewModeManager = require('./view-mode.js');
 
 // Application state
 let editor = null;
@@ -31,7 +35,8 @@ let removeMenuActionListener = null;
  */
 async function initialize() {
     try {
-        console.log('Initializing renderer process...');
+        console.log('=== Initializing renderer process ===');
+        console.log('window.electronAPI available:', !!window.electronAPI);
 
         // Initialize Editor
         const editorContainer = document.getElementById('editor-container');
@@ -114,6 +119,9 @@ function setupScrollSynchronization() {
  * Setup IPC event listeners for file operations and menu actions
  */
 function setupIPCListeners() {
+    console.log('Setting up IPC listeners...');
+    console.log('window.electronAPI:', window.electronAPI);
+
     // Listen for file dropped events
     removeFileDroppedListener = window.electronAPI.onFileDropped(async (filePath) => {
         console.log('File dropped:', filePath);
@@ -122,9 +130,11 @@ function setupIPCListeners() {
 
     // Listen for menu action events
     removeMenuActionListener = window.electronAPI.onMenuAction(async (action) => {
-        console.log('Menu action:', action);
+        console.log('Menu action received:', action);
         await handleMenuAction(action);
     });
+
+    console.log('IPC listeners setup complete');
 }
 
 /**
@@ -134,43 +144,43 @@ function setupIPCListeners() {
 async function handleMenuAction(action) {
     try {
         switch (action) {
-            case 'file:new':
+            case 'new':
                 await handleNewFile();
                 break;
-            case 'file:open':
+            case 'open':
                 await handleOpenFile();
                 break;
-            case 'file:save':
+            case 'save':
                 await handleSaveFile();
                 break;
-            case 'file:save-as':
+            case 'save-as':
                 await handleSaveFileAs();
                 break;
-            case 'export:html':
+            case 'export-html':
                 await handleExportHTML();
                 break;
-            case 'export:pdf':
+            case 'export-pdf':
                 await handleExportPDF();
                 break;
-            case 'edit:undo':
+            case 'undo':
                 editor.undo();
                 break;
-            case 'edit:redo':
+            case 'redo':
                 editor.redo();
                 break;
-            case 'edit:find':
+            case 'find':
                 searchManager.show();
                 break;
-            case 'view:toggle-theme':
+            case 'toggle-theme':
                 await themeManager.toggleTheme();
                 break;
-            case 'view:mode-editor':
+            case 'view-mode-editor':
                 await viewModeManager.setViewMode('editor');
                 break;
-            case 'view:mode-preview':
+            case 'view-mode-preview':
                 await viewModeManager.setViewMode('preview');
                 break;
-            case 'view:mode-split':
+            case 'view-mode-split':
                 await viewModeManager.setViewMode('split');
                 break;
             default:
@@ -207,6 +217,8 @@ async function handleNewFile() {
  */
 async function handleOpenFile() {
     try {
+        console.log('handleOpenFile called');
+
         // Check for unsaved changes
         if (isDirty) {
             const shouldSave = confirm('You have unsaved changes. Do you want to save them?');
@@ -215,7 +227,10 @@ async function handleOpenFile() {
             }
         }
 
+        console.log('Calling window.electronAPI.openFile()...');
         const result = await window.electronAPI.openFile();
+        console.log('openFile result:', result);
+
         if (result && result.filePath && result.content !== undefined) {
             await loadFile(result.filePath, result.content);
         }

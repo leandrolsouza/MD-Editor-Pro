@@ -3,7 +3,7 @@
  * Provides methods for rendering markdown and scroll synchronization
  */
 
-import { renderMarkdown } from './markdown-parser.js';
+const { renderMarkdown } = require('./markdown-parser.js');
 
 class Preview {
     constructor() {
@@ -143,4 +143,4 @@ class Preview {
     }
 }
 
-export default Preview;
+module.exports = Preview;

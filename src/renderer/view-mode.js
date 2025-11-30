@@ -137,4 +137,4 @@ class ViewModeManager {
     }
 }
 
-export default ViewModeManager;
+module.exports = ViewModeManager;

@@ -3,9 +3,9 @@
  * Configures markdown-it with CommonMark and GFM support
  */
 
-import markdownit from 'markdown-it';
-import markdownitTaskLists from 'markdown-it-task-lists';
-import hljs from 'highlight.js';
+const markdownit = require('markdown-it');
+const markdownitTaskLists = require('markdown-it-task-lists');
+const hljs = require('highlight.js');
 
 /**
  * Creates and configures a markdown-it instance with:
@@ -75,7 +75,7 @@ function renderMarkdown(markdown) {
     return parser.render(markdown);
 }
 
-export {
+module.exports = {
     createMarkdownParser,
     getMarkdownParser,
     renderMarkdown

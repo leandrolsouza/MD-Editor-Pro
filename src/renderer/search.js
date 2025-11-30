@@ -3,8 +3,7 @@
  * Integrates with CodeMirror 6 search functionality
  */
 
-import { searchKeymap, highlightSelectionMatches } from '@codemirror/search';
-import { SearchQuery, setSearchQuery, findNext, findPrevious, replaceNext, replaceAll } from '@codemirror/search';
+const { searchKeymap, highlightSelectionMatches, SearchQuery, setSearchQuery, findNext, findPrevious, replaceNext, replaceAll } = require('@codemirror/search');
 
 class SearchManager {
     constructor(editor) {
@@ -411,4 +410,4 @@ class SearchManager {
     }
 }
 
-export default SearchManager;
+module.exports = SearchManager;

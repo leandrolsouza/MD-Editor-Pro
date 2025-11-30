@@ -22,10 +22,11 @@ class WindowManager {
             show: false, // Use ready-to-show event for graceful display
             webPreferences: {
                 preload: path.join(__dirname, '../preload/index.js'),
-                contextIsolation: true,        // REQUIRED: Isolate preload context
-                nodeIntegration: false,         // REQUIRED: Disable Node in renderer
-                sandbox: true,                  // REQUIRED: Enable sandbox
-                webSecurity: true,              // REQUIRED: Enable web security
+                contextIsolation: false,        // Disable to allow require in renderer
+                nodeIntegration: true,          // Enable Node to use require with node_modules
+                nodeIntegrationInWorker: false,
+                sandbox: false,                 // Disable sandbox to allow nodeIntegration
+                webSecurity: true,              // Enable web security
                 allowRunningInsecureContent: false,
                 experimentalFeatures: false
             }

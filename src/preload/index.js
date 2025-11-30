@@ -1,13 +1,11 @@
-const { contextBridge, ipcRenderer } = require('electron')
+const { ipcRenderer } = require('electron')
 
 /**
- * Secure preload script using contextBridge
- * Exposes a limited, safe API to the renderer process
- * Never exposes the full ipcRenderer module
+ * Preload script that exposes API to renderer process
+ * When contextIsolation is disabled, we expose directly to window
  */
 
-// Expose secure API via contextBridge
-contextBridge.exposeInMainWorld('electronAPI', {
+const electronAPI = {
     // File operations - using invoke for async request-response
     openFile: () => ipcRenderer.invoke('file:open'),
     saveFile: (filePath, content) => ipcRenderer.invoke('file:save', filePath, content),
@@ -36,4 +34,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
         // Return cleanup function
         return () => ipcRenderer.removeListener('menu:action', subscription)
     }
-})
+}
+
+// Expose API directly to window when contextIsolation is disabled
+window.electronAPI = electronAPI

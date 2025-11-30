@@ -3,11 +3,11 @@
  * Provides methods for text manipulation, formatting, and undo/redo
  */
 
-import { EditorView, keymap } from '@codemirror/view';
-import { EditorState } from '@codemirror/state';
-import { defaultKeymap, history, historyKeymap, undo, redo } from '@codemirror/commands';
-import { markdown } from '@codemirror/lang-markdown';
-import { search, highlightSelectionMatches } from '@codemirror/search';
+const { EditorView, keymap } = require('@codemirror/view');
+const { EditorState } = require('@codemirror/state');
+const { defaultKeymap, history, historyKeymap, undo, redo } = require('@codemirror/commands');
+const { markdown } = require('@codemirror/lang-markdown');
+const { search, highlightSelectionMatches } = require('@codemirror/search');
 
 class Editor {
     constructor() {
@@ -233,4 +233,4 @@ class Editor {
     }
 }
 
-export default Editor;
+module.exports = Editor;

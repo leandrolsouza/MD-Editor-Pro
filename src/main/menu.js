@@ -50,8 +50,11 @@ function createApplicationMenu(windowManager, fileManager, exporter) {
                     label: 'Open...',
                     accelerator: isMac ? 'Cmd+O' : 'Ctrl+O',
                     click: () => {
+                        console.log('Open menu clicked');
                         const mainWindow = windowManager.getMainWindow();
+                        console.log('Main window:', mainWindow ? 'exists' : 'null');
                         if (mainWindow) {
+                            console.log('Sending menu:action open');
                             mainWindow.webContents.send('menu:action', 'open');
                         }
                     }
