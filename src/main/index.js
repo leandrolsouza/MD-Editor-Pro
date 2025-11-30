@@ -6,6 +6,8 @@
 const { app, ipcMain } = require('electron');
 const WindowManager = require('./window');
 const FileManager = require('./file-manager');
+const Exporter = require('./exporter');
+const ConfigStore = require('./config-store');
 
 // Enable sandbox for all renderers BEFORE app.whenReady()
 // This is a critical security measure
@@ -17,8 +19,16 @@ const windowManager = new WindowManager();
 // Create file manager instance
 const fileManager = new FileManager(windowManager);
 
+// Create exporter instance
+const exporter = new Exporter(windowManager);
+
+// Create config store instance
+const configStore = new ConfigStore();
+
 /**
- * Register IPC handlers for file operations
+ * Register IPC handlers for all main process operations
+ * Implements proper error handling for all handlers
+ * Requirements: 3.1, 3.2, 3.3, 5.1, 5.2, 6.3, 8.4
  */
 function registerIPCHandlers() {
     // File operations
@@ -47,6 +57,58 @@ function registerIPCHandlers() {
             return { success: true, filePath };
         } catch (error) {
             console.error('Error saving file as:', error);
+            throw error;
+        }
+    });
+
+    // Export operations
+    ipcMain.handle('export:html', async (event, content, theme = 'light') => {
+        try {
+            const filePath = await exporter.exportToHTML(content, theme);
+            if (filePath) {
+                return { success: true, filePath };
+            } else {
+                // User cancelled the export
+                return { success: false, cancelled: true };
+            }
+        } catch (error) {
+            console.error('Error exporting to HTML:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('export:pdf', async (event, content, theme = 'light') => {
+        try {
+            const filePath = await exporter.exportToPDF(content, theme);
+            if (filePath) {
+                return { success: true, filePath };
+            } else {
+                // User cancelled the export
+                return { success: false, cancelled: true };
+            }
+        } catch (error) {
+            console.error('Error exporting to PDF:', error);
+            throw error;
+        }
+    });
+
+    // Config operations
+    ipcMain.handle('config:get', async (event, key) => {
+        try {
+            const value = configStore.get(key);
+            return { success: true, value };
+        } catch (error) {
+            console.error('Error getting config:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('config:set', async (event, key, value) => {
+        try {
+            configStore.set(key, value);
+            return { success: true };
+        } catch (error) {
+            console.error('Error setting config:', error);
             throw error;
         }
     });

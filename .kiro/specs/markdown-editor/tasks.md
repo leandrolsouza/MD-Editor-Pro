@@ -163,8 +163,13 @@
     - Test error handling
     - _Requirements: 5.1, 5.2_
 
-- [ ] 7. Register IPC handlers in main process
-  - [ ] 7.1 Create IPC handler registration function
+- [x] 7. Register IPC handlers in main process
+
+
+
+
+  - [x] 7.1 Create IPC handler registration function
+
     - Register handlers for file:open, file:save, file:save-as
     - Register handlers for export:html, export:pdf
     - Register handlers for config:get, config:set
