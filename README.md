@@ -39,15 +39,37 @@ npm test
 
 ### Building
 
+Before building, ensure you have icon files in the `build/` directory:
+- `icon.ico` for Windows
+- `icon.icns` for macOS  
+- `icon.png` for Linux
+
+See `build/README.md` for instructions on creating icons.
+
 ```bash
 # Build for all platforms
 npm run build
 
 # Build for specific platform
-npm run build:win
-npm run build:mac
-npm run build:linux
+npm run build:win    # Windows (NSIS installer + portable)
+npm run build:mac    # macOS (DMG + ZIP for x64 and ARM64)
+npm run build:linux  # Linux (AppImage, DEB, RPM)
 ```
+
+Build outputs will be in the `dist/` directory.
+
+#### Build Targets
+
+- **Windows**: NSIS installer (x64, ia32) and portable executable (x64)
+- **macOS**: DMG and ZIP archives (x64 and ARM64/Apple Silicon)
+- **Linux**: AppImage, DEB, and RPM packages (x64)
+
+#### Auto-Updates
+
+The application is configured for auto-updates via GitHub releases. To enable:
+1. Set up a GitHub repository
+2. Configure GitHub token in environment
+3. Publish releases using `npm run build` with proper version tags
 
 ## Project Structure
 

@@ -3,7 +3,14 @@ node_modules/
 
 # Build output
 dist/
-build/
+
+# Build resources (but keep structure)
+build/*.ico
+build/*.icns
+build/*.png
+!build/.gitkeep
+!build/README.md
+!build/entitlements.mac.plist
 
 # Logs
 *.log
