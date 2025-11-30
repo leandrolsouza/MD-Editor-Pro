@@ -24,6 +24,13 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@codemirror/commands": "^6.10.0",
+    "@codemirror/history": "^0.19.2",
+    "@codemirror/lang-markdown": "^6.5.0",
+    "@codemirror/language": "^6.11.3",
+    "@codemirror/search": "^6.5.11",
+    "@codemirror/state": "^6.5.2",
+    "@codemirror/view": "^6.38.8",
     "codemirror": "^6.0.2",
     "electron": "^39.2.4",
     "electron-store": "^11.0.2",
@@ -34,6 +41,8 @@
   "devDependencies": {
     "electron-builder": "^26.0.12",
     "fast-check": "^4.3.0",
+    "happy-dom": "^20.0.11",
+    "jsdom": "^27.2.0",
     "vitest": "^4.0.14"
   },
   "build": {

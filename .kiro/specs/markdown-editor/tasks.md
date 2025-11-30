@@ -256,8 +256,14 @@
     - Test code block highlighting
     - _Requirements: 2.2, 2.3, 2.4_
 
-- [ ] 12. Implement Editor component with CodeMirror 6
-  - [ ] 12.1 Create Editor class with CodeMirror integration
+- [x] 12. Implement Editor component with CodeMirror 6
+
+
+
+
+  - [x] 12.1 Create Editor class with CodeMirror integration
+
+
     - Initialize CodeMirror 6 with markdown language support
     - Implement getValue/setValue methods
     - Implement insertText method for paste functionality
