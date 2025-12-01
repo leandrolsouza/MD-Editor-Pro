@@ -89,6 +89,12 @@ module.exports = [
             'custom/error-logging': 'warn',
             'custom/promise-rejection-handler': 'warn',
 
+            // Electron security rules (Requirements 5.1, 5.2, 5.3, 5.4, 5.5)
+            'custom/ipc-handler-pattern': 'error',
+            'custom/contextbridge-usage': 'warn',
+            'custom/renderer-node-api': 'error',
+            'custom/electronapi-interface': 'error',
+
             // Code formatting rules (Requirements 2.1, 2.2, 2.3, 2.4, 2.5)
             // Indentation (Requirement 2.1)
             'indent': ['error', 4, {
