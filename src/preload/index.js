@@ -85,7 +85,10 @@ const electronAPI = {
         ipcRenderer.on('advanced-markdown:settings-changed', subscription)
         // Return cleanup function
         return () => ipcRenderer.removeListener('advanced-markdown:settings-changed', subscription)
-    }
+    },
+
+    // Shell operations
+    openExternal: (url) => ipcRenderer.invoke('shell:open-external', url)
 }
 
 // Expose API directly to window when contextIsolation is disabled

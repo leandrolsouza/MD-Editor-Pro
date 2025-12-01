@@ -517,6 +517,18 @@ function registerIPCHandlers() {
             throw error;
         }
     });
+
+    // Shell operations
+    ipcMain.handle('shell:open-external', async (event, url) => {
+        try {
+            const { shell } = require('electron');
+            await shell.openExternal(url);
+            return { success: true };
+        } catch (error) {
+            console.error('Error opening external URL:', error);
+            throw error;
+        }
+    });
 }
 
 /**
