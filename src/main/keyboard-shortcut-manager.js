@@ -118,7 +118,7 @@ class KeyboardShortcutManager {
      * @throws {Error} If actionId is invalid or keyBinding is empty
      */
     setShortcut(actionId, keyBinding) {
-        if (!this.defaultShortcuts.hasOwnProperty(actionId)) {
+        if (!Object.prototype.hasOwnProperty.call(this.defaultShortcuts, actionId)) {
             throw new Error(`Invalid action ID: ${actionId}`);
         }
 
@@ -134,7 +134,7 @@ class KeyboardShortcutManager {
      * @param {string} actionId - Action identifier
      */
     resetShortcut(actionId) {
-        if (!this.defaultShortcuts.hasOwnProperty(actionId)) {
+        if (!Object.prototype.hasOwnProperty.call(this.defaultShortcuts, actionId)) {
             throw new Error(`Invalid action ID: ${actionId}`);
         }
 

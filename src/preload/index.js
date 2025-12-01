@@ -91,7 +91,14 @@ const electronAPI = {
     },
 
     // Shell operations
-    openExternal: (url) => ipcRenderer.invoke('shell:open-external', url)
+    openExternal: (url) => ipcRenderer.invoke('shell:open-external', url),
+
+    // System information
+    getVersions: () => ({
+        electron: process.versions.electron || 'N/A',
+        chrome: process.versions.chrome || 'N/A',
+        node: process.versions.node || 'N/A'
+    })
 };
 
 // Expose API directly to window when contextIsolation is disabled

@@ -6,7 +6,6 @@
 
 console.log('typeof require:', typeof require);
 console.log('typeof window.require:', typeof window.require);
-console.log('process:', typeof process !== 'undefined' ? process.versions : 'undefined');
 
 const Editor = require('./editor.js');
 const Preview = require('./preview.js');
@@ -175,7 +174,11 @@ async function initialize() {
         // Initialize TemplateUI
         templateUI = new TemplateUI();
         templateUI.onInsert(async (template, mode) => {
-            await handleTemplateInsert(template, mode);
+            try {
+                await handleTemplateInsert(template, mode);
+            } catch (error) {
+                console.error('Failed to insert template:', error);
+            }
         });
         // Connect TemplateUI to FormattingToolbar
         formattingToolbar.connectTemplateUI(templateUI);
@@ -184,29 +187,49 @@ async function initialize() {
         // Initialize SnippetManager (Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6)
         snippetManager = new SnippetManager(editor, {
             getCustomSnippets: async () => {
-                const result = await window.electronAPI.getConfig('customSnippets');
+                try {
+                    const result = await window.electronAPI.getConfig('customSnippets');
 
-                return result || [];
+                    return result || [];
+                } catch (error) {
+                    console.error('Failed to get custom snippets:', error);
+                    return [];
+                }
             },
             addCustomSnippet: async (snippet) => {
-                const snippets = await window.electronAPI.getConfig('customSnippets') || [];
+                try {
+                    const snippets = await window.electronAPI.getConfig('customSnippets') || [];
 
-                snippets.push(snippet);
-                await window.electronAPI.setConfig('customSnippets', snippets);
+                    snippets.push(snippet);
+                    await window.electronAPI.setConfig('customSnippets', snippets);
+                } catch (error) {
+                    console.error('Failed to add custom snippet:', error);
+                    throw error;
+                }
             },
             deleteCustomSnippet: async (trigger) => {
-                const snippets = await window.electronAPI.getConfig('customSnippets') || [];
-                const filtered = snippets.filter(s => s.trigger !== trigger);
+                try {
+                    const snippets = await window.electronAPI.getConfig('customSnippets') || [];
+                    const filtered = snippets.filter(s => s.trigger !== trigger);
 
-                await window.electronAPI.setConfig('customSnippets', filtered);
+                    await window.electronAPI.setConfig('customSnippets', filtered);
+                } catch (error) {
+                    console.error('Failed to delete custom snippet:', error);
+                    throw error;
+                }
             },
             updateCustomSnippet: async (trigger, updates) => {
-                const snippets = await window.electronAPI.getConfig('customSnippets') || [];
-                const index = snippets.findIndex(s => s.trigger === trigger);
+                try {
+                    const snippets = await window.electronAPI.getConfig('customSnippets') || [];
+                    const index = snippets.findIndex(s => s.trigger === trigger);
 
-                if (index !== -1) {
-                    snippets[index] = { ...snippets[index], ...updates };
-                    await window.electronAPI.setConfig('customSnippets', snippets);
+                    if (index !== -1) {
+                        snippets[index] = { ...snippets[index], ...updates };
+                        await window.electronAPI.setConfig('customSnippets', snippets);
+                    }
+                } catch (error) {
+                    console.error('Failed to update custom snippet:', error);
+                    throw error;
                 }
             }
         });
@@ -312,7 +335,14 @@ function setupIPCListeners() {
     // Listen for file dropped events
     removeFileDroppedListener = window.electronAPI.onFileDropped(async (filePath) => {
         console.log('File dropped:', filePath);
-        await loadFile(filePath);
+        // Load the dropped file by reading it and setting content
+        const result = await window.electronAPI.readFile(filePath);
+
+        if (result && result.success) {
+            currentFilePath = filePath;
+            editor.setContent(result.content);
+            // Title is managed by tab bar
+        }
     });
 
     // Listen for menu action events
@@ -440,8 +470,13 @@ async function handleMenuAction(action) {
  * Handle new file action
  */
 async function handleNewFile() {
-    // Create a new tab instead of clearing current one
-    await createNewTab();
+    try {
+        // Create a new tab instead of clearing current one
+        await createNewTab();
+    } catch (error) {
+        console.error('Failed to create new file:', error);
+        alert('Failed to create new file. Please try again.');
+    }
 }
 
 /**
@@ -598,107 +633,111 @@ function updateDirtyState(content) {
  */
 function setupKeyboardShortcuts() {
     document.addEventListener('keydown', async (e) => {
-        // Detect platform (Ctrl on Windows/Linux, Cmd on macOS)
-        const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-        const modifier = isMac ? e.metaKey : e.ctrlKey;
+        try {
+            // Detect platform (Ctrl on Windows/Linux, Cmd on macOS)
+            const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+            const modifier = isMac ? e.metaKey : e.ctrlKey;
 
-        // Ctrl/Cmd + Tab: Next tab (Requirements: 3.7)
-        if (modifier && e.key === 'Tab' && !e.shiftKey) {
-            e.preventDefault();
-            const result = await window.electronAPI.getNextTab();
-
-            if (result.success && result.tabId) {
-                await switchToTab(result.tabId);
-            }
-        }
-
-        // Ctrl/Cmd + Shift + Tab: Previous tab
-        if (modifier && e.shiftKey && e.key === 'Tab') {
-            e.preventDefault();
-            const result = await window.electronAPI.getPreviousTab();
-
-            if (result.success && result.tabId) {
-                await switchToTab(result.tabId);
-            }
-        }
-
-        // Ctrl/Cmd + W: Close tab (Requirements: 3.8)
-        if (modifier && e.key === 'w') {
-            e.preventDefault();
-            if (currentTabId) {
-                await closeTab(currentTabId);
-            }
-        }
-
-        // Ctrl/Cmd + B: Bold (Requirements: 1.5)
-        if (modifier && e.key === 'b' && !e.shiftKey) {
-            e.preventDefault();
-            editor.applyFormatting('bold');
-        }
-
-        // Ctrl/Cmd + I: Italic (Requirements: 2.5)
-        if (modifier && e.key === 'i') {
-            e.preventDefault();
-            editor.applyFormatting('italic');
-        }
-
-        // Ctrl/Cmd + `: Inline code (Requirements: 7.5)
-        if (modifier && e.key === '`') {
-            e.preventDefault();
-            editor.applyFormatting('code');
-        }
-
-        // Ctrl/Cmd + F: Find
-        if (modifier && e.key === 'f') {
-            e.preventDefault();
-            searchManager.show();
-        }
-
-        // Ctrl/Cmd + Z: Undo
-        if (modifier && e.key === 'z' && !e.shiftKey) {
-            e.preventDefault();
-            editor.undo();
-        }
-
-        // Ctrl/Cmd + Y or Ctrl/Cmd + Shift + Z: Redo
-        if ((modifier && e.key === 'y') || (modifier && e.shiftKey && e.key === 'z')) {
-            e.preventDefault();
-            editor.redo();
-        }
-
-        // Ctrl/Cmd + S: Save
-        if (modifier && e.key === 's') {
-            e.preventDefault();
-            await handleSaveFile();
-        }
-
-        // Ctrl/Cmd + O: Open
-        if (modifier && e.key === 'o') {
-            e.preventDefault();
-            await handleOpenFile();
-        }
-
-        // Ctrl/Cmd + N: New
-        if (modifier && e.key === 'n') {
-            e.preventDefault();
-            await handleNewFile();
-        }
-
-        // Escape: Close search if open, or exit focus mode
-        if (e.key === 'Escape') {
-            if (searchManager.isVisible()) {
+            // Ctrl/Cmd + Tab: Next tab (Requirements: 3.7)
+            if (modifier && e.key === 'Tab' && !e.shiftKey) {
                 e.preventDefault();
-                searchManager.hide();
-            }
-            // Focus mode handles its own Escape key
-        }
+                const result = await window.electronAPI.getNextTab();
 
-        // F11: Toggle focus mode
-        if (e.key === 'F11') {
-            e.preventDefault();
-            if (focusMode) {
-                focusMode.toggle();
+                if (result.success && result.tabId) {
+                    await switchToTab(result.tabId);
+                }
             }
+
+            // Ctrl/Cmd + Shift + Tab: Previous tab
+            if (modifier && e.shiftKey && e.key === 'Tab') {
+                e.preventDefault();
+                const result = await window.electronAPI.getPreviousTab();
+
+                if (result.success && result.tabId) {
+                    await switchToTab(result.tabId);
+                }
+            }
+
+            // Ctrl/Cmd + W: Close tab (Requirements: 3.8)
+            if (modifier && e.key === 'w') {
+                e.preventDefault();
+                if (currentTabId) {
+                    await closeTab(currentTabId);
+                }
+            }
+
+            // Ctrl/Cmd + B: Bold (Requirements: 1.5)
+            if (modifier && e.key === 'b' && !e.shiftKey) {
+                e.preventDefault();
+                editor.applyFormatting('bold');
+            }
+
+            // Ctrl/Cmd + I: Italic (Requirements: 2.5)
+            if (modifier && e.key === 'i') {
+                e.preventDefault();
+                editor.applyFormatting('italic');
+            }
+
+            // Ctrl/Cmd + `: Inline code (Requirements: 7.5)
+            if (modifier && e.key === '`') {
+                e.preventDefault();
+                editor.applyFormatting('code');
+            }
+
+            // Ctrl/Cmd + F: Find
+            if (modifier && e.key === 'f') {
+                e.preventDefault();
+                searchManager.show();
+            }
+
+            // Ctrl/Cmd + Z: Undo
+            if (modifier && e.key === 'z' && !e.shiftKey) {
+                e.preventDefault();
+                editor.undo();
+            }
+
+            // Ctrl/Cmd + Y or Ctrl/Cmd + Shift + Z: Redo
+            if ((modifier && e.key === 'y') || (modifier && e.shiftKey && e.key === 'z')) {
+                e.preventDefault();
+                editor.redo();
+            }
+
+            // Ctrl/Cmd + S: Save
+            if (modifier && e.key === 's') {
+                e.preventDefault();
+                await handleSaveFile();
+            }
+
+            // Ctrl/Cmd + O: Open
+            if (modifier && e.key === 'o') {
+                e.preventDefault();
+                await handleOpenFile();
+            }
+
+            // Ctrl/Cmd + N: New
+            if (modifier && e.key === 'n') {
+                e.preventDefault();
+                await handleNewFile();
+            }
+
+            // Escape: Close search if open, or exit focus mode
+            if (e.key === 'Escape') {
+                if (searchManager.isVisible()) {
+                    e.preventDefault();
+                    searchManager.hide();
+                }
+                // Focus mode handles its own Escape key
+            }
+
+            // F11: Toggle focus mode
+            if (e.key === 'F11') {
+                e.preventDefault();
+                if (focusMode) {
+                    focusMode.toggle();
+                }
+            }
+        } catch (error) {
+            console.error('Keyboard shortcut error:', error);
         }
     });
 }
@@ -743,11 +782,16 @@ function setupDragAndDrop() {
                 const reader = new FileReader();
 
                 reader.onload = async (event) => {
-                    const content = event.target.result;
+                    try {
+                        const content = event.target.result;
 
-                    // Create a new tab for the dropped file
-                    await createNewTab(file.path, content);
-                    console.log('File loaded via drag-and-drop:', file.path);
+                        // Create a new tab for the dropped file
+                        await createNewTab(file.path, content);
+                        console.log('File loaded via drag-and-drop:', file.path);
+                    } catch (error) {
+                        console.error('Failed to load dropped file:', error);
+                        alert('Failed to load file. Please try again.');
+                    }
                 };
                 reader.readAsText(file);
             } else {
@@ -978,13 +1022,13 @@ function showAboutDialog() {
         </p>
         <div style="margin: 24px 0; padding: 16px; background: var(--bg-secondary, #f5f5f5); border-radius: 4px;">
             <p style="margin: 0 0 8px 0; font-size: 12px; color: var(--text-secondary, #666);">
-                <strong>Electron:</strong> ${process.versions.electron || 'N/A'}
+                <strong>Electron:</strong> ${window.electronAPI.getVersions().electron}
             </p>
             <p style="margin: 0 0 8px 0; font-size: 12px; color: var(--text-secondary, #666);">
-                <strong>Chrome:</strong> ${process.versions.chrome || 'N/A'}
+                <strong>Chrome:</strong> ${window.electronAPI.getVersions().chrome}
             </p>
             <p style="margin: 0; font-size: 12px; color: var(--text-secondary, #666);">
-                <strong>Node.js:</strong> ${process.versions.node || 'N/A'}
+                <strong>Node.js:</strong> ${window.electronAPI.getVersions().node}
             </p>
         </div>
         <div style="margin: 0 0 24px 0;">
@@ -1045,13 +1089,21 @@ function showAboutDialog() {
 
     // Open external links
     document.getElementById('github-link').addEventListener('click', async (e) => {
-        e.preventDefault();
-        await window.electronAPI.openExternal('https://github.com/leandrolsouza/MD-Editor-Pro');
+        try {
+            e.preventDefault();
+            await window.electronAPI.openExternal('https://github.com/leandrolsouza/MD-Editor-Pro');
+        } catch (error) {
+            console.error('Failed to open external link:', error);
+        }
     });
 
     document.getElementById('linkedin-link').addEventListener('click', async (e) => {
-        e.preventDefault();
-        await window.electronAPI.openExternal('https://www.linkedin.com/in/leandrolsouza/');
+        try {
+            e.preventDefault();
+            await window.electronAPI.openExternal('https://www.linkedin.com/in/leandrolsouza/');
+        } catch (error) {
+            console.error('Failed to open external link:', error);
+        }
     });
 
     overlay.addEventListener('click', (e) => {

@@ -140,34 +140,39 @@ class FileManager {
      * @throws {Error} If file writing fails
      */
     async saveFileAs(content) {
-        const window = this.windowManager.getMainWindow();
+        try {
+            const window = this.windowManager.getMainWindow();
 
-        if (!window) {
-            throw new Error('No window available for dialog');
+            if (!window) {
+                throw new Error('No window available for dialog');
+            }
+
+            // Show save dialog
+            const result = await dialog.showSaveDialog(window, {
+                title: 'Save Markdown File',
+                defaultPath: 'untitled.md',
+                filters: [
+                    { name: 'Markdown Files', extensions: ['md', 'markdown'] },
+                    { name: 'Text Files', extensions: ['txt'] },
+                    { name: 'All Files', extensions: ['*'] }
+                ]
+            });
+
+            // User cancelled the dialog
+            if (result.canceled || !result.filePath) {
+                return null;
+            }
+
+            const filePath = result.filePath;
+
+            // Save the file
+            await this.saveFile(filePath, content);
+
+            return filePath;
+        } catch (error) {
+            console.error('Error in saveFileAs:', error);
+            throw error;
         }
-
-        // Show save dialog
-        const result = await dialog.showSaveDialog(window, {
-            title: 'Save Markdown File',
-            defaultPath: 'untitled.md',
-            filters: [
-                { name: 'Markdown Files', extensions: ['md', 'markdown'] },
-                { name: 'Text Files', extensions: ['txt'] },
-                { name: 'All Files', extensions: ['*'] }
-            ]
-        });
-
-        // User cancelled the dialog
-        if (result.canceled || !result.filePath) {
-            return null;
-        }
-
-        const filePath = result.filePath;
-
-        // Save the file
-        await this.saveFile(filePath, content);
-
-        return filePath;
     }
 
     /**
@@ -175,23 +180,28 @@ class FileManager {
      * @returns {Promise<number>} The button index clicked (0: Save, 1: Don't Save, 2: Cancel)
      */
     async showUnsavedChangesDialog() {
-        const window = this.windowManager.getMainWindow();
+        try {
+            const window = this.windowManager.getMainWindow();
 
-        if (!window) {
-            throw new Error('No window available for dialog');
+            if (!window) {
+                throw new Error('No window available for dialog');
+            }
+
+            const result = await dialog.showMessageBox(window, {
+                type: 'question',
+                buttons: ['Save', "Don't Save", 'Cancel'],
+                defaultId: 0,
+                cancelId: 2,
+                title: 'Unsaved Changes',
+                message: 'Do you want to save the changes you made?',
+                detail: 'Your changes will be lost if you don\'t save them.'
+            });
+
+            return result.response;
+        } catch (error) {
+            console.error('Error in showUnsavedChangesDialog:', error);
+            throw error;
         }
-
-        const result = await dialog.showMessageBox(window, {
-            type: 'question',
-            buttons: ['Save', "Don't Save", 'Cancel'],
-            defaultId: 0,
-            cancelId: 2,
-            title: 'Unsaved Changes',
-            message: 'Do you want to save the changes you made?',
-            detail: 'Your changes will be lost if you don\'t save them.'
-        });
-
-        return result.response;
     }
 
     /**
@@ -208,6 +218,15 @@ class FileManager {
      */
     setCurrentFilePath(filePath) {
         this.currentFilePath = filePath;
+    }
+
+    /**
+     * Cleanup method to release resources
+     * FileManager doesn't hold persistent resources, but this method
+     * is provided for consistency with the component pattern
+     */
+    cleanup() {
+        this.currentFilePath = null;
     }
 }
 

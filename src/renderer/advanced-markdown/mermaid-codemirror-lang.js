@@ -203,7 +203,7 @@ const mermaidLanguage = StreamLanguage.define({
             if (stream.match(keyword, false)) {
                 const next = stream.string.charAt(stream.pos + keyword.length);
 
-                if (!next || /\s/.test(next) || /[:\[\]]/.test(next)) {
+                if (!next || /\s/.test(next) || /[:[\]]/.test(next)) {
                     stream.match(keyword);
                     return 'keyword';
                 }
@@ -215,7 +215,7 @@ const mermaidLanguage = StreamLanguage.define({
             if (stream.match(keyword, false)) {
                 const next = stream.string.charAt(stream.pos + keyword.length);
 
-                if (!next || /\s/.test(next) || /[:\[\]]/.test(next)) {
+                if (!next || /\s/.test(next) || /[:[\]]/.test(next)) {
                     stream.match(keyword);
                     return 'keyword';
                 }
@@ -227,7 +227,7 @@ const mermaidLanguage = StreamLanguage.define({
             if (stream.match(keyword, false)) {
                 const next = stream.string.charAt(stream.pos + keyword.length);
 
-                if (!next || /\s/.test(next) || /[:\[\]]/.test(next)) {
+                if (!next || /\s/.test(next) || /[:[\]]/.test(next)) {
                     stream.match(keyword);
                     return 'keyword';
                 }
@@ -247,7 +247,7 @@ const mermaidLanguage = StreamLanguage.define({
             if (stream.match(keyword, false)) {
                 const next = stream.string.charAt(stream.pos + keyword.length);
 
-                if (!next || /\s/.test(next) || /[:\[\]]/.test(next)) {
+                if (!next || /\s/.test(next) || /[:[\]]/.test(next)) {
                     stream.match(keyword);
                     return 'keyword';
                 }
@@ -259,7 +259,7 @@ const mermaidLanguage = StreamLanguage.define({
             if (stream.match(keyword, false)) {
                 const next = stream.string.charAt(stream.pos + keyword.length);
 
-                if (!next || /\s/.test(next) || /[:\[\]]/.test(next)) {
+                if (!next || /\s/.test(next) || /[:[\]]/.test(next)) {
                     stream.match(keyword);
                     return 'keyword';
                 }
@@ -271,7 +271,7 @@ const mermaidLanguage = StreamLanguage.define({
             if (stream.match(keyword, false)) {
                 const next = stream.string.charAt(stream.pos + keyword.length);
 
-                if (!next || /\s/.test(next) || /[:\[\]]/.test(next)) {
+                if (!next || /\s/.test(next) || /[:[\]]/.test(next)) {
                     stream.match(keyword);
                     return 'keyword';
                 }
@@ -283,7 +283,7 @@ const mermaidLanguage = StreamLanguage.define({
             if (stream.match(keyword, false)) {
                 const next = stream.string.charAt(stream.pos + keyword.length);
 
-                if (!next || /\s/.test(next) || /[:\[\]]/.test(next)) {
+                if (!next || /\s/.test(next) || /[:[\]]/.test(next)) {
                     stream.match(keyword);
                     return 'keyword';
                 }
@@ -291,7 +291,7 @@ const mermaidLanguage = StreamLanguage.define({
         }
 
         // Check for special characters and operators
-        if (stream.match(/[|{}()\[\]<>]/)) {
+        if (stream.match(/[|{}()[\]<>]/)) {
             return 'bracket';
         }
 

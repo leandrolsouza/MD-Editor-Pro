@@ -288,10 +288,10 @@ class StatisticsCalculator {
         text = text.replace(/`[^`]+`/g, '');
 
         // Remove images ![alt](url) - must come before links
-        text = text.replace(/!\[([^\]]*)\]\([^\)]+\)/g, '$1');
+        text = text.replace(/!\[([^\]]*)\]\([^)]+\)/g, '$1');
 
         // Remove links [text](url)
-        text = text.replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1');
+        text = text.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
 
         // Remove headers (# ## ### etc.) - keep the text after the #
         text = text.replace(/^#{1,6}\s+(.*)$/gm, '$1');

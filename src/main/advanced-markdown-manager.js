@@ -66,7 +66,7 @@ class AdvancedMarkdownManager {
      * Requirement: 6.1 - Display toggle options based on current state
      */
     isFeatureEnabled(featureName) {
-        if (!this.features.hasOwnProperty(featureName)) {
+        if (!Object.prototype.hasOwnProperty.call(this.features, featureName)) {
             throw new Error(`Unknown feature: ${featureName}. Valid features are: mermaid, katex, callouts`);
         }
         return this.features[featureName];
@@ -79,7 +79,7 @@ class AdvancedMarkdownManager {
      * Requirements: 6.2 - Disable feature, 6.3 - Enable feature
      */
     toggleFeature(featureName, enabled) {
-        if (!this.features.hasOwnProperty(featureName)) {
+        if (!Object.prototype.hasOwnProperty.call(this.features, featureName)) {
             throw new Error(`Unknown feature: ${featureName}. Valid features are: mermaid, katex, callouts`);
         }
 

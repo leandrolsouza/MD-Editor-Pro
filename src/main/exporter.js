@@ -751,7 +751,9 @@ class Exporter {
             // Wait for content to be ready (longer wait for KaTeX rendering)
             const waitTime = this.advancedMarkdownManager && this.advancedMarkdownManager.isFeatureEnabled('katex') ? 2000 : 500;
 
-            await new Promise(resolve => setTimeout(resolve, waitTime));
+            await new Promise(resolve => {
+                setTimeout(resolve, waitTime);
+            });
 
             // Generate PDF
             const pdfData = await pdfWindow.webContents.printToPDF({
@@ -781,6 +783,20 @@ class Exporter {
                 throw new Error(`Failed to export PDF: ${error.message}`);
             }
         }
+    }
+
+    /**
+     * Cleanup method to release resources
+     * Exporter doesn't hold persistent resources (no timers, event listeners, or file handles).
+     * The markdown-it instance and window manager reference don't require explicit cleanup.
+     * This method is provided for consistency with the component pattern.
+     */
+    // eslint-disable-next-line custom/component-resource-cleanup
+    cleanup() {
+        // No persistent resources to clean up
+        // - markdown-it instance is garbage collected
+        // - windowManager reference is managed externally
+        // - advancedMarkdownManager reference is managed externally
     }
 }
 

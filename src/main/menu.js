@@ -326,17 +326,25 @@ function createApplicationMenu(windowManager, fileManager, exporter) {
                 {
                     label: 'Learn More',
                     click: async () => {
-                        const { shell } = require('electron');
+                        try {
+                            const { shell } = require('electron');
 
-                        await shell.openExternal('https://commonmark.org/');
+                            await shell.openExternal('https://commonmark.org/');
+                        } catch (error) {
+                            console.error('Failed to open external link:', error);
+                        }
                     }
                 },
                 {
                     label: 'GitHub Flavored Markdown',
                     click: async () => {
-                        const { shell } = require('electron');
+                        try {
+                            const { shell } = require('electron');
 
-                        await shell.openExternal('https://github.github.com/gfm/');
+                            await shell.openExternal('https://github.github.com/gfm/');
+                        } catch (error) {
+                            console.error('Failed to open external link:', error);
+                        }
                     }
                 },
                 { type: 'separator' },

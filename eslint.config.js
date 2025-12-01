@@ -253,7 +253,9 @@ module.exports = [
         },
         rules: {
             // Renderer should not use Node.js APIs directly (but can use require for bundling)
-            'no-undef': 'error'
+            'no-undef': 'error',
+            // Relax async error handling for UI callbacks that propagate errors
+            'custom/async-error-handling': 'warn'
         }
     },
 
@@ -308,10 +310,17 @@ module.exports = [
                 alert: 'readonly',
                 confirm: 'readonly',
                 prompt: 'readonly',
+                performance: 'readonly',
 
                 // Electron API for tests
                 electronAPI: 'readonly'
             }
+        },
+        rules: {
+            // Relax some rules for test files
+            'custom/timer-cleanup': 'off', // Tests often use setTimeout without cleanup
+            'no-promise-executor-return': 'off', // Tests often return from promise executors
+            'custom/async-error-handling': 'off' // Tests don't always need try-catch
         }
     }
 ];
