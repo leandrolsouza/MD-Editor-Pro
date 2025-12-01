@@ -274,6 +274,19 @@ function createApplicationMenu(windowManager, fileManager, exporter, configStore
                 },
                 { type: 'separator' },
                 {
+                    label: 'Toggle Line Numbers',
+                    type: 'checkbox',
+                    checked: configStore ? configStore.get('lineNumbers') !== false : true,
+                    click: () => {
+                        const mainWindow = windowManager.getMainWindow();
+
+                        if (mainWindow) {
+                            mainWindow.webContents.send('menu:action', 'toggle-line-numbers');
+                        }
+                    }
+                },
+                { type: 'separator' },
+                {
                     label: 'View Mode',
                     submenu: [
                         {

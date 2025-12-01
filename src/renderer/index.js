@@ -87,9 +87,13 @@ async function initialize() {
         if (!editorContainer) {
             throw new Error('Editor container not found');
         }
+
+        // Get line numbers preference
+        const lineNumbersEnabled = await window.electronAPI.getLineNumbers();
+
         editor = new Editor();
-        editor.initialize(editorContainer);
-        console.log('Editor initialized');
+        editor.initialize(editorContainer, [], lineNumbersEnabled);
+        console.log('Editor initialized with line numbers:', lineNumbersEnabled);
 
         // Initialize Preview with post-processor and markdown parser
         const previewContainer = document.getElementById('preview-container');
@@ -589,6 +593,9 @@ async function handleMenuAction(action, data) {
                     await statisticsCalculator.toggleVisibility();
                 }
                 break;
+            case 'toggle-line-numbers':
+                await handleToggleLineNumbers();
+                break;
             case 'toggle-auto-save':
                 if (autoSaveManager) {
                     if (autoSaveManager.isEnabled()) {
@@ -736,6 +743,23 @@ async function handleCloseFolder() {
     } catch (error) {
         console.error('Error closing folder:', error);
         alert('Failed to close folder: ' + error.message);
+    }
+}
+
+/**
+ * Handle toggle line numbers action
+ */
+async function handleToggleLineNumbers() {
+    try {
+        const result = await window.electronAPI.toggleLineNumbers();
+
+        if (result.success && editor) {
+            editor.setLineNumbers(result.enabled);
+            console.log('Line numbers:', result.enabled ? 'enabled' : 'disabled');
+        }
+    } catch (error) {
+        console.error('Error toggling line numbers:', error);
+        alert('Failed to toggle line numbers: ' + error.message);
     }
 }
 

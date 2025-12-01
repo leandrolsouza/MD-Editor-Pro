@@ -3,7 +3,7 @@
  * Provides methods for text manipulation, formatting, and undo/redo
  */
 
-const { EditorView, keymap } = require('@codemirror/view');
+const { EditorView, keymap, lineNumbers } = require('@codemirror/view');
 const { EditorState, Compartment } = require('@codemirror/state');
 const { defaultKeymap, history, historyKeymap, undo, redo } = require('@codemirror/commands');
 const { markdown } = require('@codemirror/lang-markdown');
@@ -16,14 +16,16 @@ class Editor {
         this.contentChangeCallbacks = [];
         this.customKeymapCompartment = new Compartment();
         this.snippetExtensionCompartment = new Compartment();
+        this.lineNumbersCompartment = new Compartment();
     }
 
     /**
      * Initialize the CodeMirror editor
      * @param {HTMLElement} element - The DOM element to attach the editor to
      * @param {Array} customKeymap - Optional custom keymap bindings
+     * @param {boolean} showLineNumbers - Whether to show line numbers (default: true)
      */
-    initialize(element, customKeymap = []) {
+    initialize(element, customKeymap = [], showLineNumbers = true) {
         if (!element) {
             throw new Error('Editor element is required');
         }
@@ -42,6 +44,8 @@ class Editor {
                 history(),
                 search(),
                 highlightSelectionMatches(),
+                // Line numbers compartment (can be reconfigured dynamically)
+                this.lineNumbersCompartment.of(showLineNumbers ? lineNumbers() : []),
                 // Snippet extension compartment (can be reconfigured dynamically)
                 this.snippetExtensionCompartment.of([]),
                 // Custom keymap compartment (can be reconfigured dynamically)
@@ -101,6 +105,20 @@ class Editor {
 
         this.view.dispatch({
             effects: this.snippetExtensionCompartment.reconfigure(snippetExtensions)
+        });
+    }
+
+    /**
+     * Toggle line numbers visibility
+     * @param {boolean} show - Whether to show line numbers
+     */
+    setLineNumbers(show) {
+        if (!this.view) {
+            throw new Error('Editor not initialized');
+        }
+
+        this.view.dispatch({
+            effects: this.lineNumbersCompartment.reconfigure(show ? lineNumbers() : [])
         });
     }
 

@@ -104,6 +104,10 @@ const electronAPI = {
     restoreWorkspace: () => ipcRenderer.invoke('workspace:restore'),
     toggleFolder: (folderPath, isExpanded) => ipcRenderer.invoke('workspace:toggle-folder', folderPath, isExpanded),
 
+    // Line numbers operations
+    getLineNumbers: () => ipcRenderer.invoke('config:get-line-numbers'),
+    toggleLineNumbers: () => ipcRenderer.invoke('config:toggle-line-numbers'),
+
     // System information
     getVersions: () => ({
         electron: process.versions.electron || 'N/A',

@@ -173,6 +173,32 @@ function registerIPCHandlers() {
         }
     });
 
+    ipcMain.handle('config:get-line-numbers', async () => {
+        try {
+            const enabled = configStore.get('lineNumbers');
+            return enabled !== undefined ? enabled : true;
+        } catch (error) {
+            console.error('Error getting line numbers config:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('config:toggle-line-numbers', async () => {
+        try {
+            const currentValue = configStore.get('lineNumbers');
+            const newValue = currentValue !== undefined ? !currentValue : false;
+            configStore.set('lineNumbers', newValue);
+
+            // Update menu to reflect new state
+            createApplicationMenu(windowManager, fileManager, exporter, configStore);
+
+            return { success: true, enabled: newValue };
+        } catch (error) {
+            console.error('Error toggling line numbers:', error);
+            throw error;
+        }
+    });
+
     // Tab operations
     ipcMain.handle('tab:create', async (event, filePath, content) => {
         try {

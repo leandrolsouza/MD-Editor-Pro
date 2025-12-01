@@ -14,6 +14,7 @@ Este documento serve como um registro de ideias, sugestões de funcionalidades e
 - [x] Sistema de snippets com triggers customizáveis
 - [x] Sincronização de scroll entre editor e preview
 - [x] Suporte a linguagem Mermaid no editor (syntax highlighting)
+- [x] Numeração de linhas (toggle on/off via menu View)
 
 ### Preview
 - [x] Preview em tempo real
@@ -34,6 +35,14 @@ Este documento serve como um registro de ideias, sugestões de funcionalidades e
 - [x] Indicador de modificações não salvas
 - [x] Confirmação ao fechar abas modificadas
 - [x] Aviso ao fechar janela com alterações não salvas
+- [x] Sidebar de navegação de arquivos (File Tree)
+- [x] Abertura de pasta como workspace
+- [x] Expansão/colapso de pastas com carregamento lazy
+- [x] Filtro automático de arquivos markdown (.md, .markdown)
+- [x] Integração com sistema de abas (abrir/trocar arquivos)
+- [x] Indicadores visuais (arquivo ativo, arquivos modificados)
+- [x] Persistência de estado da sidebar (visibilidade, pastas expandidas)
+- [x] Toggle da sidebar (Ctrl+Shift+B ou menu View)
 
 ### Exportação
 - [x] Exportar para HTML (com features avançadas preservadas)
@@ -84,7 +93,6 @@ Este documento serve como um registro de ideias, sugestões de funcionalidades e
 *Features essenciais para evoluir de "editor de texto" para "gerenciador de projetos".*
 
 ### Gestão de Projetos & Arquivos
-- [ ] **Sidebar (File Tree):** Navegação de arquivos e pastas (abrir pasta como projeto)
 - [ ] **Gerenciamento de Imagens (Paste):** Interceptar Ctrl+V de imagens, salvar automaticamente na pasta `./assets` e inserir o link Markdown
 - [ ] **Busca Global:** Pesquisar texto em todos os arquivos da pasta aberta
 - [ ] **Conversão Inteligente ao Colar:** Converter HTML (ex: de sites) para Markdown automaticamente ao colar
