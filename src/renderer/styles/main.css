@@ -16,7 +16,6 @@ body {
 
 #app-container {
     display: flex;
-    width: 100%;
     height: calc(100vh - 80px - 24px);
     /* 100vh - (tab bar + toolbar) - status bar */
     position: fixed;
@@ -24,6 +23,8 @@ body {
     /* 36px tab bar + 44px formatting toolbar */
     left: 0;
     right: 0;
+    transition: margin-left var(--duration-slow, 300ms) var(--ease-in-out, ease),
+        margin-right var(--duration-slow, 300ms) var(--ease-in-out, ease);
 }
 
 /* Pane Styles */

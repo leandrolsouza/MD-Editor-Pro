@@ -1,0 +1,451 @@
+/* Outline Panel Styles - BEM Architecture */
+
+/* ============================================
+   Block: outline-panel
+   ============================================ */
+
+.outline-panel {
+    position: fixed;
+    right: 0;
+    top: 80px;
+    /* tab bar (36px) + formatting toolbar (44px) */
+    bottom: var(--space-6, 24px);
+    /* status bar height */
+    width: 250px;
+    background: var(--bg-secondary);
+    border-left: 1px solid var(--border-color);
+    overflow-y: auto;
+    overflow-x: hidden;
+    transition: transform var(--duration-slow, 300ms) var(--ease-in-out, ease),
+        opacity var(--duration-slow, 300ms) var(--ease-in-out, ease);
+    z-index: 50;
+    box-shadow: var(--shadow-sm);
+}
+
+/* Modifier: Hidden state */
+.outline-panel--hidden {
+    transform: translateX(100%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Modifier: Visible state */
+.outline-panel--visible {
+    transform: translateX(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* ============================================
+   Element: Header
+   ============================================ */
+
+.outline-panel__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-2) var(--space-3);
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.outline-panel__title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.outline-panel__toggle-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+    font-size: 16px;
+    line-height: 1;
+    transition: background-color var(--duration-normal, 150ms) var(--ease-out, ease),
+        color var(--duration-normal, 150ms) var(--ease-out, ease);
+}
+
+.outline-panel__toggle-btn:hover {
+    background: var(--button-hover-bg);
+    color: var(--text-primary);
+}
+
+.outline-panel__toggle-btn:active {
+    background: var(--button-active-bg);
+}
+
+.outline-panel__toggle-btn:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+/* ============================================
+   Element: Tree Container
+   ============================================ */
+
+.outline-panel__tree {
+    padding: var(--space-2) 0;
+}
+
+/* ============================================
+   Element: Tree Node
+   ============================================ */
+
+.outline-panel__node {
+    display: flex;
+    align-items: center;
+    padding: var(--space-1) var(--space-2);
+    cursor: pointer;
+    user-select: none;
+    transition: background-color var(--duration-normal, 150ms) var(--ease-out, ease);
+    position: relative;
+    border-radius: var(--radius-sm);
+    margin: 0 var(--space-1);
+}
+
+.outline-panel__node:hover {
+    background: var(--button-hover-bg);
+}
+
+.outline-panel__node:active {
+    background: var(--button-active-bg);
+}
+
+.outline-panel__node:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: -2px;
+}
+
+/* Modifier: Active heading */
+.outline-panel__node--active {
+    background: var(--accent-color-alpha);
+    font-weight: 500;
+}
+
+.outline-panel__node--active .outline-panel__text {
+    color: var(--accent-color);
+}
+
+/* Modifier: Expandable node */
+.outline-panel__node--expandable {
+    font-weight: 500;
+}
+
+/* Modifier: Collapsed node */
+.outline-panel__node--collapsed .outline-panel__expand-icon {
+    transform: rotate(0deg);
+}
+
+/* ============================================
+   Element: Expand/Collapse Icon
+   ============================================ */
+
+.outline-panel__expand-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    margin-right: var(--space-1);
+    font-size: 10px;
+    color: var(--text-secondary);
+    transition: transform var(--duration-normal, 200ms) var(--ease-out, ease);
+    flex-shrink: 0;
+    transform: rotate(90deg);
+}
+
+/* Empty expand icon for non-expandable nodes (maintains alignment) */
+.outline-panel__expand-icon--empty {
+    visibility: hidden;
+}
+
+/* ============================================
+   Element: Heading Text
+   ============================================ */
+
+.outline-panel__text {
+    flex: 1;
+    font-size: 13px;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color var(--duration-normal, 150ms) var(--ease-out, ease);
+    line-height: 1.4;
+}
+
+/* Heading level styling */
+.outline-panel__text[data-level="1"] {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.outline-panel__text[data-level="2"] {
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.outline-panel__text[data-level="3"] {
+    font-size: 13px;
+    font-weight: 400;
+}
+
+.outline-panel__text[data-level="4"],
+.outline-panel__text[data-level="5"],
+.outline-panel__text[data-level="6"] {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-secondary);
+}
+
+/* ============================================
+   Element: Children Container
+   ============================================ */
+
+.outline-panel__children {
+    overflow: hidden;
+    transition: max-height var(--duration-slow, 300ms) var(--ease-in-out, ease),
+        opacity var(--duration-normal, 200ms) var(--ease-out, ease);
+    max-height: 10000px;
+    opacity: 1;
+}
+
+/* Modifier: Collapsed children */
+.outline-panel__children--collapsed {
+    max-height: 0;
+    opacity: 0;
+}
+
+/* Indentation for nested levels */
+.outline-panel__node[data-depth="0"] {
+    padding-left: var(--space-2);
+}
+
+.outline-panel__node[data-depth="1"] {
+    padding-left: calc(var(--space-2) + 20px);
+}
+
+.outline-panel__node[data-depth="2"] {
+    padding-left: calc(var(--space-2) + 40px);
+}
+
+.outline-panel__node[data-depth="3"] {
+    padding-left: calc(var(--space-2) + 60px);
+}
+
+.outline-panel__node[data-depth="4"] {
+    padding-left: calc(var(--space-2) + 80px);
+}
+
+.outline-panel__node[data-depth="5"] {
+    padding-left: calc(var(--space-2) + 100px);
+}
+
+/* ============================================
+   Element: Empty State
+   ============================================ */
+
+.outline-panel__empty {
+    padding: var(--space-6) var(--space-4);
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* ============================================
+   Editor Area Adjustment (Responsive)
+   ============================================ */
+
+/* When outline is visible, shift the main container */
+body.outline-visible #app-container {
+    margin-right: 250px;
+    transition: margin-right var(--duration-slow, 300ms) var(--ease-in-out, ease);
+}
+
+/* When outline is hidden, no margin */
+body:not(.outline-visible) #app-container {
+    margin-right: 0;
+    transition: margin-right var(--duration-slow, 300ms) var(--ease-in-out, ease);
+}
+
+/* Adjust formatting toolbar when outline is visible */
+body.outline-visible #formatting-toolbar {
+    margin-right: 250px;
+    transition: margin-right var(--duration-slow, 300ms) var(--ease-in-out, ease);
+}
+
+body:not(.outline-visible) #formatting-toolbar {
+    margin-right: 0;
+    transition: margin-right var(--duration-slow, 300ms) var(--ease-in-out, ease);
+}
+
+/* When both sidebar and outline are visible */
+body.sidebar-visible.outline-visible #app-container {
+    margin-left: 250px;
+    margin-right: 250px;
+}
+
+body.sidebar-visible.outline-visible #formatting-toolbar {
+    margin-left: 250px;
+    margin-right: 250px;
+}
+
+/* ============================================
+   Performance Optimizations
+   ============================================ */
+
+/* Optimize rendering for large trees */
+.outline-panel__node {
+    contain: layout style;
+}
+
+/* Use GPU acceleration for animations */
+.outline-panel__children {
+    will-change: max-height;
+    transform: translateZ(0);
+}
+
+/* ============================================
+   Scrollbar Styling
+   ============================================ */
+
+.outline-panel::-webkit-scrollbar {
+    width: 8px;
+}
+
+.outline-panel::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+.outline-panel::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb, var(--border-color));
+    border-radius: var(--radius-sm);
+    transition: background var(--duration-normal, 150ms) var(--ease-out, ease);
+}
+
+.outline-panel::-webkit-scrollbar-thumb:hover {
+    background: var(--text-tertiary);
+}
+
+/* ============================================
+   Accessibility
+   ============================================ */
+
+.outline-panel[role="tree"]:focus {
+    outline: none;
+}
+
+.outline-panel__node[role="treeitem"] {
+    outline: none;
+}
+
+.outline-panel__node[role="treeitem"][aria-expanded="true"] .outline-panel__expand-icon {
+    transform: rotate(90deg);
+}
+
+.outline-panel__node[role="treeitem"][aria-expanded="false"] .outline-panel__expand-icon {
+    transform: rotate(0deg);
+}
+
+/* ============================================
+   Animations
+   ============================================ */
+
+/* Fade in animation for tree nodes */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.outline-panel__node {
+    animation: fadeIn var(--duration-normal, 150ms) var(--ease-out, ease);
+}
+
+/* ============================================
+   Reduced Motion Support
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .outline-panel,
+    .outline-panel__node,
+    .outline-panel__expand-icon,
+    .outline-panel__children,
+    #app-container {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+/* ============================================
+   High Contrast Support
+   ============================================ */
+
+@media (prefers-contrast: high) {
+    .outline-panel {
+        border-left-width: 2px;
+    }
+
+    .outline-panel__node--active {
+        outline: 2px solid var(--accent-color);
+        outline-offset: -2px;
+    }
+}
+
+/* ============================================
+   Responsive Adjustments
+   ============================================ */
+
+/* For smaller screens, make outline narrower */
+@media (max-width: 768px) {
+    .outline-panel {
+        width: 200px;
+    }
+
+    body.outline-visible #app-container {
+        margin-right: 200px;
+    }
+
+    body.outline-visible #formatting-toolbar {
+        margin-right: 200px;
+    }
+
+    body.sidebar-visible.outline-visible #app-container {
+        margin-left: 200px;
+        margin-right: 200px;
+    }
+
+    body.sidebar-visible.outline-visible #formatting-toolbar {
+        margin-left: 200px;
+        margin-right: 200px;
+    }
+}
+
+/* For very small screens, overlay outline instead of pushing content */
+@media (max-width: 480px) {
+    .outline-panel {
+        width: 250px;
+        box-shadow: var(--shadow-lg);
+    }
+
+    body.outline-visible #app-container,
+    body.outline-visible #formatting-toolbar {
+        margin-right: 0;
+    }
+}

@@ -200,7 +200,7 @@ function createApplicationMenu(windowManager, fileManager, exporter, configStore
             submenu: [
                 {
                     label: 'Template...',
-                    accelerator: isMac ? 'Cmd+Shift+T' : 'Ctrl+Shift+T',
+                    accelerator: isMac ? 'Cmd+Shift+I' : 'Ctrl+Shift+I',
                     click: () => {
                         const mainWindow = windowManager.getMainWindow();
 
@@ -324,12 +324,40 @@ function createApplicationMenu(windowManager, fileManager, exporter, configStore
                 { type: 'separator' },
                 {
                     label: 'Toggle Sidebar',
+                    type: 'checkbox',
+                    checked: configStore ? configStore.get('workspace.sidebarVisible') : false,
                     accelerator: isMac ? 'Cmd+Shift+B' : 'Ctrl+Shift+B',
                     click: () => {
                         const mainWindow = windowManager.getMainWindow();
 
                         if (mainWindow) {
                             mainWindow.webContents.send('menu:action', 'toggle-sidebar');
+                        }
+                    }
+                },
+                {
+                    label: 'Outline Panel',
+                    type: 'checkbox',
+                    checked: configStore ? configStore.getOutlineVisible() : false,
+                    accelerator: isMac ? 'Cmd+Shift+O' : 'Ctrl+Shift+O',
+                    click: () => {
+                        const mainWindow = windowManager.getMainWindow();
+
+                        if (mainWindow) {
+                            mainWindow.webContents.send('menu:action', 'toggle-outline');
+                        }
+                    }
+                },
+                {
+                    label: 'Typewriter Scrolling',
+                    type: 'checkbox',
+                    checked: configStore ? configStore.getTypewriterEnabled() : false,
+                    accelerator: isMac ? 'Cmd+Shift+T' : 'Ctrl+Shift+T',
+                    click: () => {
+                        const mainWindow = windowManager.getMainWindow();
+
+                        if (mainWindow) {
+                            mainWindow.webContents.send('menu:action', 'toggle-typewriter');
                         }
                     }
                 },
@@ -467,4 +495,30 @@ function createApplicationMenu(windowManager, fileManager, exporter, configStore
     Menu.setApplicationMenu(menu);
 }
 
-module.exports = { createApplicationMenu };
+/**
+ * Update menu item checked state
+ * @param {string} menuPath - Path to menu item (e.g., 'View.Toggle Sidebar')
+ * @param {boolean} checked - New checked state
+ */
+function updateMenuItemChecked(menuPath, checked) {
+    const menu = Menu.getApplicationMenu();
+    if (!menu) return;
+
+    const parts = menuPath.split('.');
+    let currentMenu = menu;
+
+    // Navigate to the menu item
+    for (let i = 0; i < parts.length - 1; i++) {
+        const item = currentMenu.items.find(item => item.label === parts[i]);
+        if (!item || !item.submenu) return;
+        currentMenu = item.submenu;
+    }
+
+    // Find and update the final menu item
+    const menuItem = currentMenu.items.find(item => item.label === parts[parts.length - 1]);
+    if (menuItem && menuItem.type === 'checkbox') {
+        menuItem.checked = checked;
+    }
+}
+
+module.exports = { createApplicationMenu, updateMenuItemChecked };

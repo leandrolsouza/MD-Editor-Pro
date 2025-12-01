@@ -4,10 +4,10 @@
  */
 
 const { EditorView, keymap, lineNumbers } = require('@codemirror/view');
-const { EditorState, Compartment } = require('@codemirror/state');
+const { EditorState, EditorSelection, Compartment } = require('@codemirror/state');
 const { defaultKeymap, history, historyKeymap, undo, redo } = require('@codemirror/commands');
 const { markdown } = require('@codemirror/lang-markdown');
-const { search, highlightSelectionMatches } = require('@codemirror/search');
+const { search, highlightSelectionMatches, selectNextOccurrence } = require('@codemirror/search');
 const { mermaidLanguage } = require('./advanced-markdown/mermaid-codemirror-lang');
 
 class Editor {
@@ -33,6 +33,8 @@ class Editor {
         const startState = EditorState.create({
             doc: '',
             extensions: [
+                // Enable multiple selections support (Requirements 3.1, 5.1)
+                EditorState.allowMultipleSelections.of(true),
                 markdown({
                     codeLanguages: (info) => {
                         if (info === 'mermaid') {
@@ -50,6 +52,28 @@ class Editor {
                 this.snippetExtensionCompartment.of([]),
                 // Custom keymap compartment (can be reconfigured dynamically)
                 this.customKeymapCompartment.of(keymap.of(customKeymap)),
+                // Multi-cursor keyboard shortcuts (Requirements 3.4, 3.5)
+                keymap.of([
+                    {
+                        key: 'Mod-d',
+                        run: selectNextOccurrence,
+                        preventDefault: true
+                    },
+                    {
+                        key: 'Escape',
+                        run: (view) => {
+                            // Clear extra cursors, keep only primary selection
+                            const selection = view.state.selection;
+                            if (selection.ranges.length > 1) {
+                                view.dispatch({
+                                    selection: { anchor: selection.main.anchor, head: selection.main.head }
+                                });
+                                return true;
+                            }
+                            return false;
+                        }
+                    }
+                ]),
                 // Default keymaps (lower priority)
                 keymap.of([
                     ...defaultKeymap,
@@ -1408,6 +1432,74 @@ class Editor {
         text = text.replace(/!\[(.+?)\]\(.+?\)/g, '$1');
 
         this.replaceSelection(text, true);
+    }
+
+    // ========== Multi-Cursor Helper Methods ==========
+
+    /**
+     * Add a cursor at a specific position
+     * Requirements: 3.1
+     * @param {number} pos - Position to add cursor at
+     */
+    addCursorAtPosition(pos) {
+        if (!this.view) {
+            throw new Error('Editor not initialized');
+        }
+
+        if (typeof pos !== 'number' || pos < 0) {
+            throw new Error('Position must be a non-negative number');
+        }
+
+        const maxPosition = this.view.state.doc.length;
+        const safePosition = Math.min(pos, maxPosition);
+
+        // Get current selection ranges
+        const currentRanges = this.view.state.selection.ranges;
+
+        // Add new cursor at position
+        const newRanges = [
+            ...currentRanges,
+            EditorSelection.range(safePosition, safePosition)
+        ];
+
+        this.view.dispatch({
+            selection: EditorSelection.create(newRanges)
+        });
+    }
+
+    /**
+     * Get all cursor/selection ranges
+     * Requirements: 3.1
+     * @returns {Array<{from: number, to: number, text: string}>} Array of selection ranges
+     */
+    getSelections() {
+        if (!this.view) {
+            throw new Error('Editor not initialized');
+        }
+
+        return this.view.state.selection.ranges.map(range => ({
+            from: range.from,
+            to: range.to,
+            text: this.view.state.doc.sliceString(range.from, range.to)
+        }));
+    }
+
+    /**
+     * Clear all cursors except the primary cursor
+     * Requirements: 3.5
+     */
+    clearExtraCursors() {
+        if (!this.view) {
+            throw new Error('Editor not initialized');
+        }
+
+        const selection = this.view.state.selection;
+
+        if (selection.ranges.length > 1) {
+            this.view.dispatch({
+                selection: { anchor: selection.main.anchor, head: selection.main.head }
+            });
+        }
     }
 }
 

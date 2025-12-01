@@ -4,6 +4,8 @@
  * Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7
  */
 
+const notificationManager = require('./notification.js');
+
 class AutoSaveSettingsUI {
     constructor() {
         this.dialog = null;
@@ -199,7 +201,7 @@ class AutoSaveSettingsUI {
 
             // Validate delay
             if (isNaN(delay) || delay < 1 || delay > 60) {
-                alert('Invalid delay. Please enter a number between 1 and 60.');
+                notificationManager.warning('Invalid delay. Please enter a number between 1 and 60.');
                 return;
             }
 
@@ -218,7 +220,7 @@ class AutoSaveSettingsUI {
             this.hide();
         } catch (error) {
             console.error('Error saving auto-save settings:', error);
-            alert('Failed to save settings: ' + error.message);
+            notificationManager.error('Failed to save settings: ' + error.message);
         }
     }
 

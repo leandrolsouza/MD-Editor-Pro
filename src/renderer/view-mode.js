@@ -37,7 +37,8 @@ class ViewModeManager {
 
         try {
             // Load view mode preference from ConfigStore
-            const savedViewMode = await window.electronAPI.getConfig('viewMode');
+            const result = await window.electronAPI.getConfig('viewMode');
+            const savedViewMode = result?.value;
 
             // Use saved view mode if available, otherwise default to 'split'
             if (savedViewMode === 'editor' || savedViewMode === 'preview' || savedViewMode === 'split') {

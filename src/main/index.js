@@ -13,7 +13,7 @@ const KeyboardShortcutManager = require('./keyboard-shortcut-manager');
 const TemplateManager = require('./template-manager');
 const AdvancedMarkdownManager = require('./advanced-markdown-manager');
 const WorkspaceManager = require('./workspace-manager');
-const { createApplicationMenu } = require('./menu');
+const { createApplicationMenu, updateMenuItemChecked } = require('./menu');
 
 // Sandbox disabled to allow nodeIntegration in renderer
 // Note: This is less secure and should be replaced with a bundler in production
@@ -166,6 +166,16 @@ function registerIPCHandlers() {
     ipcMain.handle('config:set', async (event, key, value) => {
         try {
             configStore.set(key, value);
+
+            // Update menu checkboxes for specific keys
+            if (key === 'workspace.sidebarVisible') {
+                updateMenuItemChecked('View.Toggle Sidebar', value);
+            } else if (key === 'outline.visible') {
+                updateMenuItemChecked('View.Outline Panel', value);
+            } else if (key === 'typewriter.enabled') {
+                updateMenuItemChecked('View.Typewriter Scrolling', value);
+            }
+
             return { success: true };
         } catch (error) {
             console.error('Error setting config:', error);

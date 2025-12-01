@@ -30,6 +30,10 @@ class KeyboardShortcutManager {
             'edit:paste': 'Mod-V',
             'edit:select-all': 'Mod-A',
 
+            // Multi-cursor operations (Requirements 3.4, 3.5)
+            'edit:select-next-occurrence': 'Mod-D',
+            'edit:clear-extra-cursors': 'Escape',
+
             // Formatting operations
             'format:bold': 'Mod-B',
             'format:italic': 'Mod-I',
@@ -42,6 +46,9 @@ class KeyboardShortcutManager {
             'view:toggle-theme': 'Mod-T',
             'view:focus-mode': 'F11',
             'view:toggle-statistics': 'Mod-Shift-S',
+            'view:toggle-sidebar': 'Mod-Shift-B',
+            'view:toggle-outline': 'Mod-Shift-O',
+            'view:toggle-typewriter': 'Mod-Shift-T',
 
             // Navigation operations
             'nav:next-tab': 'Ctrl-Tab',
@@ -70,6 +77,8 @@ class KeyboardShortcutManager {
             'edit:copy': { name: 'Copy', category: 'Edit' },
             'edit:paste': { name: 'Paste', category: 'Edit' },
             'edit:select-all': { name: 'Select All', category: 'Edit' },
+            'edit:select-next-occurrence': { name: 'Select Next Occurrence', category: 'Edit' },
+            'edit:clear-extra-cursors': { name: 'Clear Extra Cursors', category: 'Edit' },
 
             'format:bold': { name: 'Bold', category: 'Format' },
             'format:italic': { name: 'Italic', category: 'Format' },
@@ -81,6 +90,9 @@ class KeyboardShortcutManager {
             'view:toggle-theme': { name: 'Toggle Theme', category: 'View' },
             'view:focus-mode': { name: 'Focus Mode', category: 'View' },
             'view:toggle-statistics': { name: 'Toggle Statistics', category: 'View' },
+            'view:toggle-sidebar': { name: 'Toggle Sidebar', category: 'View' },
+            'view:toggle-outline': { name: 'Toggle Outline Panel', category: 'View' },
+            'view:toggle-typewriter': { name: 'Toggle Typewriter Scrolling', category: 'View' },
 
             'nav:next-tab': { name: 'Next Tab', category: 'Navigation' },
             'nav:previous-tab': { name: 'Previous Tab', category: 'Navigation' },

@@ -4,6 +4,8 @@
  * Requirements: 6.1, 6.2, 6.5
  */
 
+const notificationManager = require('./notification.js');
+
 class TemplateUI {
     constructor() {
         this.templates = [];
@@ -315,7 +317,13 @@ class TemplateUI {
      * @param {string} templateId - Template ID
      */
     async deleteTemplate(templateId) {
-        if (!confirm('Are you sure you want to delete this template?')) {
+        const confirmed = await notificationManager.confirm('Are you sure you want to delete this template?', {
+            confirmText: 'Delete',
+            cancelText: 'Cancel',
+            type: 'warning'
+        });
+
+        if (!confirmed) {
             return;
         }
 
@@ -328,7 +336,7 @@ class TemplateUI {
             }
         } catch (error) {
             console.error('Error deleting template:', error);
-            alert('Failed to delete template');
+            notificationManager.error('Failed to delete template');
         }
     }
 
@@ -345,7 +353,7 @@ class TemplateUI {
         const content = this.customTemplateDialog.querySelector('#template-content').value;
 
         if (!name || !content) {
-            alert('Name and content are required');
+            notificationManager.warning('Name and content are required');
             return;
         }
 
@@ -357,11 +365,11 @@ class TemplateUI {
 
             if (result.success) {
                 this.hideCustomTemplateDialog();
-                alert('Template created successfully!');
+                notificationManager.success('Template created successfully!');
             }
         } catch (error) {
             console.error('Error creating template:', error);
-            alert('Failed to create template: ' + error.message);
+            notificationManager.error('Failed to create template: ' + error.message);
         }
     }
 

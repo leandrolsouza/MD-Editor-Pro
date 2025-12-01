@@ -4,6 +4,8 @@
  * Requirements: 3.3, 3.5, 3.6
  */
 
+const notificationManager = require('./notification.js');
+
 class TabBar {
     constructor(container) {
         if (!container) {
@@ -287,13 +289,14 @@ class TabBar {
      * @returns {boolean} True if user confirms, false otherwise
      */
     async showCloseConfirmation(title) {
-        return new Promise((resolve) => {
-            const result = confirm(
-                `"${title}" has unsaved changes.\n\nDo you want to close it anyway?`
-            );
-
-            resolve(result);
-        });
+        return await notificationManager.confirm(
+            `"${title}" has unsaved changes.\n\nDo you want to close it anyway?`,
+            {
+                confirmText: 'Close Anyway',
+                cancelText: 'Keep Open',
+                type: 'warning'
+            }
+        );
     }
 
     /**

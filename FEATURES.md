@@ -15,6 +15,21 @@ Este documento serve como um registro de ideias, sugestões de funcionalidades e
 - [x] Sincronização de scroll entre editor e preview
 - [x] Suporte a linguagem Mermaid no editor (syntax highlighting)
 - [x] Numeração de linhas (toggle on/off via menu View)
+- [x] **Múltiplos Cursores:** Suporte nativo do CodeMirror para edição em várias linhas
+  - Ctrl+Click (Cmd+Click no macOS) para adicionar cursores
+  - Ctrl+D (Cmd+D) para selecionar próxima ocorrência
+  - Alt+Drag para seleção em coluna
+  - Escape para limpar cursores extras
+- [x] **Outline Panel:** Painel de navegação com índice automático dos Headers (H1-H6)
+  - Estrutura hierárquica navegável
+  - Destaque da seção ativa
+  - Expansão/colapso de seções
+  - Navegação por teclado (Arrow keys, Enter, Home, End)
+  - Atalho: Ctrl+Shift+O (Cmd+Shift+O no macOS)
+- [x] **Typewriter Scrolling:** Modo de escrita que mantém a linha ativa centralizada verticalmente
+  - Centralização automática durante digitação
+  - Suspensão temporária ao rolar manualmente
+  - Atalho: Ctrl+Shift+T (Cmd+Shift+T no macOS)
 
 ### Preview
 - [x] Preview em tempo real
@@ -57,6 +72,12 @@ Este documento serve como um registro de ideias, sugestões de funcionalidades e
 - [x] Painel de estatísticas expansível/retrátil
 - [x] Menu de aplicação completo (File, Insert, Edit, View, Tools, Help)
 
+### Acessibilidade
+- [x] ARIA labels para estrutura de árvore do Outline Panel
+- [x] Navegação por teclado completa no Outline Panel (Tab, Arrow keys, Enter, Home, End)
+- [x] Anúncios para leitores de tela ao alternar modos (Typewriter, Outline)
+- [x] Suporte a navegação por teclado em todos os componentes principais
+
 ### Produtividade
 - [x] Auto-save configurável (com delay ajustável)
 - [x] Interface de configuração de auto-save (ativar/desativar, ajustar delay)
@@ -96,11 +117,6 @@ Este documento serve como um registro de ideias, sugestões de funcionalidades e
 - [ ] **Gerenciamento de Imagens (Paste):** Interceptar Ctrl+V de imagens, salvar automaticamente na pasta `./assets` e inserir o link Markdown
 - [ ] **Busca Global:** Pesquisar texto em todos os arquivos da pasta aberta
 - [ ] **Conversão Inteligente ao Colar:** Converter HTML (ex: de sites) para Markdown automaticamente ao colar
-
-### Usabilidade do Editor
-- [ ] **Outline/Table of Contents:** Índice flutuante gerado automaticamente a partir dos Headers (H1-H6)
-- [ ] **Typewriter Scrolling:** Opção para manter a linha do cursor sempre centralizada verticalmente
-- [ ] **Múltiplos Cursores:** Suporte nativo do CodeMirror para edição em várias linhas
 
 ---
 

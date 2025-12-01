@@ -5,6 +5,8 @@
  * Requirements: 5.1, 5.2, 5.3, 5.7
  */
 
+const notificationManager = require('./notification.js');
+
 class KeyboardShortcutsUI {
     constructor() {
         this.dialog = null;
@@ -337,7 +339,11 @@ class KeyboardShortcutsUI {
         const formattedBinding = this.formatShortcut(keyBinding);
         const message = `The shortcut "${formattedBinding}" is already assigned to "${conflictingActionName}".\n\nDo you want to reassign it?`;
 
-        return confirm(message);
+        return await notificationManager.confirm(message, {
+            confirmText: 'Reassign',
+            cancelText: 'Cancel',
+            type: 'warning'
+        });
     }
 
     /**
@@ -401,7 +407,14 @@ class KeyboardShortcutsUI {
      * Reset all shortcuts to defaults
      */
     async resetAll() {
-        const confirmed = confirm('Are you sure you want to reset all keyboard shortcuts to their default values?');
+        const confirmed = await notificationManager.confirm(
+            'Are you sure you want to reset all keyboard shortcuts to their default values?',
+            {
+                confirmText: 'Reset All',
+                cancelText: 'Cancel',
+                type: 'warning'
+            }
+        );
 
         if (!confirmed) {
             return;

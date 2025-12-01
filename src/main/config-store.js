@@ -55,6 +55,14 @@ class ConfigStore {
                     currentPath: null,
                     expandedFolders: [],
                     sidebarVisible: true
+                },
+                // Outline panel settings
+                outline: {
+                    visible: false
+                },
+                // Typewriter scrolling settings
+                typewriter: {
+                    enabled: false
                 }
             }
         });
@@ -640,6 +648,48 @@ class ConfigStore {
             throw new Error(`Invalid expanded folders: ${folders}. Must be an array`);
         }
         this.store.set('workspace.expandedFolders', folders);
+    }
+
+    // ========== Outline Panel Methods ==========
+
+    /**
+     * Get outline panel visibility
+     * @returns {boolean} Whether outline panel is visible
+     */
+    getOutlineVisible() {
+        return this.store.get('outline.visible');
+    }
+
+    /**
+     * Set outline panel visibility
+     * @param {boolean} visible - Whether outline panel should be visible
+     */
+    setOutlineVisible(visible) {
+        if (typeof visible !== 'boolean') {
+            throw new Error(`Invalid outline visible value: ${visible}. Must be a boolean`);
+        }
+        this.store.set('outline.visible', visible);
+    }
+
+    // ========== Typewriter Scrolling Methods ==========
+
+    /**
+     * Get typewriter scrolling enabled status
+     * @returns {boolean} Whether typewriter scrolling is enabled
+     */
+    getTypewriterEnabled() {
+        return this.store.get('typewriter.enabled');
+    }
+
+    /**
+     * Set typewriter scrolling enabled status
+     * @param {boolean} enabled - Whether typewriter scrolling should be enabled
+     */
+    setTypewriterEnabled(enabled) {
+        if (typeof enabled !== 'boolean') {
+            throw new Error(`Invalid typewriter enabled value: ${enabled}. Must be a boolean`);
+        }
+        this.store.set('typewriter.enabled', enabled);
     }
 }
 

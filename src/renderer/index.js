@@ -27,6 +27,9 @@ const KeyboardShortcutsUI = require('./keyboard-shortcuts-ui.js');
 const AutoSaveSettingsUI = require('./auto-save-settings-ui.js');
 const TooltipManager = require('./tooltip.js');
 const FileTreeSidebar = require('./file-tree-sidebar.js');
+const OutlinePanel = require('./outline-panel.js');
+const TypewriterScrolling = require('./typewriter-scrolling.js');
+const notificationManager = require('./notification.js');
 
 // Application state
 let editor = null;
@@ -49,6 +52,8 @@ let keyboardShortcutsUI = null;
 let autoSaveSettingsUI = null;
 let tooltipManager = null;
 let fileTreeSidebar = null;
+let outlinePanel = null;
+let typewriterScrolling = null;
 
 // Document state
 let currentFilePath = null;
@@ -202,7 +207,7 @@ async function initialize() {
                 try {
                     const result = await window.electronAPI.getConfig('customSnippets');
 
-                    return result || [];
+                    return result?.value || [];
                 } catch (error) {
                     console.error('Failed to get custom snippets:', error);
                     return [];
@@ -210,7 +215,8 @@ async function initialize() {
             },
             addCustomSnippet: async (snippet) => {
                 try {
-                    const snippets = await window.electronAPI.getConfig('customSnippets') || [];
+                    const result = await window.electronAPI.getConfig('customSnippets');
+                    const snippets = result?.value || [];
 
                     snippets.push(snippet);
                     await window.electronAPI.setConfig('customSnippets', snippets);
@@ -221,7 +227,8 @@ async function initialize() {
             },
             deleteCustomSnippet: async (trigger) => {
                 try {
-                    const snippets = await window.electronAPI.getConfig('customSnippets') || [];
+                    const result = await window.electronAPI.getConfig('customSnippets');
+                    const snippets = result?.value || [];
                     const filtered = snippets.filter(s => s.trigger !== trigger);
 
                     await window.electronAPI.setConfig('customSnippets', filtered);
@@ -232,7 +239,8 @@ async function initialize() {
             },
             updateCustomSnippet: async (trigger, updates) => {
                 try {
-                    const snippets = await window.electronAPI.getConfig('customSnippets') || [];
+                    const result = await window.electronAPI.getConfig('customSnippets');
+                    const snippets = result?.value || [];
                     const index = snippets.findIndex(s => s.trigger === trigger);
 
                     if (index !== -1) {
@@ -304,9 +312,9 @@ async function initialize() {
             fileTreeSidebar.initialize();
 
             // Restore sidebar visibility from config
-            const sidebarVisible = await window.electronAPI.getConfig('workspace.sidebarVisible');
-            if (sidebarVisible !== undefined) {
-                await fileTreeSidebar.setVisibility(sidebarVisible);
+            const sidebarVisibleResult = await window.electronAPI.getConfig('workspace.sidebarVisible');
+            if (sidebarVisibleResult?.value !== undefined) {
+                await fileTreeSidebar.setVisibility(sidebarVisibleResult.value);
             }
 
             // Setup sidebar integration with tab system
@@ -317,6 +325,41 @@ async function initialize() {
 
             console.log('FileTreeSidebar initialized');
         }
+
+        // Initialize Outline Panel (Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7)
+        const outlinePanelContainer = document.getElementById('outline-panel');
+        if (outlinePanelContainer) {
+            outlinePanel = new OutlinePanel(editor);
+            outlinePanel.initialize(outlinePanelContainer);
+
+            // Restore outline panel visibility from config (Requirement: 1.7, 5.6)
+            const outlineVisibleResult = await window.electronAPI.getConfig('outline.visible');
+            if (outlineVisibleResult?.value) {
+                outlinePanel.show();
+            }
+
+            // Setup toggle button handler
+            const outlineToggleBtn = document.getElementById('outline-toggle-btn');
+            if (outlineToggleBtn) {
+                outlineToggleBtn.addEventListener('click', async () => {
+                    await toggleOutlinePanel();
+                });
+            }
+
+            console.log('OutlinePanel initialized');
+        }
+
+        // Initialize Typewriter Scrolling (Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7)
+        typewriterScrolling = new TypewriterScrolling(editor);
+        typewriterScrolling.initialize();
+
+        // Restore typewriter scrolling state from config (Requirement: 2.6, 5.6)
+        const typewriterEnabledResult = await window.electronAPI.getConfig('typewriter.enabled');
+        if (typewriterEnabledResult?.value) {
+            typewriterScrolling.enable();
+        }
+
+        console.log('TypewriterScrolling initialized');
 
         // Attach tooltips to formatting toolbar buttons
         attachFormattingToolbarTooltips();
@@ -373,7 +416,7 @@ async function initialize() {
         console.log('Renderer process initialized successfully');
     } catch (error) {
         console.error('Failed to initialize renderer process:', error);
-        alert('Failed to initialize application: ' + error.message);
+        notificationManager.error('Failed to initialize application: ' + error.message);
     }
 }
 
@@ -588,6 +631,12 @@ async function handleMenuAction(action, data) {
                     await fileTreeSidebar.toggleVisibility();
                 }
                 break;
+            case 'toggle-outline':
+                await toggleOutlinePanel();
+                break;
+            case 'toggle-typewriter':
+                await toggleTypewriterScrolling();
+                break;
             case 'toggle-statistics':
                 if (statisticsCalculator) {
                     await statisticsCalculator.toggleVisibility();
@@ -636,7 +685,7 @@ async function handleMenuAction(action, data) {
         }
     } catch (error) {
         console.error('Error handling menu action:', error);
-        alert('Error: ' + error.message);
+        notificationManager.error('Error: ' + error.message);
     }
 }
 
@@ -649,7 +698,7 @@ async function handleNewFile() {
         await createNewTab();
     } catch (error) {
         console.error('Failed to create new file:', error);
-        alert('Failed to create new file. Please try again.');
+        notificationManager.error('Failed to create new file. Please try again.');
     }
 }
 
@@ -671,7 +720,7 @@ async function handleOpenFile() {
         }
     } catch (error) {
         console.error('Error opening file:', error);
-        alert('Failed to open file: ' + error.message);
+        notificationManager.error('Failed to open file: ' + error.message);
     }
 }
 
@@ -694,7 +743,7 @@ async function handleOpenRecentFile(filePath) {
         }
     } catch (error) {
         console.error('Error opening recent file:', error);
-        alert('Failed to open recent file: ' + error.message);
+        notificationManager.error('Failed to open recent file: ' + error.message);
     }
 }
 
@@ -719,7 +768,7 @@ async function handleOpenFolder() {
         }
     } catch (error) {
         console.error('Error opening folder:', error);
-        alert('Failed to open folder: ' + error.message);
+        notificationManager.error('Failed to open folder: ' + error.message);
     }
 }
 
@@ -742,7 +791,53 @@ async function handleCloseFolder() {
         }
     } catch (error) {
         console.error('Error closing folder:', error);
-        alert('Failed to close folder: ' + error.message);
+        notificationManager.error('Failed to close folder: ' + error.message);
+    }
+}
+
+/**
+ * Toggle outline panel visibility
+ * Requirements: 1.7, 4.1, 4.3, 5.6
+ */
+async function toggleOutlinePanel() {
+    if (!outlinePanel) {
+        console.warn('Outline panel not initialized');
+        return;
+    }
+
+    try {
+        outlinePanel.toggle();
+
+        // Persist visibility state (Requirement: 1.7, 5.6)
+        await window.electronAPI.setConfig('outline.visible', outlinePanel.isVisible);
+
+        console.log('Outline panel:', outlinePanel.isVisible ? 'shown' : 'hidden');
+    } catch (error) {
+        console.error('Error toggling outline panel:', error);
+        notificationManager.error('Failed to toggle outline panel: ' + error.message);
+    }
+}
+
+/**
+ * Toggle typewriter scrolling mode
+ * Requirements: 2.6, 4.1, 4.2, 4.4, 5.6
+ */
+async function toggleTypewriterScrolling() {
+    if (!typewriterScrolling) {
+        console.warn('Typewriter scrolling not initialized');
+        return;
+    }
+
+    try {
+        typewriterScrolling.toggle();
+
+        // Persist mode state (Requirement: 2.6, 5.6)
+        await window.electronAPI.setConfig('typewriter.enabled', typewriterScrolling.isEnabled());
+
+        console.log('Typewriter scrolling:', typewriterScrolling.isEnabled() ? 'enabled' : 'disabled');
+    } catch (error) {
+        console.error('Error toggling typewriter scrolling:', error);
+        notificationManager.error('Failed to toggle typewriter scrolling: ' + error.message);
     }
 }
 
@@ -759,7 +854,7 @@ async function handleToggleLineNumbers() {
         }
     } catch (error) {
         console.error('Error toggling line numbers:', error);
-        alert('Failed to toggle line numbers: ' + error.message);
+        notificationManager.error('Failed to toggle line numbers: ' + error.message);
     }
 }
 
@@ -800,7 +895,7 @@ async function handleSaveFile() {
         }
     } catch (error) {
         console.error('Error saving file:', error);
-        alert('Failed to save file: ' + error.message);
+        notificationManager.error('Failed to save file: ' + error.message);
     }
 }
 
@@ -849,7 +944,7 @@ async function handleSaveFileAs() {
         }
     } catch (error) {
         console.error('Error saving file as:', error);
-        alert('Failed to save file: ' + error.message);
+        notificationManager.error('Failed to save file: ' + error.message);
     }
 }
 
@@ -863,7 +958,7 @@ async function handleSaveAll() {
         const result = await window.electronAPI.getModifiedTabs();
 
         if (!result.success || !result.tabs || result.tabs.length === 0) {
-            alert('No modified files to save.');
+            notificationManager.info('No modified files to save.');
             return;
         }
 
@@ -910,17 +1005,17 @@ async function handleSaveAll() {
 
         // Show result message
         if (savedCount > 0 && errorCount === 0) {
-            alert(`Successfully saved ${savedCount} file${savedCount > 1 ? 's' : ''}.`);
+            notificationManager.success(`Successfully saved ${savedCount} file${savedCount > 1 ? 's' : ''}.`);
         } else if (savedCount > 0 && errorCount > 0) {
-            alert(`Saved ${savedCount} file${savedCount > 1 ? 's' : ''}.\n\nErrors:\n${errors.join('\n')}`);
+            notificationManager.warning(`Saved ${savedCount} file${savedCount > 1 ? 's' : ''}.\n\nErrors:\n${errors.join('\n')}`);
         } else {
-            alert(`Failed to save files:\n${errors.join('\n')}`);
+            notificationManager.error(`Failed to save files:\n${errors.join('\n')}`);
         }
 
         console.log(`Save All completed: ${savedCount} saved, ${errorCount} errors`);
     } catch (error) {
         console.error('Error in save all:', error);
-        alert('Failed to save files: ' + error.message);
+        notificationManager.error('Failed to save files: ' + error.message);
     }
 }
 
@@ -933,11 +1028,11 @@ async function handleExportHTML() {
         const result = await window.electronAPI.exportHTML(content);
 
         if (result && result.success) {
-            alert('Successfully exported to HTML: ' + result.filePath);
+            notificationManager.success('Successfully exported to HTML: ' + result.filePath);
         }
     } catch (error) {
         console.error('Error exporting to HTML:', error);
-        alert('Failed to export to HTML: ' + error.message);
+        notificationManager.error('Failed to export to HTML: ' + error.message);
     }
 }
 
@@ -950,11 +1045,11 @@ async function handleExportPDF() {
         const result = await window.electronAPI.exportPDF(content);
 
         if (result && result.success) {
-            alert('Successfully exported to PDF: ' + result.filePath);
+            notificationManager.success('Successfully exported to PDF: ' + result.filePath);
         }
     } catch (error) {
         console.error('Error exporting to PDF:', error);
-        alert('Failed to export to PDF: ' + error.message);
+        notificationManager.error('Failed to export to PDF: ' + error.message);
     }
 }
 
@@ -1095,10 +1190,22 @@ function setupKeyboardShortcuts() {
                 }
             }
 
-            // Ctrl/Cmd + B (when not in editor): Toggle sidebar
-            if (modifier && e.key === 'b' && e.shiftKey && fileTreeSidebar) {
+            // Ctrl/Cmd + Shift + B: Toggle sidebar
+            if (modifier && e.key === 'B' && e.shiftKey && fileTreeSidebar) {
                 e.preventDefault();
                 await fileTreeSidebar.toggleVisibility();
+            }
+
+            // Ctrl/Cmd + Shift + O: Toggle outline panel
+            if (modifier && e.key === 'O' && e.shiftKey) {
+                e.preventDefault();
+                await toggleOutlinePanel();
+            }
+
+            // Ctrl/Cmd + Shift + T: Toggle typewriter scrolling
+            if (modifier && e.key === 'T' && e.shiftKey) {
+                e.preventDefault();
+                await toggleTypewriterScrolling();
             }
         } catch (error) {
             console.error('Keyboard shortcut error:', error);
@@ -1154,12 +1261,12 @@ function setupDragAndDrop() {
                         console.log('File loaded via drag-and-drop:', file.path);
                     } catch (error) {
                         console.error('Failed to load dropped file:', error);
-                        alert('Failed to load file. Please try again.');
+                        notificationManager.error('Failed to load file. Please try again.');
                     }
                 };
                 reader.readAsText(file);
             } else {
-                alert('Please drop a markdown file (.md or .markdown)');
+                notificationManager.warning('Please drop a markdown file (.md or .markdown)');
             }
         }
     });
@@ -1216,7 +1323,7 @@ function setupSidebarIntegration() {
             }
         } catch (error) {
             console.error('Error opening file from sidebar:', error);
-            alert('Failed to open file: ' + error.message);
+            notificationManager.error('Failed to open file: ' + error.message);
         }
     });
 
@@ -1224,7 +1331,8 @@ function setupSidebarIntegration() {
     fileTreeSidebar.onFolderToggle(async (folderPath, isExpanded) => {
         try {
             // Get current expanded folders
-            const expandedFolders = await window.electronAPI.getConfig('workspace.expandedFolders') || [];
+            const result = await window.electronAPI.getConfig('workspace.expandedFolders');
+            const expandedFolders = result?.value || [];
 
             if (isExpanded) {
                 // Add to expanded folders if not already present
@@ -1263,8 +1371,8 @@ async function restoreWorkspace() {
             await fileTreeSidebar.loadWorkspace(result.tree);
 
             // Check if sidebar should be visible (default to true if workspace exists)
-            const sidebarVisible = await window.electronAPI.getConfig('workspace.sidebarVisible');
-            if (sidebarVisible !== false) {
+            const sidebarVisibleResult = await window.electronAPI.getConfig('workspace.sidebarVisible');
+            if (sidebarVisibleResult?.value !== false) {
                 await fileTreeSidebar.setVisibility(true);
             }
 
@@ -1355,7 +1463,7 @@ async function createNewTab(filePath = null, content = '') {
         }
     } catch (error) {
         console.error('Error creating tab:', error);
-        alert('Failed to create tab: ' + error.message);
+        notificationManager.error('Failed to create tab: ' + error.message);
     }
 }
 
@@ -1407,7 +1515,7 @@ async function switchToTab(tabId) {
         }
     } catch (error) {
         console.error('Error switching tab:', error);
-        alert('Failed to switch tab: ' + error.message);
+        notificationManager.error('Failed to switch tab: ' + error.message);
     }
 }
 
@@ -1464,7 +1572,7 @@ async function closeTab(tabId) {
         }
     } catch (error) {
         console.error('Error closing tab:', error);
-        alert('Failed to close tab: ' + error.message);
+        notificationManager.error('Failed to close tab: ' + error.message);
     }
 }
 
@@ -1635,7 +1743,7 @@ async function handleTemplateInsert(template, mode) {
         console.log('Template inserted:', template.name, 'mode:', mode);
     } catch (error) {
         console.error('Error inserting template:', error);
-        alert('Failed to insert template: ' + error.message);
+        notificationManager.error('Failed to insert template: ' + error.message);
     }
 }
 
@@ -1691,6 +1799,12 @@ function cleanup() {
     }
     if (fileTreeSidebar) {
         fileTreeSidebar.destroy();
+    }
+    if (outlinePanel) {
+        outlinePanel.destroy();
+    }
+    if (typewriterScrolling) {
+        typewriterScrolling.disable();
     }
 }
 

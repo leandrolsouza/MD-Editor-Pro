@@ -40,6 +40,12 @@
 
     <!-- File Tree Sidebar Stylesheet -->
     <link rel="stylesheet" href="styles/file-tree-sidebar.css">
+
+    <!-- Outline Panel Stylesheet -->
+    <link rel="stylesheet" href="styles/outline-panel.css">
+
+    <!-- Notification System Stylesheet -->
+    <link rel="stylesheet" href="styles/notification.css">
 </head>
 
 <body class="theme-light">
@@ -59,6 +65,18 @@
             </button>
         </div>
         <div class="file-tree-sidebar__tree" id="file-tree-container"></div>
+    </div>
+
+    <!-- Outline Panel -->
+    <div id="outline-panel" class="outline-panel outline-panel--hidden">
+        <div class="outline-panel__header">
+            <span class="outline-panel__title">Outline</span>
+            <button class="outline-panel__toggle-btn" id="outline-toggle-btn" aria-label="Toggle outline panel"
+                title="Toggle outline">
+                ✕
+            </button>
+        </div>
+        <div class="outline-panel__tree" id="outline-tree-container" role="tree"></div>
     </div>
 
     <!-- Main Container -->

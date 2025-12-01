@@ -22,7 +22,8 @@ class ThemeManager {
 
         try {
             // Load theme preference from ConfigStore
-            const savedTheme = await window.electronAPI.getConfig('theme');
+            const result = await window.electronAPI.getConfig('theme');
+            const savedTheme = result?.value;
 
             // Use saved theme if available, otherwise default to 'light'
             if (savedTheme === 'light' || savedTheme === 'dark') {
