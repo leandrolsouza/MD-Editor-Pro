@@ -3,6 +3,16 @@
  * Global mocks and configurations for all tests
  */
 
+// Mock requestAnimationFrame for CodeMirror in JSDOM environment
+if (typeof window !== 'undefined' && !window.requestAnimationFrame) {
+    window.requestAnimationFrame = (callback) => {
+        return setTimeout(callback, 0);
+    };
+    window.cancelAnimationFrame = (id) => {
+        clearTimeout(id);
+    };
+}
+
 // Mock getClientRects for CodeMirror in JSDOM environment
 if (typeof Range !== 'undefined') {
     // Store original method if it exists

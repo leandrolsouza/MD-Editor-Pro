@@ -19,6 +19,7 @@ const TabBar = require('./tab-bar.js');
 const FocusMode = require('./focus-mode.js');
 const TemplateUI = require('./template-ui.js');
 const SnippetManager = require('./snippet-manager.js');
+const FormattingToolbar = require('./formatting-toolbar.js');
 
 // Application state
 let editor = null;
@@ -32,6 +33,7 @@ let tabBar = null;
 let focusMode = null;
 let templateUI = null;
 let snippetManager = null;
+let formattingToolbar = null;
 
 // Document state
 let currentFilePath = null;
@@ -69,6 +71,15 @@ async function initialize() {
         preview.initialize(previewContainer);
         console.log('Preview initialized');
 
+        // Initialize FormattingToolbar
+        const formattingToolbarContainer = document.getElementById('formatting-toolbar');
+        if (!formattingToolbarContainer) {
+            throw new Error('Formatting toolbar container not found');
+        }
+        formattingToolbar = new FormattingToolbar(editor);
+        formattingToolbar.initialize(formattingToolbarContainer);
+        console.log('FormattingToolbar initialized');
+
         // Initialize SearchManager
         searchManager = new SearchManager(editor);
         searchManager.initialize();
@@ -83,6 +94,22 @@ async function initialize() {
         viewModeManager = new ViewModeManager();
         await viewModeManager.initialize();
         console.log('ViewModeManager initialized');
+
+        // Connect FormattingToolbar to ViewModeManager for visibility control
+        viewModeManager.onViewModeChange((mode) => {
+            if (mode === 'preview') {
+                formattingToolbar.hide();
+            } else {
+                formattingToolbar.show();
+            }
+        });
+        // Set initial visibility based on current view mode
+        const currentViewMode = viewModeManager.getCurrentViewMode();
+        if (currentViewMode === 'preview') {
+            formattingToolbar.hide();
+        } else {
+            formattingToolbar.show();
+        }
 
         // Initialize AutoSaveManager
         autoSaveManager = new AutoSaveManager(editor);
@@ -520,16 +547,22 @@ function setupKeyboardShortcuts() {
             }
         }
 
-        // Ctrl/Cmd + B: Bold
+        // Ctrl/Cmd + B: Bold (Requirements: 1.5)
         if (modifier && e.key === 'b' && !e.shiftKey) {
             e.preventDefault();
             editor.applyFormatting('bold');
         }
 
-        // Ctrl/Cmd + I: Italic
+        // Ctrl/Cmd + I: Italic (Requirements: 2.5)
         if (modifier && e.key === 'i') {
             e.preventDefault();
             editor.applyFormatting('italic');
+        }
+
+        // Ctrl/Cmd + `: Inline code (Requirements: 7.5)
+        if (modifier && e.key === '`') {
+            e.preventDefault();
+            editor.applyFormatting('code');
         }
 
         // Ctrl/Cmd + F: Find
@@ -854,6 +887,9 @@ function cleanup() {
     }
     if (preview) {
         preview.destroy();
+    }
+    if (formattingToolbar) {
+        formattingToolbar.destroy();
     }
     if (autoSaveManager) {
         autoSaveManager.destroy();

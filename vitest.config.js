@@ -15,6 +15,8 @@ export default defineConfig({
             ['src/main/**/*.test.js', 'node'],
             ['src/preload/**/*.test.js', 'node'],
             ['src/renderer/**/*.test.js', 'jsdom']
-        ]
+        ],
+        // Run tests sequentially to avoid electron-store conflicts
+        fileParallelism: false
     },
 });

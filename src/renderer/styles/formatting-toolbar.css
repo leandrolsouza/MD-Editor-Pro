@@ -1,0 +1,151 @@
+/* Formatting Toolbar Styles */
+/* Requirements: 9.1, 9.4, 10.5 */
+
+/* Toolbar Container */
+.formatting-toolbar {
+    position: fixed;
+    top: 36px;
+    /* Below tab bar */
+    left: 0;
+    right: 0;
+    height: 44px;
+    background-color: var(--toolbar-bg, #f6f8fa);
+    border-bottom: 1px solid var(--toolbar-border, #e1e4e8);
+    display: flex;
+    align-items: center;
+    z-index: 99;
+    padding: 0 12px;
+}
+
+.formatting-toolbar-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 100%;
+}
+
+/* Toolbar Buttons */
+.toolbar-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    padding: 6px 8px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background-color: transparent;
+    color: var(--toolbar-button-text, #24292e);
+    font-size: 14px;
+    font-weight: 600;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+    white-space: nowrap;
+}
+
+/* Button Hover State */
+.toolbar-button:hover {
+    background-color: var(--toolbar-button-hover-bg, #f3f4f6);
+    border-color: var(--toolbar-button-hover-border, #d1d5da);
+}
+
+/* Button Active State (when formatting is applied) */
+.toolbar-button.active {
+    background-color: var(--toolbar-button-active-bg, #e1e4e8);
+    border-color: var(--toolbar-button-active-border, #0969da);
+    color: var(--toolbar-button-active-text, #0969da);
+}
+
+/* Button Active + Hover State */
+.toolbar-button.active:hover {
+    background-color: var(--toolbar-button-active-hover-bg, #d1d5da);
+}
+
+/* Button Pressed State */
+.toolbar-button:active {
+    background-color: var(--toolbar-button-pressed-bg, #d1d5da);
+    transform: translateY(1px);
+}
+
+/* Button Focus State - Accessibility */
+.toolbar-button:focus-visible {
+    outline: 2px solid var(--toolbar-button-focus-outline, #0969da);
+    outline-offset: 2px;
+    border-color: transparent;
+}
+
+/* Button Disabled State */
+.toolbar-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: transparent;
+}
+
+.toolbar-button:disabled:hover {
+    background-color: transparent;
+    border-color: transparent;
+}
+
+/* Separator Styles */
+.toolbar-separator {
+    width: 1px;
+    height: 24px;
+    background-color: var(--toolbar-separator, #d1d5da);
+    margin: 0 8px;
+    flex-shrink: 0;
+}
+
+/* Button Group Specific Styles */
+.toolbar-button-inline {
+    font-style: normal;
+}
+
+.toolbar-button-heading {
+    font-size: 13px;
+}
+
+.toolbar-button-code {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+}
+
+/* Ensure proper sizing for accessibility */
+.toolbar-button {
+    min-height: 32px;
+    /* WCAG 2.1 Level AA: minimum 24x24px, we use 32x32px for better usability */
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+    .toolbar-button {
+        border: 2px solid var(--toolbar-button-text, #000);
+    }
+
+    .toolbar-button.active {
+        border: 2px solid var(--toolbar-button-active-border, #0969da);
+        background-color: var(--toolbar-button-active-bg, #e1e4e8);
+    }
+
+    .toolbar-separator {
+        background-color: var(--toolbar-button-text, #000);
+        width: 2px;
+    }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    .toolbar-button {
+        transition: none;
+    }
+
+    .toolbar-button:active {
+        transform: none;
+    }
+}
+
+/* Hide toolbar when not needed */
+.formatting-toolbar.hidden {
+    display: none;
+}

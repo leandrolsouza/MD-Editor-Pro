@@ -76,6 +76,20 @@
     --close-button-hover-bg: rgba(255, 255, 255, 0.1);
     --close-button-active-bg: rgba(255, 255, 255, 0.2);
     --scrollbar-thumb: #484f58;
+
+    /* Formatting Toolbar */
+    --toolbar-bg: #161b22;
+    --toolbar-border: #30363d;
+    --toolbar-button-text: #e6edf3;
+    --toolbar-button-hover-bg: #30363d;
+    --toolbar-button-hover-border: #484f58;
+    --toolbar-button-active-bg: #21262d;
+    --toolbar-button-active-border: #58a6ff;
+    --toolbar-button-active-text: #58a6ff;
+    --toolbar-button-active-hover-bg: #30363d;
+    --toolbar-button-pressed-bg: #484f58;
+    --toolbar-button-focus-outline: #58a6ff;
+    --toolbar-separator: #484f58;
 }
 
 body.theme-dark {

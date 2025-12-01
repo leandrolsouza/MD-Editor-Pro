@@ -16,6 +16,8 @@ describe('ConfigStore', () => {
     beforeEach(() => {
         // Create a new ConfigStore instance for each test
         configStore = new ConfigStore();
+        // Reset to defaults to ensure clean state
+        configStore.reset();
         // Get the config file path to clean up after tests
         configPath = path.join(os.homedir(), '.config', 'md-editor-pro', 'config.json');
     });
@@ -155,6 +157,8 @@ describe('ConfigStore', () => {
         });
 
         it('should get all keyboard shortcuts', () => {
+            // First clear any existing shortcuts
+            configStore.setAllKeyboardShortcuts({});
             configStore.setKeyboardShortcut('save', 'Ctrl-S');
             configStore.setKeyboardShortcut('open', 'Ctrl-O');
             const shortcuts = configStore.getAllKeyboardShortcuts();

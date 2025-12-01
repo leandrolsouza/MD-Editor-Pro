@@ -334,4 +334,332 @@ describe('Editor', () => {
             expect(editor.contentChangeCallbacks).toEqual([]);
         });
     });
+
+    describe('new formatting methods', () => {
+        beforeEach(() => {
+            editor.initialize(container);
+        });
+
+        describe('selection utilities', () => {
+            it('should get selection', () => {
+                editor.setValue('Hello World');
+                const transaction = editor.view.state.update({
+                    selection: { anchor: 0, head: 5 }
+                });
+                editor.view.dispatch(transaction);
+
+                const selection = editor.getSelection();
+                expect(selection.from).toBe(0);
+                expect(selection.to).toBe(5);
+                expect(selection.text).toBe('Hello');
+                expect(selection.isEmpty).toBe(false);
+            });
+
+            it('should get current line', () => {
+                editor.setValue('Line 1\nLine 2\nLine 3');
+                const transaction = editor.view.state.update({
+                    selection: { anchor: 7 }
+                });
+                editor.view.dispatch(transaction);
+
+                const line = editor.getCurrentLine();
+                expect(line.text).toBe('Line 2');
+                expect(line.lineNumber).toBe(2);
+            });
+
+            it('should replace selection', () => {
+                editor.setValue('Hello World');
+                const transaction = editor.view.state.update({
+                    selection: { anchor: 6, head: 11 }
+                });
+                editor.view.dispatch(transaction);
+
+                editor.replaceSelection('Universe');
+                expect(editor.getValue()).toBe('Hello Universe');
+            });
+
+            it('should replace current line', () => {
+                editor.setValue('Line 1\nLine 2\nLine 3');
+                const transaction = editor.view.state.update({
+                    selection: { anchor: 7 }
+                });
+                editor.view.dispatch(transaction);
+
+                editor.replaceCurrentLine('New Line');
+                expect(editor.getValue()).toBe('Line 1\nNew Line\nLine 3');
+            });
+        });
+
+        describe('applyBold', () => {
+            it('should wrap selected text with bold markers', () => {
+                editor.setValue('text');
+                const transaction = editor.view.state.update({
+                    selection: { anchor: 0, head: 4 }
+                });
+                editor.view.dispatch(transaction);
+
+                editor.applyBold();
+                expect(editor.getValue()).toBe('**text**');
+            });
+
+            it('should insert markers with empty selection', () => {
+                editor.setValue('');
+                editor.applyBold();
+                expect(editor.getValue()).toBe('****');
+            });
+
+            it('should remove bold markers when already bolded', () => {
+                editor.setValue('**text**');
+                const transaction = editor.view.state.update({
+                    selection: { anchor: 2, head: 6 }
+                });
+                editor.view.dispatch(transaction);
+
+                editor.applyBold();
+                expect(editor.getValue()).toBe('text');
+            });
+        });
+
+        describe('applyItalic', () => {
+            it('should wrap selected text with italic markers', () => {
+                editor.setValue('text');
+                const transaction = editor.view.state.update({
+                    selection: { anchor: 0, head: 4 }
+                });
+                editor.view.dispatch(transaction);
+
+                editor.applyItalic();
+                expect(editor.getValue()).toBe('*text*');
+            });
+
+            it('should remove italic markers when already italicized', () => {
+                editor.setValue('*text*');
+                const transaction = editor.view.state.update({
+                    selection: { anchor: 1, head: 5 }
+                });
+                editor.view.dispatch(transaction);
+
+                editor.applyItalic();
+                expect(editor.getValue()).toBe('text');
+            });
+        });
+
+        describe('applyStrikethrough', () => {
+            it('should wrap selected text with strikethrough markers', () => {
+                editor.setValue('text');
+                const transaction = editor.view.state.update({
+                    selection: { anchor: 0, head: 4 }
+                });
+                editor.view.dispatch(transaction);
+
+                editor.applyStrikethrough();
+                expect(editor.getValue()).toBe('~~text~~');
+            });
+
+            it('should remove strikethrough markers when already strikethrough', () => {
+                editor.setValue('~~text~~');
+                const transaction = editor.view.state.update({
+                    selection: { anchor: 2, head: 6 }
+                });
+                editor.view.dispatch(transaction);
+
+                editor.applyStrikethrough();
+                expect(editor.getValue()).toBe('text');
+            });
+        });
+
+        describe('applyHeading', () => {
+            it('should add heading markers', () => {
+                editor.setValue('Heading');
+                editor.applyHeading(1);
+                expect(editor.getValue()).toBe('# Heading');
+            });
+
+            it('should replace heading level', () => {
+                editor.setValue('# Heading');
+                editor.applyHeading(2);
+                expect(editor.getValue()).toBe('## Heading');
+            });
+
+            it('should remove heading when same level applied', () => {
+                editor.setValue('## Heading');
+                editor.applyHeading(2);
+                expect(editor.getValue()).toBe('Heading');
+            });
+        });
+
+        describe('applyUnorderedList', () => {
+            it('should add unordered list marker', () => {
+                editor.setValue('Item');
+                editor.applyUnorderedList();
+                expect(editor.getValue()).toBe('- Item');
+            });
+
+            it('should remove list marker when already a list', () => {
+                editor.setValue('- Item');
+                editor.applyUnorderedList();
+                expect(editor.getValue()).toBe('Item');
+            });
+
+            it('should apply to multiple lines', () => {
+                editor.setValue('Item 1\nItem 2');
+                const transaction = editor.view.state.update({
+                    selection: { anchor: 0, head: 13 }
+                });
+                editor.view.dispatch(transaction);
+
+                editor.applyUnorderedList();
+                expect(editor.getValue()).toBe('- Item 1\n- Item 2');
+            });
+        });
+
+        describe('applyOrderedList', () => {
+            it('should add ordered list marker', () => {
+                editor.setValue('Item');
+                editor.applyOrderedList();
+                expect(editor.getValue()).toBe('1. Item');
+            });
+
+            it('should remove list marker when already a list', () => {
+                editor.setValue('1. Item');
+                editor.applyOrderedList();
+                expect(editor.getValue()).toBe('Item');
+            });
+        });
+
+        describe('applyBlockquote', () => {
+            it('should add blockquote marker', () => {
+                editor.setValue('Quote');
+                editor.applyBlockquote();
+                expect(editor.getValue()).toBe('> Quote');
+            });
+
+            it('should remove blockquote marker when already a blockquote', () => {
+                editor.setValue('> Quote');
+                editor.applyBlockquote();
+                expect(editor.getValue()).toBe('Quote');
+            });
+        });
+
+        describe('applyInlineCode', () => {
+            it('should wrap selected text with code markers', () => {
+                editor.setValue('code');
+                const transaction = editor.view.state.update({
+                    selection: { anchor: 0, head: 4 }
+                });
+                editor.view.dispatch(transaction);
+
+                editor.applyInlineCode();
+                expect(editor.getValue()).toBe('`code`');
+            });
+
+            it('should remove code markers when already code', () => {
+                editor.setValue('`code`');
+                const transaction = editor.view.state.update({
+                    selection: { anchor: 1, head: 5 }
+                });
+                editor.view.dispatch(transaction);
+
+                editor.applyInlineCode();
+                expect(editor.getValue()).toBe('code');
+            });
+        });
+
+        describe('applyCodeBlock', () => {
+            it('should insert code block', () => {
+                editor.setValue('');
+                editor.applyCodeBlock();
+                expect(editor.getValue()).toBe('```\n\n```');
+            });
+        });
+
+        describe('insertLink', () => {
+            it('should insert link with selected text', () => {
+                editor.setValue('link text');
+                const transaction = editor.view.state.update({
+                    selection: { anchor: 0, head: 9 }
+                });
+                editor.view.dispatch(transaction);
+
+                editor.insertLink();
+                expect(editor.getValue()).toBe('[link text](url)');
+            });
+
+            it('should insert link with placeholder when no selection', () => {
+                editor.setValue('');
+                editor.insertLink();
+                expect(editor.getValue()).toBe('[text](url)');
+            });
+        });
+
+        describe('insertImage', () => {
+            it('should insert image syntax', () => {
+                editor.setValue('');
+                editor.insertImage();
+                expect(editor.getValue()).toBe('![alt](url)');
+            });
+        });
+
+        describe('format detection', () => {
+            it('should detect bold formatting', () => {
+                editor.setValue('**text**');
+                const transaction = editor.view.state.update({
+                    selection: { anchor: 2, head: 6 }
+                });
+                editor.view.dispatch(transaction);
+
+                expect(editor.isBoldActive()).toBe(true);
+            });
+
+            it('should detect italic formatting', () => {
+                editor.setValue('*text*');
+                const transaction = editor.view.state.update({
+                    selection: { anchor: 1, head: 5 }
+                });
+                editor.view.dispatch(transaction);
+
+                expect(editor.isItalicActive()).toBe(true);
+            });
+
+            it('should detect strikethrough formatting', () => {
+                editor.setValue('~~text~~');
+                const transaction = editor.view.state.update({
+                    selection: { anchor: 2, head: 6 }
+                });
+                editor.view.dispatch(transaction);
+
+                expect(editor.isStrikethroughActive()).toBe(true);
+            });
+
+            it('should detect heading level', () => {
+                editor.setValue('## Heading');
+                expect(editor.getActiveHeadingLevel()).toBe(2);
+            });
+
+            it('should detect unordered list', () => {
+                editor.setValue('- Item');
+                expect(editor.isUnorderedListActive()).toBe(true);
+            });
+
+            it('should detect ordered list', () => {
+                editor.setValue('1. Item');
+                expect(editor.isOrderedListActive()).toBe(true);
+            });
+
+            it('should detect blockquote', () => {
+                editor.setValue('> Quote');
+                expect(editor.isBlockquoteActive()).toBe(true);
+            });
+
+            it('should detect inline code', () => {
+                editor.setValue('`code`');
+                const transaction = editor.view.state.update({
+                    selection: { anchor: 1, head: 5 }
+                });
+                editor.view.dispatch(transaction);
+
+                expect(editor.isInlineCodeActive()).toBe(true);
+            });
+        });
+    });
 });

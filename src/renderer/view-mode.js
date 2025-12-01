@@ -12,6 +12,7 @@ class ViewModeManager {
         this.editorPane = null
         this.previewPane = null
         this.divider = null
+        this.viewModeChangeListeners = [] // Listeners for view mode changes
     }
 
     /**
@@ -67,12 +68,51 @@ class ViewModeManager {
         this.currentViewMode = mode
         this.applyViewMode(mode)
 
+        // Notify listeners of view mode change
+        this.notifyViewModeChange(mode)
+
         // Persist view mode preference to ConfigStore
         try {
             await window.electronAPI.setConfig('viewMode', mode)
         } catch (error) {
             console.error('Failed to save view mode preference:', error)
         }
+    }
+
+    /**
+     * Register a listener for view mode changes
+     * @param {Function} callback - Callback function that receives the new view mode
+     * @returns {Function} Function to remove the listener
+     */
+    onViewModeChange(callback) {
+        if (typeof callback !== 'function') {
+            throw new Error('Callback must be a function')
+        }
+
+        this.viewModeChangeListeners.push(callback)
+
+        // Return a function to remove this listener
+        return () => {
+            const index = this.viewModeChangeListeners.indexOf(callback)
+            if (index !== -1) {
+                this.viewModeChangeListeners.splice(index, 1)
+            }
+        }
+    }
+
+    /**
+     * Notify all listeners of a view mode change
+     * @private
+     * @param {string} mode - The new view mode
+     */
+    notifyViewModeChange(mode) {
+        this.viewModeChangeListeners.forEach(listener => {
+            try {
+                listener(mode)
+            } catch (error) {
+                console.error('Error in view mode change listener:', error)
+            }
+        })
     }
 
     /**

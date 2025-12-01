@@ -338,6 +338,19 @@ describe('End-to-End Integration Tests', () => {
 
             expect(editor.getValue()).toBe('Modified');
         });
+
+        it('should apply inline code formatting with keyboard shortcut', () => {
+            editor.setValue('code');
+
+            const transaction = editor.view.state.update({
+                selection: { anchor: 0, head: 4 }
+            });
+            editor.view.dispatch(transaction);
+
+            editor.applyFormatting('code');
+
+            expect(editor.getValue()).toBe('`code`');
+        });
     });
 
     describe('View Mode Management', () => {

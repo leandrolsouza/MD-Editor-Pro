@@ -74,6 +74,20 @@
     --close-button-hover-bg: rgba(0, 0, 0, 0.1);
     --close-button-active-bg: rgba(0, 0, 0, 0.2);
     --scrollbar-thumb: #d1d5da;
+
+    /* Formatting Toolbar */
+    --toolbar-bg: #f6f8fa;
+    --toolbar-border: #e1e4e8;
+    --toolbar-button-text: #24292e;
+    --toolbar-button-hover-bg: #f3f4f6;
+    --toolbar-button-hover-border: #d1d5da;
+    --toolbar-button-active-bg: #e1e4e8;
+    --toolbar-button-active-border: #0969da;
+    --toolbar-button-active-text: #0969da;
+    --toolbar-button-active-hover-bg: #d1d5da;
+    --toolbar-button-pressed-bg: #d1d5da;
+    --toolbar-button-focus-outline: #0969da;
+    --toolbar-separator: #d1d5da;
 }
 
 body.theme-light {

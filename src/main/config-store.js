@@ -112,7 +112,30 @@ class ConfigStore {
      * Reset all configuration to defaults
      */
     reset() {
-        this.store.clear();
+        // Manually set all default values
+        this.store.set('theme', 'light');
+        this.store.set('viewMode', 'split');
+        this.store.set('fontSize', 14);
+        this.store.set('lineNumbers', true);
+        this.store.set('lineWrapping', true);
+        this.store.set('autoSave', {
+            enabled: true,
+            delay: 5
+        });
+        this.store.set('statistics', {
+            visible: true,
+            wordsPerMinute: 200
+        });
+        this.store.set('focusMode', {
+            lastUsed: false
+        });
+        this.store.set('keyboardShortcuts', {});
+        this.store.set('customTemplates', []);
+        this.store.set('customSnippets', []);
+        this.store.set('tabs', {
+            lastOpenTabs: [],
+            activeTabId: null
+        });
     }
 
     // ========== Auto-Save Methods (Requirements: 1.6, 1.7) ==========

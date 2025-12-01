@@ -17,8 +17,8 @@ body {
 #app-container {
     display: flex;
     width: 100%;
-    height: calc(100% - 24px - 36px - 44px);
-    /* Account for status bar, tab bar, and toolbar */
+    height: calc(100% - 24px - 36px - 44px - 40px);
+    /* Account for status bar (24px), tab bar (36px), toolbar (44px), and formatting toolbar (40px) */
     position: relative;
 }
 
@@ -123,10 +123,10 @@ body {
     background-color: var(--close-button-active-bg, rgba(0, 0, 0, 0.2));
 }
 
-/* Adjust app container to account for tab bar and toolbar */
+/* Adjust app container to account for tab bar, toolbar, and formatting toolbar */
 body.has-tabs #app-container {
-    margin-top: 80px;
-    /* 36px tab bar + 44px toolbar */
+    margin-top: 120px;
+    /* 36px tab bar + 44px toolbar + 40px formatting toolbar */
 }
 
 /* Pane Styles */

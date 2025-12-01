@@ -13,8 +13,8 @@ describe('TemplateManager', () => {
 
     beforeEach(() => {
         configStore = new ConfigStore();
-        // Clear any existing custom templates
-        configStore.set('customTemplates', []);
+        // Reset to defaults to ensure clean state
+        configStore.reset();
         templateManager = new TemplateManager(configStore);
     });
 
