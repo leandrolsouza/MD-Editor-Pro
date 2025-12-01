@@ -60,7 +60,21 @@ const electronAPI = {
     getAllShortcuts: () => ipcRenderer.invoke('shortcuts:get-all'),
     getAvailableActions: () => ipcRenderer.invoke('shortcuts:get-available-actions'),
     checkShortcutConflict: (keyBinding, excludeActionId) => ipcRenderer.invoke('shortcuts:check-conflict', keyBinding, excludeActionId),
-    getDefaultShortcut: (actionId) => ipcRenderer.invoke('shortcuts:get-default', actionId)
+    getDefaultShortcut: (actionId) => ipcRenderer.invoke('shortcuts:get-default', actionId),
+
+    // Template operations
+    getTemplate: (templateId) => ipcRenderer.invoke('template:get', templateId),
+    getAllTemplates: () => ipcRenderer.invoke('template:get-all'),
+    getBuiltInTemplates: () => ipcRenderer.invoke('template:get-builtin'),
+    getCustomTemplates: () => ipcRenderer.invoke('template:get-custom'),
+    saveCustomTemplate: (name, content, metadata) => ipcRenderer.invoke('template:save-custom', name, content, metadata),
+    deleteCustomTemplate: (templateId) => ipcRenderer.invoke('template:delete-custom', templateId),
+    updateCustomTemplate: (templateId, updates) => ipcRenderer.invoke('template:update-custom', templateId, updates),
+    getTemplateCategories: () => ipcRenderer.invoke('template:get-categories'),
+    getTemplatesByCategory: (category) => ipcRenderer.invoke('template:get-by-category', category),
+    markTemplateUsed: (templateId) => ipcRenderer.invoke('template:mark-used', templateId),
+    findPlaceholders: (content) => ipcRenderer.invoke('template:find-placeholders', content),
+    getFirstPlaceholderPosition: (content) => ipcRenderer.invoke('template:get-first-placeholder-position', content)
 }
 
 // Expose API directly to window when contextIsolation is disabled

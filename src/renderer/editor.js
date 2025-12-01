@@ -246,6 +246,137 @@ class Editor {
     }
 
     /**
+     * Insert template at cursor position or replace entire document
+     * Requirements: 6.1, 6.2, 6.3
+     * @param {string} templateContent - Template content to insert
+     * @param {string} mode - 'insert' or 'replace'
+     */
+    insertTemplate(templateContent, mode = 'insert') {
+        if (!this.view) {
+            throw new Error('Editor not initialized');
+        }
+
+        if (!templateContent || typeof templateContent !== 'string') {
+            throw new Error('Template content must be a non-empty string');
+        }
+
+        if (mode !== 'insert' && mode !== 'replace') {
+            throw new Error('Mode must be "insert" or "replace"');
+        }
+
+        let transaction;
+
+        if (mode === 'replace') {
+            // Replace entire document
+            transaction = this.view.state.update({
+                changes: {
+                    from: 0,
+                    to: this.view.state.doc.length,
+                    insert: templateContent
+                }
+            });
+        } else {
+            // Insert at cursor position
+            const selection = this.view.state.selection.main;
+            transaction = this.view.state.update({
+                changes: {
+                    from: selection.from,
+                    to: selection.to,
+                    insert: templateContent
+                }
+            });
+        }
+
+        this.view.dispatch(transaction);
+
+        // Position cursor at first placeholder
+        this.positionCursorAtFirstPlaceholder(templateContent, mode);
+    }
+
+    /**
+     * Position cursor at the first placeholder in the template
+     * Requirements: 6.3
+     * @param {string} templateContent - Template content
+     * @param {string} mode - 'insert' or 'replace'
+     */
+    positionCursorAtFirstPlaceholder(templateContent, mode) {
+        if (!this.view) {
+            throw new Error('Editor not initialized');
+        }
+
+        // Find first placeholder {{...}}
+        const placeholderRegex = /\{\{[^}]+\}\}/;
+        const match = templateContent.match(placeholderRegex);
+
+        if (!match) {
+            // No placeholder found, position at end of inserted content
+            return;
+        }
+
+        const placeholderPosition = templateContent.indexOf(match[0]);
+        const placeholderLength = match[0].length;
+
+        let absolutePosition;
+        if (mode === 'replace') {
+            // Position is from start of document
+            absolutePosition = placeholderPosition;
+        } else {
+            // Position is from where we inserted
+            const selection = this.view.state.selection.main;
+            absolutePosition = selection.from + placeholderPosition;
+        }
+
+        // Select the placeholder
+        const transaction = this.view.state.update({
+            selection: {
+                anchor: absolutePosition,
+                head: absolutePosition + placeholderLength
+            },
+            scrollIntoView: true
+        });
+
+        this.view.dispatch(transaction);
+        this.view.focus();
+    }
+
+    /**
+     * Get cursor position in the document
+     * @returns {number} Cursor position
+     */
+    getCursorPosition() {
+        if (!this.view) {
+            throw new Error('Editor not initialized');
+        }
+        return this.view.state.selection.main.from;
+    }
+
+    /**
+     * Set cursor position in the document
+     * @param {number} position - Position to set cursor to
+     */
+    setCursorPosition(position) {
+        if (!this.view) {
+            throw new Error('Editor not initialized');
+        }
+
+        if (typeof position !== 'number' || position < 0) {
+            throw new Error('Position must be a non-negative number');
+        }
+
+        const maxPosition = this.view.state.doc.length;
+        const safePosition = Math.min(position, maxPosition);
+
+        const transaction = this.view.state.update({
+            selection: {
+                anchor: safePosition
+            },
+            scrollIntoView: true
+        });
+
+        this.view.dispatch(transaction);
+    }
+
+    /**
      * Destroy the editor instance
      */
     destroy() {

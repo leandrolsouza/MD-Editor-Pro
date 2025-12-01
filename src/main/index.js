@@ -10,6 +10,7 @@ const Exporter = require('./exporter');
 const ConfigStore = require('./config-store');
 const TabManager = require('./tab-manager');
 const KeyboardShortcutManager = require('./keyboard-shortcut-manager');
+const TemplateManager = require('./template-manager');
 const { createApplicationMenu } = require('./menu');
 
 // Sandbox disabled to allow nodeIntegration in renderer
@@ -33,6 +34,9 @@ const tabManager = new TabManager(configStore);
 
 // Create keyboard shortcut manager instance
 const keyboardShortcutManager = new KeyboardShortcutManager(configStore);
+
+// Create template manager instance
+const templateManager = new TemplateManager(configStore);
 
 /**
  * Register IPC handlers for all main process operations
@@ -355,6 +359,127 @@ function registerIPCHandlers() {
             return { success: true, shortcut };
         } catch (error) {
             console.error('Error getting default shortcut:', error);
+            throw error;
+        }
+    });
+
+    // Template operations
+    ipcMain.handle('template:get', async (event, templateId) => {
+        try {
+            const template = templateManager.getTemplate(templateId);
+            return { success: !!template, template };
+        } catch (error) {
+            console.error('Error getting template:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('template:get-all', async () => {
+        try {
+            const templates = templateManager.getAllTemplates();
+            return { success: true, templates };
+        } catch (error) {
+            console.error('Error getting all templates:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('template:get-builtin', async () => {
+        try {
+            const templates = templateManager.getBuiltInTemplates();
+            return { success: true, templates };
+        } catch (error) {
+            console.error('Error getting built-in templates:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('template:get-custom', async () => {
+        try {
+            const templates = templateManager.getCustomTemplates();
+            return { success: true, templates };
+        } catch (error) {
+            console.error('Error getting custom templates:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('template:save-custom', async (event, name, content, metadata) => {
+        try {
+            const template = templateManager.saveCustomTemplate(name, content, metadata);
+            return { success: true, template };
+        } catch (error) {
+            console.error('Error saving custom template:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('template:delete-custom', async (event, templateId) => {
+        try {
+            const result = templateManager.deleteCustomTemplate(templateId);
+            return { success: result };
+        } catch (error) {
+            console.error('Error deleting custom template:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('template:update-custom', async (event, templateId, updates) => {
+        try {
+            const result = templateManager.updateCustomTemplate(templateId, updates);
+            return { success: result };
+        } catch (error) {
+            console.error('Error updating custom template:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('template:get-categories', async () => {
+        try {
+            const categories = templateManager.getCategories();
+            return { success: true, categories };
+        } catch (error) {
+            console.error('Error getting categories:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('template:get-by-category', async (event, category) => {
+        try {
+            const templates = templateManager.getTemplatesByCategory(category);
+            return { success: true, templates };
+        } catch (error) {
+            console.error('Error getting templates by category:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('template:mark-used', async (event, templateId) => {
+        try {
+            templateManager.markTemplateUsed(templateId);
+            return { success: true };
+        } catch (error) {
+            console.error('Error marking template used:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('template:find-placeholders', async (event, content) => {
+        try {
+            const placeholders = templateManager.findPlaceholders(content);
+            return { success: true, placeholders };
+        } catch (error) {
+            console.error('Error finding placeholders:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('template:get-first-placeholder-position', async (event, content) => {
+        try {
+            const position = templateManager.getFirstPlaceholderPosition(content);
+            return { success: true, position };
+        } catch (error) {
+            console.error('Error getting first placeholder position:', error);
             throw error;
         }
     });

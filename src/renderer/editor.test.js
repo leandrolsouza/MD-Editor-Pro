@@ -244,6 +244,82 @@ describe('Editor', () => {
         });
     });
 
+    describe('template insertion', () => {
+        beforeEach(() => {
+            editor.initialize(container);
+        });
+
+        it('should insert template at cursor position', () => {
+            editor.setValue('Hello World');
+            editor.insertTemplate('# {{title}}\n\n{{content}}', 'insert');
+            const content = editor.getValue();
+            expect(content).toContain('# {{title}}');
+            expect(content).toContain('{{content}}');
+        });
+
+        it('should replace entire document with template', () => {
+            editor.setValue('Old content');
+            editor.insertTemplate('# {{title}}\n\n{{content}}', 'replace');
+            const content = editor.getValue();
+            expect(content).toBe('# {{title}}\n\n{{content}}');
+            expect(content).not.toContain('Old content');
+        });
+
+        it('should throw error for invalid template content', () => {
+            expect(() => editor.insertTemplate('', 'insert')).toThrow('Template content must be a non-empty string');
+            expect(() => editor.insertTemplate(null, 'insert')).toThrow('Template content must be a non-empty string');
+        });
+
+        it('should throw error for invalid mode', () => {
+            expect(() => editor.insertTemplate('content', 'invalid')).toThrow('Mode must be "insert" or "replace"');
+        });
+
+        it('should throw error when inserting before initialization', () => {
+            const uninitializedEditor = new Editor();
+            expect(() => uninitializedEditor.insertTemplate('content', 'insert')).toThrow('Editor not initialized');
+        });
+    });
+
+    describe('cursor positioning', () => {
+        beforeEach(() => {
+            editor.initialize(container);
+        });
+
+        it('should get cursor position', () => {
+            editor.setValue('Hello World');
+            const position = editor.getCursorPosition();
+            expect(position).toBeGreaterThanOrEqual(0);
+        });
+
+        it('should set cursor position', () => {
+            editor.setValue('Hello World');
+            editor.setCursorPosition(5);
+            const position = editor.getCursorPosition();
+            expect(position).toBe(5);
+        });
+
+        it('should throw error for invalid cursor position', () => {
+            expect(() => editor.setCursorPosition(-1)).toThrow('Position must be a non-negative number');
+        });
+
+        it('should clamp cursor position to document length', () => {
+            editor.setValue('Hello');
+            editor.setCursorPosition(1000);
+            const position = editor.getCursorPosition();
+            expect(position).toBeLessThanOrEqual(5);
+        });
+
+        it('should throw error when getting cursor position before initialization', () => {
+            const uninitializedEditor = new Editor();
+            expect(() => uninitializedEditor.getCursorPosition()).toThrow('Editor not initialized');
+        });
+
+        it('should throw error when setting cursor position before initialization', () => {
+            const uninitializedEditor = new Editor();
+            expect(() => uninitializedEditor.setCursorPosition(0)).toThrow('Editor not initialized');
+        });
+    });
+
     describe('destroy', () => {
         it('should destroy editor instance', () => {
             editor.initialize(container);

@@ -117,6 +117,23 @@ function createApplicationMenu(windowManager, fileManager, exporter) {
             ]
         },
 
+        // Insert menu
+        {
+            label: 'Insert',
+            submenu: [
+                {
+                    label: 'Template...',
+                    accelerator: isMac ? 'Cmd+Shift+T' : 'Ctrl+Shift+T',
+                    click: () => {
+                        const mainWindow = windowManager.getMainWindow();
+                        if (mainWindow) {
+                            mainWindow.webContents.send('menu:action', 'insert-template');
+                        }
+                    }
+                }
+            ]
+        },
+
         // Edit menu
         {
             label: 'Edit',

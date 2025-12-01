@@ -17,6 +17,7 @@ const AutoSaveManager = require('./auto-save.js');
 const StatisticsCalculator = require('./statistics.js');
 const TabBar = require('./tab-bar.js');
 const FocusMode = require('./focus-mode.js');
+const TemplateUI = require('./template-ui.js');
 
 // Application state
 let editor = null;
@@ -28,6 +29,7 @@ let autoSaveManager = null;
 let statisticsCalculator = null;
 let tabBar = null;
 let focusMode = null;
+let templateUI = null;
 
 // Document state
 let currentFilePath = null;
@@ -106,6 +108,18 @@ async function initialize() {
         focusMode = new FocusMode(editor);
         focusMode.initialize();
         console.log('FocusMode initialized');
+
+        // Initialize TemplateUI
+        templateUI = new TemplateUI();
+        templateUI.onInsert(async (template, mode) => {
+            await handleTemplateInsert(template, mode);
+        });
+        // Connect to existing template button in toolbar
+        const templateButton = document.getElementById('template-button');
+        if (templateButton) {
+            templateButton.addEventListener('click', () => templateUI.showTemplateMenu());
+        }
+        console.log('TemplateUI initialized');
 
         // Try to restore tabs from previous session
         await restoreTabsFromSession();
@@ -230,6 +244,11 @@ async function handleMenuAction(action) {
             case 'focus-mode':
                 if (focusMode) {
                     focusMode.toggle();
+                }
+                break;
+            case 'insert-template':
+                if (templateUI) {
+                    templateUI.showTemplateMenu();
                 }
                 break;
             default:
@@ -717,6 +736,31 @@ async function closeTab(tabId) {
 }
 
 /**
+ * Handle template insertion
+ * Requirements: 6.1, 6.2, 6.3
+ * @param {Object} template - Template object
+ * @param {string} mode - 'insert' or 'replace'
+ */
+async function handleTemplateInsert(template, mode) {
+    try {
+        // Insert template into editor
+        editor.insertTemplate(template.content, mode);
+
+        // Mark template as used
+        await window.electronAPI.markTemplateUsed(template.id);
+
+        // Mark document as modified
+        const content = editor.getValue();
+        updateDirtyState(content);
+
+        console.log('Template inserted:', template.name, 'mode:', mode);
+    } catch (error) {
+        console.error('Error inserting template:', error);
+        alert('Failed to insert template: ' + error.message);
+    }
+}
+
+/**
  * Cleanup function for when the window is closed
  */
 function cleanup() {
@@ -753,6 +797,9 @@ function cleanup() {
     }
     if (focusMode) {
         focusMode.destroy();
+    }
+    if (templateUI) {
+        // TemplateUI doesn't have a destroy method, but we could add one if needed
     }
 }
 
