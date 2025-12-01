@@ -34,6 +34,7 @@ class AutoSaveManager {
         // Load configuration from electronAPI
         try {
             const config = await window.electronAPI.getConfig('autoSave');
+
             if (config && config.value) {
                 this.enabled = config.value.enabled !== false;
                 this.delay = config.value.delay || 5;

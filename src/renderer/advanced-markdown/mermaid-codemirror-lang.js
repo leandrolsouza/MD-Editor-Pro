@@ -9,22 +9,62 @@ const { StreamLanguage } = require('@codemirror/language');
  * Mermaid diagram keywords and identifiers
  */
 const DIAGRAM_TYPES = [
-    'graph', 'flowchart', 'sequenceDiagram', 'classDiagram', 'stateDiagram',
-    'stateDiagram-v2', 'erDiagram', 'journey', 'gantt', 'pie', 'quadrantChart',
-    'gitGraph', 'mindmap', 'timeline', 'zenuml', 'sankey-beta'
+    'graph',
+    'flowchart',
+    'sequenceDiagram',
+    'classDiagram',
+    'stateDiagram',
+    'stateDiagram-v2',
+    'erDiagram',
+    'journey',
+    'gantt',
+    'pie',
+    'quadrantChart',
+    'gitGraph',
+    'mindmap',
+    'timeline',
+    'zenuml',
+    'sankey-beta'
 ];
 
 const GRAPH_DIRECTIONS = ['TB', 'TD', 'BT', 'RL', 'LR'];
 
 const SEQUENCE_KEYWORDS = [
-    'participant', 'actor', 'activate', 'deactivate', 'note', 'over', 'loop',
-    'alt', 'else', 'opt', 'par', 'and', 'rect', 'end', 'autonumber', 'left of',
-    'right of', 'links', 'link', 'properties'
+    'participant',
+    'actor',
+    'activate',
+    'deactivate',
+    'note',
+    'over',
+    'loop',
+    'alt',
+    'else',
+    'opt',
+    'par',
+    'and',
+    'rect',
+    'end',
+    'autonumber',
+    'left of',
+    'right of',
+    'links',
+    'link',
+    'properties'
 ];
 
 const CLASS_KEYWORDS = [
-    'class', 'namespace', 'direction', 'note', 'link', 'callback', 'click',
-    'cssClass', '<<interface>>', '<<abstract>>', '<<service>>', '<<enumeration>>'
+    'class',
+    'namespace',
+    'direction',
+    'note',
+    'link',
+    'callback',
+    'click',
+    'cssClass',
+    '<<interface>>',
+    '<<abstract>>',
+    '<<service>>',
+    '<<enumeration>>'
 ];
 
 const STATE_KEYWORDS = [
@@ -36,8 +76,17 @@ const ER_KEYWORDS = [
 ];
 
 const GANTT_KEYWORDS = [
-    'title', 'dateFormat', 'axisFormat', 'excludes', 'todayMarker', 'section',
-    'done', 'active', 'crit', 'milestone', 'after'
+    'title',
+    'dateFormat',
+    'axisFormat',
+    'excludes',
+    'todayMarker',
+    'section',
+    'done',
+    'active',
+    'crit',
+    'milestone',
+    'after'
 ];
 
 const JOURNEY_KEYWORDS = ['title', 'section'];
@@ -45,19 +94,39 @@ const JOURNEY_KEYWORDS = ['title', 'section'];
 const PIE_KEYWORDS = ['title', 'showData'];
 
 const GIT_KEYWORDS = [
-    'commit', 'branch', 'checkout', 'merge', 'cherry-pick', 'reset', 'revert',
-    'tag', 'push', 'pull', 'fetch'
+    'commit',
+    'branch',
+    'checkout',
+    'merge',
+    'cherry-pick',
+    'reset',
+    'revert',
+    'tag',
+    'push',
+    'pull',
+    'fetch'
 ];
 
 // Connection operators for flowcharts and graphs
 const CONNECTION_OPERATORS = [
-    '--->', '-->', '-.->',  // Arrows
-    '===>', '==>', '==>',   // Thick arrows
-    '-.->', '..->',         // Dotted arrows
-    '---', '--', '-.-',     // Lines
-    '===', '==',            // Thick lines
-    '...', '..',            // Dotted lines
-    '-.-', '-.', '.-'       // Mixed
+    '--->',
+    '-->',
+    '-.->',  // Arrows
+    '===>',
+    '==>',
+    '==>',   // Thick arrows
+    '-.->',
+    '..->',         // Dotted arrows
+    '---',
+    '--',
+    '-.-',     // Lines
+    '===',
+    '==',            // Thick lines
+    '...',
+    '..',            // Dotted lines
+    '-.-',
+    '-.',
+    '.-'       // Mixed
 ];
 
 /**
@@ -133,6 +202,7 @@ const mermaidLanguage = StreamLanguage.define({
         for (const keyword of SEQUENCE_KEYWORDS) {
             if (stream.match(keyword, false)) {
                 const next = stream.string.charAt(stream.pos + keyword.length);
+
                 if (!next || /\s/.test(next) || /[:\[\]]/.test(next)) {
                     stream.match(keyword);
                     return 'keyword';
@@ -144,6 +214,7 @@ const mermaidLanguage = StreamLanguage.define({
         for (const keyword of CLASS_KEYWORDS) {
             if (stream.match(keyword, false)) {
                 const next = stream.string.charAt(stream.pos + keyword.length);
+
                 if (!next || /\s/.test(next) || /[:\[\]]/.test(next)) {
                     stream.match(keyword);
                     return 'keyword';
@@ -155,6 +226,7 @@ const mermaidLanguage = StreamLanguage.define({
         for (const keyword of STATE_KEYWORDS) {
             if (stream.match(keyword, false)) {
                 const next = stream.string.charAt(stream.pos + keyword.length);
+
                 if (!next || /\s/.test(next) || /[:\[\]]/.test(next)) {
                     stream.match(keyword);
                     return 'keyword';
@@ -174,6 +246,7 @@ const mermaidLanguage = StreamLanguage.define({
         for (const keyword of GANTT_KEYWORDS) {
             if (stream.match(keyword, false)) {
                 const next = stream.string.charAt(stream.pos + keyword.length);
+
                 if (!next || /\s/.test(next) || /[:\[\]]/.test(next)) {
                     stream.match(keyword);
                     return 'keyword';
@@ -185,6 +258,7 @@ const mermaidLanguage = StreamLanguage.define({
         for (const keyword of JOURNEY_KEYWORDS) {
             if (stream.match(keyword, false)) {
                 const next = stream.string.charAt(stream.pos + keyword.length);
+
                 if (!next || /\s/.test(next) || /[:\[\]]/.test(next)) {
                     stream.match(keyword);
                     return 'keyword';
@@ -196,6 +270,7 @@ const mermaidLanguage = StreamLanguage.define({
         for (const keyword of PIE_KEYWORDS) {
             if (stream.match(keyword, false)) {
                 const next = stream.string.charAt(stream.pos + keyword.length);
+
                 if (!next || /\s/.test(next) || /[:\[\]]/.test(next)) {
                     stream.match(keyword);
                     return 'keyword';
@@ -207,6 +282,7 @@ const mermaidLanguage = StreamLanguage.define({
         for (const keyword of GIT_KEYWORDS) {
             if (stream.match(keyword, false)) {
                 const next = stream.string.charAt(stream.pos + keyword.length);
+
                 if (!next || /\s/.test(next) || /[:\[\]]/.test(next)) {
                     stream.match(keyword);
                     return 'keyword';

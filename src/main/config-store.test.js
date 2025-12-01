@@ -76,6 +76,7 @@ describe('ConfigStore', () => {
 
         it('should get complete auto-save config', () => {
             const config = configStore.getAutoSaveConfig();
+
             expect(config).toEqual({ enabled: true, delay: 5 });
         });
 
@@ -117,6 +118,7 @@ describe('ConfigStore', () => {
 
         it('should get complete statistics config', () => {
             const config = configStore.getStatisticsConfig();
+
             expect(config).toEqual({ visible: true, wordsPerMinute: 200 });
         });
     });
@@ -162,11 +164,13 @@ describe('ConfigStore', () => {
             configStore.setKeyboardShortcut('save', 'Ctrl-S');
             configStore.setKeyboardShortcut('open', 'Ctrl-O');
             const shortcuts = configStore.getAllKeyboardShortcuts();
+
             expect(shortcuts).toEqual({ save: 'Ctrl-S', open: 'Ctrl-O' });
         });
 
         it('should set all keyboard shortcuts', () => {
             const shortcuts = { save: 'Ctrl-S', open: 'Ctrl-O' };
+
             configStore.setAllKeyboardShortcuts(shortcuts);
             expect(configStore.getAllKeyboardShortcuts()).toEqual(shortcuts);
         });
@@ -196,6 +200,7 @@ describe('ConfigStore', () => {
                 content: '# Test\n\n{{content}}',
                 createdAt: Date.now()
             };
+
             configStore.addCustomTemplate(template);
             expect(configStore.getCustomTemplates()).toHaveLength(1);
             expect(configStore.getCustomTemplate('test-template')).toEqual(template);
@@ -214,6 +219,7 @@ describe('ConfigStore', () => {
                 name: 'Test Template',
                 content: '# Test'
             };
+
             configStore.addCustomTemplate(template);
             expect(() => configStore.addCustomTemplate(template)).toThrow('already exists');
         });
@@ -224,6 +230,7 @@ describe('ConfigStore', () => {
                 name: 'Test Template',
                 content: '# Test'
             };
+
             configStore.addCustomTemplate(template);
             configStore.updateCustomTemplate('test-template', { name: 'Updated Template' });
             expect(configStore.getCustomTemplate('test-template').name).toBe('Updated Template');
@@ -239,6 +246,7 @@ describe('ConfigStore', () => {
                 name: 'Test Template',
                 content: '# Test'
             };
+
             configStore.addCustomTemplate(template);
             configStore.deleteCustomTemplate('test-template');
             expect(configStore.getCustomTemplates()).toHaveLength(0);
@@ -261,6 +269,7 @@ describe('ConfigStore', () => {
                 description: 'Test snippet',
                 createdAt: Date.now()
             };
+
             configStore.addCustomSnippet(snippet);
             expect(configStore.getCustomSnippets()).toHaveLength(1);
             expect(configStore.getCustomSnippet('test')).toEqual(snippet);
@@ -277,6 +286,7 @@ describe('ConfigStore', () => {
                 trigger: 'test',
                 content: 'Test content'
             };
+
             configStore.addCustomSnippet(snippet);
             expect(() => configStore.addCustomSnippet(snippet)).toThrow('already exists');
         });
@@ -286,6 +296,7 @@ describe('ConfigStore', () => {
                 trigger: 'test',
                 content: 'Test content'
             };
+
             configStore.addCustomSnippet(snippet);
             configStore.updateCustomSnippet('test', { content: 'Updated content' });
             expect(configStore.getCustomSnippet('test').content).toBe('Updated content');
@@ -300,6 +311,7 @@ describe('ConfigStore', () => {
                 trigger: 'test',
                 content: 'Test content'
             };
+
             configStore.addCustomSnippet(snippet);
             configStore.deleteCustomSnippet('test');
             expect(configStore.getCustomSnippets()).toHaveLength(0);
@@ -317,6 +329,7 @@ describe('ConfigStore', () => {
 
         it('should set last open tabs', () => {
             const tabIds = ['tab1', 'tab2', 'tab3'];
+
             configStore.setLastOpenTabs(tabIds);
             expect(configStore.getLastOpenTabs()).toEqual(tabIds);
         });

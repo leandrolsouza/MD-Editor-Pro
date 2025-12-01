@@ -15,6 +15,7 @@ describe('SnippetManager', () => {
         // Create a real editor instance
         editor = new Editor();
         const container = document.createElement('div');
+
         document.body.appendChild(container);
         editor.initialize(container);
 
@@ -38,9 +39,11 @@ describe('SnippetManager', () => {
             const customSnippets = [
                 { trigger: 'custom1', content: 'Custom content 1' }
             ];
+
             mockConfigStore.getCustomSnippets.mockReturnValue(customSnippets);
 
             const manager = new SnippetManager(editor, mockConfigStore);
+
             expect(manager.customSnippets).toEqual(customSnippets);
         });
     });
@@ -48,6 +51,7 @@ describe('SnippetManager', () => {
     describe('getSnippet', () => {
         it('should return built-in snippet by trigger', () => {
             const snippet = snippetManager.getSnippet('code');
+
             expect(snippet).toBeDefined();
             expect(snippet.trigger).toBe('code');
             expect(snippet.isBuiltIn).toBe(true);
@@ -59,14 +63,17 @@ describe('SnippetManager', () => {
                 content: 'Custom content',
                 description: 'Custom snippet'
             };
+
             snippetManager.customSnippets = [customSnippet];
 
             const snippet = snippetManager.getSnippet('custom');
+
             expect(snippet).toEqual(customSnippet);
         });
 
         it('should return null if snippet not found', () => {
             const snippet = snippetManager.getSnippet('nonexistent');
+
             expect(snippet).toBeNull();
         });
 
@@ -81,9 +88,11 @@ describe('SnippetManager', () => {
                 trigger: 'custom',
                 content: 'Custom content'
             };
+
             snippetManager.customSnippets = [customSnippet];
 
             const allSnippets = snippetManager.getAllSnippets();
+
             expect(allSnippets.length).toBeGreaterThan(6); // At least 6 built-in + 1 custom
             expect(allSnippets.some(s => s.trigger === 'code')).toBe(true);
             expect(allSnippets.some(s => s.trigger === 'custom')).toBe(true);
@@ -93,6 +102,7 @@ describe('SnippetManager', () => {
     describe('getBuiltInSnippets', () => {
         it('should return only built-in snippets', () => {
             const builtIn = snippetManager.getBuiltInSnippets();
+
             expect(builtIn.length).toBe(6);
             expect(builtIn.every(s => s.isBuiltIn)).toBe(true);
         });
@@ -104,9 +114,11 @@ describe('SnippetManager', () => {
                 trigger: 'custom',
                 content: 'Custom content'
             };
+
             snippetManager.customSnippets = [customSnippet];
 
             const custom = snippetManager.getCustomSnippets();
+
             expect(custom.length).toBe(1);
             expect(custom[0].trigger).toBe('custom');
         });
@@ -143,6 +155,7 @@ describe('SnippetManager', () => {
 
         it('should find placeholders in content', () => {
             const snippet = snippetManager.saveCustomSnippet('test', 'Hello {{name}}, welcome to {{place}}!');
+
             expect(snippet.placeholders).toEqual(['{{name}}', '{{place}}']);
         });
     });
@@ -159,6 +172,7 @@ describe('SnippetManager', () => {
 
         it('should return false if snippet not found', () => {
             const result = snippetManager.deleteCustomSnippet('nonexistent');
+
             expect(result).toBe(false);
         });
 
@@ -188,6 +202,7 @@ describe('SnippetManager', () => {
 
         it('should return false if snippet not found', () => {
             const result = snippetManager.updateCustomSnippet('nonexistent', { content: 'New' });
+
             expect(result).toBe(false);
         });
 
@@ -221,6 +236,7 @@ describe('SnippetManager', () => {
 
         it('should return null if text is empty', () => {
             const result = snippetManager.detectTrigger('', 0);
+
             expect(result).toBeNull();
         });
 
@@ -250,6 +266,7 @@ describe('SnippetManager', () => {
 
         it('should return empty array if content is empty', () => {
             const placeholders = snippetManager.findPlaceholders('');
+
             expect(placeholders).toEqual([]);
         });
 
@@ -270,6 +287,7 @@ describe('SnippetManager', () => {
 
             expect(result).toBe(true);
             const content = editor.getValue();
+
             expect(content).toContain('```');
         });
 
@@ -293,6 +311,7 @@ describe('SnippetManager', () => {
     describe('Built-in snippets', () => {
         it('should have code snippet', () => {
             const snippet = snippetManager.getSnippet('code');
+
             expect(snippet.content).toContain('```');
             expect(snippet.placeholders).toContain('{{language}}');
             expect(snippet.placeholders).toContain('{{code}}');
@@ -300,27 +319,32 @@ describe('SnippetManager', () => {
 
         it('should have table snippet', () => {
             const snippet = snippetManager.getSnippet('table');
+
             expect(snippet.content).toContain('|');
             expect(snippet.placeholders.length).toBeGreaterThan(0);
         });
 
         it('should have link snippet', () => {
             const snippet = snippetManager.getSnippet('link');
+
             expect(snippet.content).toBe('[{{text}}]({{url}})');
         });
 
         it('should have img snippet', () => {
             const snippet = snippetManager.getSnippet('img');
+
             expect(snippet.content).toBe('![{{alt}}]({{url}})');
         });
 
         it('should have task snippet', () => {
             const snippet = snippetManager.getSnippet('task');
+
             expect(snippet.content).toBe('- [ ] {{task}}');
         });
 
         it('should have quote snippet', () => {
             const snippet = snippetManager.getSnippet('quote');
+
             expect(snippet.content).toBe('> {{quote}}');
         });
     });
@@ -331,6 +355,7 @@ describe('SnippetManager', () => {
                 { trigger: 'new1', content: 'New content 1' },
                 { trigger: 'new2', content: 'New content 2' }
             ];
+
             mockConfigStore.getCustomSnippets.mockReturnValue(newSnippets);
 
             snippetManager.reloadCustomSnippets();

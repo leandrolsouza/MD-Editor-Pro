@@ -19,6 +19,7 @@ class AdvancedMarkdownManagerClient {
     async loadSettings() {
         try {
             const result = await window.electronAPI.getAdvancedMarkdownSettings();
+
             if (result.success && result.features) {
                 this.features = result.features;
             }

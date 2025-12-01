@@ -11,6 +11,7 @@ import markdownItCallouts from './markdown-it-callout-plugin.js';
 describe('Mermaid Plugin', () => {
     test('detects mermaid code blocks', () => {
         const md = markdownIt();
+
         md.use(markdownItMermaid);
 
         const markdown = '```mermaid\ngraph TD\n  A-->B\n```';
@@ -23,6 +24,7 @@ describe('Mermaid Plugin', () => {
 
     test('handles empty mermaid blocks', () => {
         const md = markdownIt();
+
         md.use(markdownItMermaid);
 
         const markdown = '```mermaid\n\n```';
@@ -34,6 +36,7 @@ describe('Mermaid Plugin', () => {
 
     test('does not affect non-mermaid code blocks', () => {
         const md = markdownIt();
+
         md.use(markdownItMermaid);
 
         const markdown = '```javascript\nconst x = 1;\n```';
@@ -45,6 +48,7 @@ describe('Mermaid Plugin', () => {
 
     test('escapes HTML in mermaid content', () => {
         const md = markdownIt();
+
         md.use(markdownItMermaid);
 
         const markdown = '```mermaid\ngraph TD\n  A[<script>alert("xss")</script>]\n```';
@@ -58,6 +62,7 @@ describe('Mermaid Plugin', () => {
 describe('KaTeX Plugin', () => {
     test('detects inline math with single dollar signs', () => {
         const md = markdownIt();
+
         md.use(markdownItKatex);
 
         const markdown = 'This is $E = mc^2$ inline math.';
@@ -70,6 +75,7 @@ describe('KaTeX Plugin', () => {
 
     test('detects display math with double dollar signs', () => {
         const md = markdownIt();
+
         md.use(markdownItKatex);
 
         const markdown = '$$\nE = mc^2\n$$';
@@ -83,6 +89,7 @@ describe('KaTeX Plugin', () => {
 
     test('handles escaped dollar signs', () => {
         const md = markdownIt();
+
         md.use(markdownItKatex);
 
         const markdown = 'This costs \\$5 and \\$10.';
@@ -95,6 +102,7 @@ describe('KaTeX Plugin', () => {
 
     test('ignores empty inline math', () => {
         const md = markdownIt();
+
         md.use(markdownItKatex);
 
         const markdown = 'This is $ $ empty.';
@@ -105,6 +113,7 @@ describe('KaTeX Plugin', () => {
 
     test('handles multiple inline math expressions', () => {
         const md = markdownIt();
+
         md.use(markdownItKatex);
 
         const markdown = 'Inline $x$ and another $y = mx + b$ expression.';
@@ -113,12 +122,14 @@ describe('KaTeX Plugin', () => {
         expect(html).toContain('class="katex-inline"');
         const xMatches = html.match(/data-katex="x"/g);
         const yMatches = html.match(/data-katex="y = mx \+ b"/g);
+
         expect(xMatches).toBeTruthy();
         expect(yMatches).toBeTruthy();
     });
 
     test('escapes HTML in math content', () => {
         const md = markdownIt();
+
         md.use(markdownItKatex);
 
         const markdown = '$<script>alert("xss")</script>$';
@@ -132,6 +143,7 @@ describe('KaTeX Plugin', () => {
 describe('Callouts Plugin', () => {
     test('detects NOTE callout', () => {
         const md = markdownIt();
+
         md.use(markdownItCallouts);
 
         const markdown = '> [!NOTE]\n> This is a note.';
@@ -146,6 +158,7 @@ describe('Callouts Plugin', () => {
 
     test('detects WARNING callout', () => {
         const md = markdownIt();
+
         md.use(markdownItCallouts);
 
         const markdown = '> [!WARNING]\n> This is a warning.';
@@ -157,6 +170,7 @@ describe('Callouts Plugin', () => {
 
     test('detects TIP callout', () => {
         const md = markdownIt();
+
         md.use(markdownItCallouts);
 
         const markdown = '> [!TIP]\n> This is a tip.';
@@ -168,6 +182,7 @@ describe('Callouts Plugin', () => {
 
     test('detects IMPORTANT callout', () => {
         const md = markdownIt();
+
         md.use(markdownItCallouts);
 
         const markdown = '> [!IMPORTANT]\n> This is important.';
@@ -179,6 +194,7 @@ describe('Callouts Plugin', () => {
 
     test('detects CAUTION callout', () => {
         const md = markdownIt();
+
         md.use(markdownItCallouts);
 
         const markdown = '> [!CAUTION]\n> This is a caution.';
@@ -190,6 +206,7 @@ describe('Callouts Plugin', () => {
 
     test('handles unknown callout type with default', () => {
         const md = markdownIt();
+
         md.use(markdownItCallouts);
 
         const markdown = '> [!UNKNOWN]\n> This is unknown.';
@@ -201,6 +218,7 @@ describe('Callouts Plugin', () => {
 
     test('handles multi-line callout content', () => {
         const md = markdownIt();
+
         md.use(markdownItCallouts);
 
         const markdown = '> [!NOTE]\n> Line 1\n> Line 2\n> Line 3';
@@ -213,6 +231,7 @@ describe('Callouts Plugin', () => {
 
     test('does not affect regular blockquotes', () => {
         const md = markdownIt();
+
         md.use(markdownItCallouts);
 
         const markdown = '> This is a regular blockquote.';
@@ -224,6 +243,7 @@ describe('Callouts Plugin', () => {
 
     test('includes callout icon', () => {
         const md = markdownIt();
+
         md.use(markdownItCallouts);
 
         const markdown = '> [!NOTE]\n> Content';
@@ -237,6 +257,7 @@ describe('Callouts Plugin', () => {
 describe('Plugin Integration', () => {
     test('all plugins work together', () => {
         const md = markdownIt();
+
         md.use(markdownItMermaid);
         md.use(markdownItKatex);
         md.use(markdownItCallouts);

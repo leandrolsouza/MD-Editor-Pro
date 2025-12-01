@@ -182,12 +182,14 @@ class TemplateManager {
 
         // Check built-in templates first
         const builtIn = BUILT_IN_TEMPLATES.find(t => t.id === templateId);
+
         if (builtIn) {
             return builtIn;
         }
 
         // Check custom templates
         const custom = this.configStore.getCustomTemplate(templateId);
+
         return custom || null;
     }
 
@@ -197,6 +199,7 @@ class TemplateManager {
      */
     getAllTemplates() {
         const customTemplates = this.configStore.getCustomTemplates();
+
         return [...BUILT_IN_TEMPLATES, ...customTemplates];
     }
 
@@ -351,6 +354,7 @@ class TemplateManager {
 
         // Only update custom templates (built-in templates don't track usage)
         const template = this.configStore.getCustomTemplate(templateId);
+
         if (template) {
             this.configStore.updateCustomTemplate(templateId, {
                 lastUsed: Date.now()
@@ -369,6 +373,7 @@ class TemplateManager {
         }
 
         const allTemplates = this.getAllTemplates();
+
         return allTemplates.filter(t => t.category === category);
     }
 
@@ -379,6 +384,7 @@ class TemplateManager {
     getCategories() {
         const allTemplates = this.getAllTemplates();
         const categories = allTemplates.map(t => t.category);
+
         return [...new Set(categories)].sort();
     }
 }

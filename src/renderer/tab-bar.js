@@ -38,6 +38,7 @@ class TabBar {
         }
 
         const tabElement = document.createElement('div');
+
         tabElement.className = 'tab';
         tabElement.dataset.tabId = tabId;
 
@@ -48,12 +49,14 @@ class TabBar {
 
         // Tab title
         const titleElement = document.createElement('span');
+
         titleElement.className = 'tab-title';
         titleElement.textContent = title;
         tabElement.appendChild(titleElement);
 
         // Modified indicator
         const modifiedIndicator = document.createElement('span');
+
         modifiedIndicator.className = 'tab-modified-indicator';
         modifiedIndicator.textContent = '●';
         if (isModified) {
@@ -63,6 +66,7 @@ class TabBar {
 
         // Close button
         const closeButton = document.createElement('button');
+
         closeButton.className = 'tab-close-button';
         closeButton.textContent = '×';
         closeButton.title = 'Close tab';
@@ -92,6 +96,7 @@ class TabBar {
      */
     removeTab(tabId) {
         const tabElement = this.tabs.get(tabId);
+
         if (!tabElement) {
             return;
         }
@@ -128,11 +133,13 @@ class TabBar {
      */
     updateTabTitle(tabId, title) {
         const tabElement = this.tabs.get(tabId);
+
         if (!tabElement) {
             return;
         }
 
         const titleElement = tabElement.querySelector('.tab-title');
+
         if (titleElement) {
             titleElement.textContent = title;
         }
@@ -145,11 +152,13 @@ class TabBar {
      */
     markTabModified(tabId, isModified) {
         const tabElement = this.tabs.get(tabId);
+
         if (!tabElement) {
             return;
         }
 
         const indicator = tabElement.querySelector('.tab-modified-indicator');
+
         if (indicator) {
             if (isModified) {
                 indicator.classList.add('visible');
@@ -223,6 +232,7 @@ class TabBar {
         }
 
         const nextIndex = (currentIndex + 1) % tabIds.length;
+
         this._handleTabClick(tabIds[nextIndex]);
     }
 
@@ -243,6 +253,7 @@ class TabBar {
         }
 
         const prevIndex = (currentIndex - 1 + tabIds.length) % tabIds.length;
+
         this._handleTabClick(tabIds[prevIndex]);
     }
 
@@ -256,6 +267,7 @@ class TabBar {
             const result = confirm(
                 `"${title}" has unsaved changes.\n\nDo you want to close it anyway?`
             );
+
             resolve(result);
         });
     }

@@ -63,6 +63,7 @@ class TabManager {
         // If closing the active tab, switch to another tab
         if (this.activeTabId === tabId) {
             const remainingTabs = Array.from(this.tabs.keys());
+
             this.activeTabId = remainingTabs.length > 0 ? remainingTabs[0] : null;
         }
 
@@ -127,6 +128,7 @@ class TabManager {
      */
     markTabModified(tabId, isModified) {
         const tab = this.tabs.get(tabId);
+
         if (!tab) {
             return false;
         }
@@ -143,6 +145,7 @@ class TabManager {
      */
     isTabModified(tabId) {
         const tab = this.tabs.get(tabId);
+
         return tab ? tab.isModified : false;
     }
 
@@ -154,6 +157,7 @@ class TabManager {
      */
     updateTabContent(tabId, content) {
         const tab = this.tabs.get(tabId);
+
         if (!tab) {
             return false;
         }
@@ -171,6 +175,7 @@ class TabManager {
      */
     updateTabScrollPosition(tabId, position) {
         const tab = this.tabs.get(tabId);
+
         if (!tab) {
             return false;
         }
@@ -187,6 +192,7 @@ class TabManager {
      */
     updateTabCursorPosition(tabId, position) {
         const tab = this.tabs.get(tabId);
+
         if (!tab) {
             return false;
         }
@@ -203,6 +209,7 @@ class TabManager {
      */
     updateTabFilePath(tabId, filePath) {
         const tab = this.tabs.get(tabId);
+
         if (!tab) {
             return false;
         }
@@ -217,11 +224,13 @@ class TabManager {
      */
     saveTabs() {
         const tabIds = Array.from(this.tabs.keys());
+
         this.configStore.setLastOpenTabs(tabIds);
         this.configStore.setActiveTabId(this.activeTabId);
 
         // Store tab data in config
         const tabsData = {};
+
         for (const [tabId, tab] of this.tabs.entries()) {
             tabsData[tabId] = {
                 filePath: tab.filePath,
@@ -253,6 +262,7 @@ class TabManager {
             // Restore tabs
             for (const tabId of tabIds) {
                 const tabData = tabsData[tabId];
+
                 if (tabData) {
                     this.tabs.set(tabId, {
                         id: tabId,
@@ -294,6 +304,7 @@ class TabManager {
 
         // Wrap around to first tab if at the end
         const nextIndex = (currentIndex + 1) % tabIds.length;
+
         return tabIds[nextIndex];
     }
 
@@ -315,6 +326,7 @@ class TabManager {
 
         // Wrap around to last tab if at the beginning
         const prevIndex = (currentIndex - 1 + tabIds.length) % tabIds.length;
+
         return tabIds[prevIndex];
     }
 
@@ -329,6 +341,7 @@ class TabManager {
             return 'Untitled';
         }
         const parts = filePath.replace(/\\/g, '/').split('/');
+
         return parts[parts.length - 1] || 'Untitled';
     }
 }

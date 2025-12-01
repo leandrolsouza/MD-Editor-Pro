@@ -1,4 +1,4 @@
-const { ipcRenderer } = require('electron')
+const { ipcRenderer } = require('electron');
 
 /**
  * Preload script that exposes API to renderer process
@@ -22,17 +22,19 @@ const electronAPI = {
     // Event listeners - wrapped to prevent direct ipcRenderer exposure
     // Returns cleanup function for proper memory management
     onFileDropped: (callback) => {
-        const subscription = (event, filePath) => callback(filePath)
-        ipcRenderer.on('file:dropped', subscription)
+        const subscription = (event, filePath) => callback(filePath);
+
+        ipcRenderer.on('file:dropped', subscription);
         // Return cleanup function
-        return () => ipcRenderer.removeListener('file:dropped', subscription)
+        return () => ipcRenderer.removeListener('file:dropped', subscription);
     },
 
     onMenuAction: (callback) => {
-        const subscription = (event, action) => callback(action)
-        ipcRenderer.on('menu:action', subscription)
+        const subscription = (event, action) => callback(action);
+
+        ipcRenderer.on('menu:action', subscription);
         // Return cleanup function
-        return () => ipcRenderer.removeListener('menu:action', subscription)
+        return () => ipcRenderer.removeListener('menu:action', subscription);
     },
 
     // Tab operations
@@ -81,15 +83,16 @@ const electronAPI = {
     toggleAdvancedMarkdownFeature: (featureName, enabled) => ipcRenderer.invoke('advanced-markdown:toggle-feature', featureName, enabled),
 
     onAdvancedMarkdownSettingsChanged: (callback) => {
-        const subscription = (event, featureName, enabled) => callback(featureName, enabled)
-        ipcRenderer.on('advanced-markdown:settings-changed', subscription)
+        const subscription = (event, featureName, enabled) => callback(featureName, enabled);
+
+        ipcRenderer.on('advanced-markdown:settings-changed', subscription);
         // Return cleanup function
-        return () => ipcRenderer.removeListener('advanced-markdown:settings-changed', subscription)
+        return () => ipcRenderer.removeListener('advanced-markdown:settings-changed', subscription);
     },
 
     // Shell operations
     openExternal: (url) => ipcRenderer.invoke('shell:open-external', url)
-}
+};
 
 // Expose API directly to window when contextIsolation is disabled
-window.electronAPI = electronAPI
+window.electronAPI = electronAPI;

@@ -39,6 +39,7 @@ class FileManager {
         if (normalizedPath.includes('..')) {
             // After normalization, if '..' still exists, it's suspicious
             const relative = path.relative(path.dirname(resolvedPath), resolvedPath);
+
             if (relative.startsWith('..')) {
                 throw new Error('Invalid file path: directory traversal detected');
             }
@@ -82,6 +83,7 @@ class FileManager {
         try {
             // Read file content
             const content = await fs.readFile(safePath, 'utf-8');
+
             this.currentFilePath = safePath;
 
             return {

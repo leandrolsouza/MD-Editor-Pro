@@ -130,6 +130,7 @@ sequenceDiagram
             await autoSaveManager.saveNow();
 
             const savedContent = await fs.promises.readFile(testFilePath, 'utf-8');
+
             expect(savedContent).toBe(sequenceDiagram);
             expect(savedContent).toContain('sequenceDiagram');
             expect(savedContent).toContain('participant');
@@ -158,6 +159,7 @@ pie title Pets
             await autoSaveManager.saveNow();
 
             const savedContent = await fs.promises.readFile(testFilePath, 'utf-8');
+
             expect(savedContent).toBe(multipleDiagrams);
             expect(savedContent).toContain('graph LR');
             expect(savedContent).toContain('pie title Pets');
@@ -176,6 +178,7 @@ Einstein's equation: $E = mc^2$`;
             await autoSaveManager.saveNow();
 
             const savedContent = await fs.promises.readFile(testFilePath, 'utf-8');
+
             expect(savedContent).toBe(inlineMath);
             expect(savedContent).toContain('$x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$');
             expect(savedContent).toContain('$E = mc^2$');
@@ -196,6 +199,7 @@ $$`;
             await autoSaveManager.saveNow();
 
             const savedContent = await fs.promises.readFile(testFilePath, 'utf-8');
+
             expect(savedContent).toBe(displayMath);
             expect(savedContent).toContain('$$\n\\int_{-\\infty}^{\\infty}');
             expect(savedContent).toContain('$$\n\\sum_{n=1}^{\\infty}');
@@ -220,6 +224,7 @@ More inline: $\\alpha + \\beta = \\gamma$`;
             await autoSaveManager.saveNow();
 
             const savedContent = await fs.promises.readFile(testFilePath, 'utf-8');
+
             expect(savedContent).toBe(mixedMath);
             expect(savedContent).toContain('$a^2 + b^2 = c^2$');
             expect(savedContent).toContain('$$\nf(x) = \\begin{cases}');
@@ -239,6 +244,7 @@ More inline: $\\alpha + \\beta = \\gamma$`;
             await autoSaveManager.saveNow();
 
             const savedContent = await fs.promises.readFile(testFilePath, 'utf-8');
+
             expect(savedContent).toBe(noteCallout);
             expect(savedContent).toContain('> [!NOTE]');
             expect(savedContent).toContain('> This is an important note');
@@ -266,6 +272,7 @@ More inline: $\\alpha + \\beta = \\gamma$`;
             await autoSaveManager.saveNow();
 
             const savedContent = await fs.promises.readFile(testFilePath, 'utf-8');
+
             expect(savedContent).toBe(allCallouts);
             expect(savedContent).toContain('> [!NOTE]');
             expect(savedContent).toContain('> [!WARNING]');
@@ -290,6 +297,7 @@ More inline: $\\alpha + \\beta = \\gamma$`;
             await autoSaveManager.saveNow();
 
             const savedContent = await fs.promises.readFile(testFilePath, 'utf-8');
+
             expect(savedContent).toBe(complexCallout);
             expect(savedContent).toContain('> [!WARNING]');
             expect(savedContent).toContain('> - A list item');
@@ -364,6 +372,7 @@ And regular content with $\\pi$ continues.`;
             await autoSaveManager.saveNow();
 
             const savedContent = await fs.promises.readFile(testFilePath, 'utf-8');
+
             expect(savedContent).toBe(nestedContent);
         });
     });
@@ -376,10 +385,12 @@ And regular content with $\\pi$ continues.`;
             await autoSaveManager.saveNow();
 
             let savedContent = await fs.promises.readFile(testFilePath, 'utf-8');
+
             expect(savedContent).toBe(content1);
 
             // Modify content
             const content2 = content1 + '\n\n$E = mc^2$';
+
             editor.setValue(content2);
             await autoSaveManager.saveNow();
 
@@ -388,6 +399,7 @@ And regular content with $\\pi$ continues.`;
 
             // Add callout
             const content3 = content2 + '\n\n> [!NOTE]\n> Important note';
+
             editor.setValue(content3);
             await autoSaveManager.saveNow();
 
@@ -416,6 +428,7 @@ $\\sum_{i=1}^n i = \\frac{n(n+1)}{2}$
             await autoSaveManager.saveNow();
 
             const savedContent = await fs.promises.readFile(testFilePath, 'utf-8');
+
             expect(savedContent).toBe(finalContent);
         });
     });
@@ -432,6 +445,7 @@ Display: $$\\left[\\frac{a}{b}\\right]$$`;
             await autoSaveManager.saveNow();
 
             const savedContent = await fs.promises.readFile(testFilePath, 'utf-8');
+
             expect(savedContent).toBe(specialChars);
             expect(savedContent).toContain('\\{x \\in \\mathbb{R}');
             expect(savedContent).toContain('\\left[\\frac{a}{b}\\right]');
@@ -455,6 +469,7 @@ graph TD
             await autoSaveManager.saveNow();
 
             const savedContent = await fs.promises.readFile(testFilePath, 'utf-8');
+
             expect(savedContent).toBe(whitespaceContent);
         });
 
@@ -476,6 +491,7 @@ graph TD
             await autoSaveManager.saveNow();
 
             const savedContent = await fs.promises.readFile(testFilePath, 'utf-8');
+
             expect(savedContent).toBe(unicodeContent);
             expect(savedContent).toContain('α + β = γ');
             expect(savedContent).toContain('Café');

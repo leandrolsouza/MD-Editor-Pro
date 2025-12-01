@@ -8,6 +8,7 @@ import { MarkdownParser, createMarkdownParser, getMarkdownParser, renderMarkdown
 describe('Markdown Parser Configuration', () => {
     test('creates markdown parser instance', () => {
         const parser = createMarkdownParser();
+
         expect(parser).toBeDefined();
         expect(typeof parser.render).toBe('function');
     });
@@ -15,22 +16,26 @@ describe('Markdown Parser Configuration', () => {
     test('singleton returns same instance', () => {
         const parser1 = getMarkdownParser();
         const parser2 = getMarkdownParser();
+
         expect(parser1).toBe(parser2);
     });
 
     test('renders basic markdown', () => {
         const html = renderMarkdown('# Hello World');
+
         expect(html).toContain('<h1>');
         expect(html).toContain('Hello World');
     });
 
     test('disables HTML tags for security', () => {
         const html = renderMarkdown('<script>alert("xss")</script>');
+
         expect(html).not.toContain('<script>');
     });
 
     test('renders CommonMark headings (ATX)', () => {
         const html = renderMarkdown('# H1\n## H2\n### H3');
+
         expect(html).toContain('<h1>H1</h1>');
         expect(html).toContain('<h2>H2</h2>');
         expect(html).toContain('<h3>H3</h3>');
@@ -38,29 +43,34 @@ describe('Markdown Parser Configuration', () => {
 
     test('renders CommonMark headings (Setext)', () => {
         const html = renderMarkdown('Heading 1\n=========\n\nHeading 2\n---------');
+
         expect(html).toContain('<h1>Heading 1</h1>');
         expect(html).toContain('<h2>Heading 2</h2>');
     });
 
     test('renders unordered lists', () => {
         const html = renderMarkdown('- Item 1\n- Item 2\n- Item 3');
+
         expect(html).toContain('<ul>');
         expect(html).toContain('<li>Item 1</li>');
     });
 
     test('renders ordered lists', () => {
         const html = renderMarkdown('1. First\n2. Second\n3. Third');
+
         expect(html).toContain('<ol>');
         expect(html).toContain('<li>First</li>');
     });
 
     test('renders links', () => {
         const html = renderMarkdown('[Link Text](https://example.com)');
+
         expect(html).toContain('<a href="https://example.com">Link Text</a>');
     });
 
     test('renders images', () => {
         const html = renderMarkdown('![Alt Text](image.png)');
+
         expect(html).toContain('<img');
         expect(html).toContain('src="image.png"');
         expect(html).toContain('alt="Alt Text"');
@@ -68,34 +78,40 @@ describe('Markdown Parser Configuration', () => {
 
     test('renders code blocks', () => {
         const html = renderMarkdown('```\ncode here\n```');
+
         expect(html).toContain('<pre>');
         expect(html).toContain('<code>');
     });
 
     test('renders inline code', () => {
         const html = renderMarkdown('This is `inline code`');
+
         expect(html).toContain('<code>inline code</code>');
     });
 
     test('renders blockquotes', () => {
         const html = renderMarkdown('> This is a quote');
+
         expect(html).toContain('<blockquote>');
         expect(html).toContain('This is a quote');
     });
 
     test('renders emphasis (italic)', () => {
         const html = renderMarkdown('*italic* and _italic_');
+
         expect(html).toContain('<em>italic</em>');
     });
 
     test('renders strong (bold)', () => {
         const html = renderMarkdown('**bold** and __bold__');
+
         expect(html).toContain('<strong>bold</strong>');
     });
 
     test('renders GFM tables', () => {
         const markdown = '| Header 1 | Header 2 |\n|----------|----------|\n| Cell 1   | Cell 2   |';
         const html = renderMarkdown(markdown);
+
         expect(html).toContain('<table>');
         expect(html).toContain('<thead>');
         expect(html).toContain('<tbody>');
@@ -105,12 +121,14 @@ describe('Markdown Parser Configuration', () => {
 
     test('renders GFM strikethrough', () => {
         const html = renderMarkdown('~~strikethrough~~');
+
         expect(html).toContain('<s>strikethrough</s>');
     });
 
     test('renders task lists', () => {
         const markdown = '- [ ] Unchecked task\n- [x] Checked task';
         const html = renderMarkdown(markdown);
+
         expect(html).toContain('type="checkbox"');
         expect(html).toContain('class="task-list-item');
         expect(html).toContain('checked=""'); // Checked task should have checked attribute
@@ -118,12 +136,14 @@ describe('Markdown Parser Configuration', () => {
 
     test('auto-converts URLs to links (linkify)', () => {
         const html = renderMarkdown('Visit https://example.com');
+
         expect(html).toContain('<a href="https://example.com">');
     });
 
     test('applies syntax highlighting to code blocks', () => {
         const markdown = '```javascript\nconst x = 1;\n```';
         const html = renderMarkdown(markdown);
+
         expect(html).toContain('<pre>');
         expect(html).toContain('<code');
         // highlight.js adds span elements with classes
@@ -133,6 +153,7 @@ describe('Markdown Parser Configuration', () => {
     test('handles code blocks without language gracefully', () => {
         const markdown = '```\nplain code\n```';
         const html = renderMarkdown(markdown);
+
         expect(html).toContain('<pre>');
         expect(html).toContain('plain code');
     });
@@ -140,6 +161,7 @@ describe('Markdown Parser Configuration', () => {
     test('handles invalid language in code blocks', () => {
         const markdown = '```invalidlang\ncode\n```';
         const html = renderMarkdown(markdown);
+
         expect(html).toContain('<pre>');
         expect(html).toContain('code');
     });
@@ -148,6 +170,7 @@ describe('Markdown Parser Configuration', () => {
 describe('MarkdownParser Class', () => {
     test('creates parser without advanced features', () => {
         const parser = new MarkdownParser();
+
         expect(parser).toBeDefined();
         expect(parser.md).toBeDefined();
         expect(typeof parser.parse).toBe('function');
@@ -156,6 +179,7 @@ describe('MarkdownParser Class', () => {
     test('parses basic markdown', () => {
         const parser = new MarkdownParser();
         const html = parser.parse('# Hello World');
+
         expect(html).toContain('<h1>');
         expect(html).toContain('Hello World');
     });
@@ -163,18 +187,21 @@ describe('MarkdownParser Class', () => {
     test('handles empty markdown', () => {
         const parser = new MarkdownParser();
         const html = parser.parse('');
+
         expect(html).toBe('');
     });
 
     test('handles null markdown', () => {
         const parser = new MarkdownParser();
         const html = parser.parse(null);
+
         expect(html).toBe('');
     });
 
     test('reinitialize recreates parser instance', () => {
         const parser = new MarkdownParser();
         const oldMd = parser.md;
+
         parser.reinitialize();
         expect(parser.md).toBeDefined();
         expect(parser.md).not.toBe(oldMd);
@@ -196,6 +223,7 @@ describe('MarkdownParser with Advanced Features', () => {
 
     test('creates parser with advanced markdown manager', () => {
         const parser = new MarkdownParser(mockManager);
+
         expect(parser).toBeDefined();
         expect(parser.advancedMarkdownManager).toBe(mockManager);
     });
@@ -304,6 +332,7 @@ Inline math: $x^2$
         const parser = new MarkdownParser(mockManager);
 
         let html = parser.parse('```mermaid\ngraph TD\nA-->B\n```');
+
         expect(html).toContain('mermaid-diagram');
 
         // Disable mermaid
@@ -333,6 +362,7 @@ describe('MarkdownParser Async Parsing', () => {
     test('parseAsync returns HTML without post-processor', async () => {
         const parser = new MarkdownParser();
         const html = await parser.parseAsync('# Hello');
+
         expect(html).toContain('<h1>');
         expect(html).toContain('Hello');
     });
@@ -349,6 +379,7 @@ describe('MarkdownParser Async Parsing', () => {
         const container = { innerHTML: '' };
 
         const html = await parser.parseAsync('# Hello', container);
+
         expect(html).toContain('<!-- processed -->');
     });
 
@@ -359,6 +390,7 @@ describe('MarkdownParser Async Parsing', () => {
 
         const parser = new MarkdownParser(null, mockPostProcessor);
         const html = await parser.parseAsync('# Hello');
+
         expect(html).toContain('<h1>');
     });
 });
@@ -367,12 +399,15 @@ describe('Backward Compatibility', () => {
     test('existing code using legacy functions still works', () => {
         // Test that old code patterns still work
         const parser = createMarkdownParser();
+
         expect(parser).toBeDefined();
 
         const singleton = getMarkdownParser();
+
         expect(singleton).toBeDefined();
 
         const html = renderMarkdown('# Test');
+
         expect(html).toContain('<h1>');
     });
 
@@ -388,6 +423,7 @@ describe('Backward Compatibility', () => {
 
         tests.forEach(({ input, expected }) => {
             const html = renderMarkdown(input);
+
             expect(html).toContain(expected);
         });
     });

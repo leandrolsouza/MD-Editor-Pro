@@ -53,6 +53,7 @@ function registerIPCHandlers() {
         try {
             console.log('IPC handler file:open called');
             const result = await fileManager.openFile();
+
             console.log('fileManager.openFile result:', result);
             return result;
         } catch (error) {
@@ -74,6 +75,7 @@ function registerIPCHandlers() {
     ipcMain.handle('file:save-as', async (event, content) => {
         try {
             const filePath = await fileManager.saveFileAs(content);
+
             return { success: true, filePath };
         } catch (error) {
             console.error('Error saving file as:', error);
@@ -85,6 +87,7 @@ function registerIPCHandlers() {
     ipcMain.handle('export:html', async (event, content, theme = 'light') => {
         try {
             const filePath = await exporter.exportToHTML(content, theme);
+
             if (filePath) {
                 return { success: true, filePath };
             } else {
@@ -100,6 +103,7 @@ function registerIPCHandlers() {
     ipcMain.handle('export:pdf', async (event, content, theme = 'light') => {
         try {
             const filePath = await exporter.exportToPDF(content, theme);
+
             if (filePath) {
                 return { success: true, filePath };
             } else {
@@ -116,6 +120,7 @@ function registerIPCHandlers() {
     ipcMain.handle('config:get', async (event, key) => {
         try {
             const value = configStore.get(key);
+
             return { success: true, value };
         } catch (error) {
             console.error('Error getting config:', error);
@@ -137,6 +142,7 @@ function registerIPCHandlers() {
     ipcMain.handle('tab:create', async (event, filePath, content) => {
         try {
             const tab = tabManager.createTab(filePath, content);
+
             return { success: true, tab };
         } catch (error) {
             console.error('Error creating tab:', error);
@@ -147,6 +153,7 @@ function registerIPCHandlers() {
     ipcMain.handle('tab:close', async (event, tabId) => {
         try {
             const result = tabManager.closeTab(tabId);
+
             return { success: result };
         } catch (error) {
             console.error('Error closing tab:', error);
@@ -157,6 +164,7 @@ function registerIPCHandlers() {
     ipcMain.handle('tab:switch', async (event, tabId) => {
         try {
             const tab = tabManager.switchTab(tabId);
+
             return { success: !!tab, tab };
         } catch (error) {
             console.error('Error switching tab:', error);
@@ -167,6 +175,7 @@ function registerIPCHandlers() {
     ipcMain.handle('tab:get', async (event, tabId) => {
         try {
             const tab = tabManager.getTab(tabId);
+
             return { success: !!tab, tab };
         } catch (error) {
             console.error('Error getting tab:', error);
@@ -177,6 +186,7 @@ function registerIPCHandlers() {
     ipcMain.handle('tab:get-all', async () => {
         try {
             const tabs = tabManager.getAllTabs();
+
             return { success: true, tabs };
         } catch (error) {
             console.error('Error getting all tabs:', error);
@@ -188,6 +198,7 @@ function registerIPCHandlers() {
         try {
             const tab = tabManager.getActiveTab();
             const tabId = tabManager.getActiveTabId();
+
             return { success: true, tab, tabId };
         } catch (error) {
             console.error('Error getting active tab:', error);
@@ -198,6 +209,7 @@ function registerIPCHandlers() {
     ipcMain.handle('tab:mark-modified', async (event, tabId, isModified) => {
         try {
             const result = tabManager.markTabModified(tabId, isModified);
+
             return { success: result };
         } catch (error) {
             console.error('Error marking tab modified:', error);
@@ -208,6 +220,7 @@ function registerIPCHandlers() {
     ipcMain.handle('tab:update-content', async (event, tabId, content) => {
         try {
             const result = tabManager.updateTabContent(tabId, content);
+
             return { success: result };
         } catch (error) {
             console.error('Error updating tab content:', error);
@@ -218,6 +231,7 @@ function registerIPCHandlers() {
     ipcMain.handle('tab:update-scroll', async (event, tabId, position) => {
         try {
             const result = tabManager.updateTabScrollPosition(tabId, position);
+
             return { success: result };
         } catch (error) {
             console.error('Error updating tab scroll:', error);
@@ -228,6 +242,7 @@ function registerIPCHandlers() {
     ipcMain.handle('tab:update-cursor', async (event, tabId, position) => {
         try {
             const result = tabManager.updateTabCursorPosition(tabId, position);
+
             return { success: result };
         } catch (error) {
             console.error('Error updating tab cursor:', error);
@@ -238,6 +253,7 @@ function registerIPCHandlers() {
     ipcMain.handle('tab:update-filepath', async (event, tabId, filePath) => {
         try {
             const result = tabManager.updateTabFilePath(tabId, filePath);
+
             return { success: result };
         } catch (error) {
             console.error('Error updating tab filepath:', error);
@@ -258,6 +274,7 @@ function registerIPCHandlers() {
     ipcMain.handle('tab:restore', async () => {
         try {
             const result = tabManager.restoreTabs();
+
             return { success: result };
         } catch (error) {
             console.error('Error restoring tabs:', error);
@@ -268,6 +285,7 @@ function registerIPCHandlers() {
     ipcMain.handle('tab:get-next', async () => {
         try {
             const tabId = tabManager.getNextTabId();
+
             return { success: true, tabId };
         } catch (error) {
             console.error('Error getting next tab:', error);
@@ -278,6 +296,7 @@ function registerIPCHandlers() {
     ipcMain.handle('tab:get-previous', async () => {
         try {
             const tabId = tabManager.getPreviousTabId();
+
             return { success: true, tabId };
         } catch (error) {
             console.error('Error getting previous tab:', error);
@@ -289,6 +308,7 @@ function registerIPCHandlers() {
     ipcMain.handle('shortcuts:get', async (event, actionId) => {
         try {
             const shortcut = keyboardShortcutManager.getShortcut(actionId);
+
             return { success: true, shortcut };
         } catch (error) {
             console.error('Error getting shortcut:', error);
@@ -329,6 +349,7 @@ function registerIPCHandlers() {
     ipcMain.handle('shortcuts:get-all', async () => {
         try {
             const shortcuts = keyboardShortcutManager.getAllShortcuts();
+
             return { success: true, shortcuts };
         } catch (error) {
             console.error('Error getting all shortcuts:', error);
@@ -339,6 +360,7 @@ function registerIPCHandlers() {
     ipcMain.handle('shortcuts:get-available-actions', async () => {
         try {
             const actions = keyboardShortcutManager.getAvailableActions();
+
             return { success: true, actions };
         } catch (error) {
             console.error('Error getting available actions:', error);
@@ -350,6 +372,7 @@ function registerIPCHandlers() {
         try {
             const hasConflict = keyboardShortcutManager.hasConflict(keyBinding, excludeActionId);
             const conflictingAction = keyboardShortcutManager.getConflictingAction(keyBinding, excludeActionId);
+
             return { success: true, hasConflict, conflictingAction };
         } catch (error) {
             console.error('Error checking conflict:', error);
@@ -360,6 +383,7 @@ function registerIPCHandlers() {
     ipcMain.handle('shortcuts:get-default', async (event, actionId) => {
         try {
             const shortcut = keyboardShortcutManager.getDefaultShortcut(actionId);
+
             return { success: true, shortcut };
         } catch (error) {
             console.error('Error getting default shortcut:', error);
@@ -371,6 +395,7 @@ function registerIPCHandlers() {
     ipcMain.handle('template:get', async (event, templateId) => {
         try {
             const template = templateManager.getTemplate(templateId);
+
             return { success: !!template, template };
         } catch (error) {
             console.error('Error getting template:', error);
@@ -381,6 +406,7 @@ function registerIPCHandlers() {
     ipcMain.handle('template:get-all', async () => {
         try {
             const templates = templateManager.getAllTemplates();
+
             return { success: true, templates };
         } catch (error) {
             console.error('Error getting all templates:', error);
@@ -391,6 +417,7 @@ function registerIPCHandlers() {
     ipcMain.handle('template:get-builtin', async () => {
         try {
             const templates = templateManager.getBuiltInTemplates();
+
             return { success: true, templates };
         } catch (error) {
             console.error('Error getting built-in templates:', error);
@@ -401,6 +428,7 @@ function registerIPCHandlers() {
     ipcMain.handle('template:get-custom', async () => {
         try {
             const templates = templateManager.getCustomTemplates();
+
             return { success: true, templates };
         } catch (error) {
             console.error('Error getting custom templates:', error);
@@ -411,6 +439,7 @@ function registerIPCHandlers() {
     ipcMain.handle('template:save-custom', async (event, name, content, metadata) => {
         try {
             const template = templateManager.saveCustomTemplate(name, content, metadata);
+
             return { success: true, template };
         } catch (error) {
             console.error('Error saving custom template:', error);
@@ -421,6 +450,7 @@ function registerIPCHandlers() {
     ipcMain.handle('template:delete-custom', async (event, templateId) => {
         try {
             const result = templateManager.deleteCustomTemplate(templateId);
+
             return { success: result };
         } catch (error) {
             console.error('Error deleting custom template:', error);
@@ -431,6 +461,7 @@ function registerIPCHandlers() {
     ipcMain.handle('template:update-custom', async (event, templateId, updates) => {
         try {
             const result = templateManager.updateCustomTemplate(templateId, updates);
+
             return { success: result };
         } catch (error) {
             console.error('Error updating custom template:', error);
@@ -441,6 +472,7 @@ function registerIPCHandlers() {
     ipcMain.handle('template:get-categories', async () => {
         try {
             const categories = templateManager.getCategories();
+
             return { success: true, categories };
         } catch (error) {
             console.error('Error getting categories:', error);
@@ -451,6 +483,7 @@ function registerIPCHandlers() {
     ipcMain.handle('template:get-by-category', async (event, category) => {
         try {
             const templates = templateManager.getTemplatesByCategory(category);
+
             return { success: true, templates };
         } catch (error) {
             console.error('Error getting templates by category:', error);
@@ -471,6 +504,7 @@ function registerIPCHandlers() {
     ipcMain.handle('template:find-placeholders', async (event, content) => {
         try {
             const placeholders = templateManager.findPlaceholders(content);
+
             return { success: true, placeholders };
         } catch (error) {
             console.error('Error finding placeholders:', error);
@@ -481,6 +515,7 @@ function registerIPCHandlers() {
     ipcMain.handle('template:get-first-placeholder-position', async (event, content) => {
         try {
             const position = templateManager.getFirstPlaceholderPosition(content);
+
             return { success: true, position };
         } catch (error) {
             console.error('Error getting first placeholder position:', error);
@@ -493,6 +528,7 @@ function registerIPCHandlers() {
     ipcMain.handle('advanced-markdown:get-settings', async () => {
         try {
             const features = advancedMarkdownManager.getAllFeatures();
+
             return { success: true, features };
         } catch (error) {
             console.error('Error getting advanced markdown settings:', error);
@@ -507,6 +543,7 @@ function registerIPCHandlers() {
 
             // Notify renderer of configuration changes
             const mainWindow = windowManager.getMainWindow();
+
             if (mainWindow) {
                 mainWindow.webContents.send('advanced-markdown:settings-changed', featureName, enabled);
             }
@@ -522,6 +559,7 @@ function registerIPCHandlers() {
     ipcMain.handle('shell:open-external', async (event, url) => {
         try {
             const { shell } = require('electron');
+
             await shell.openExternal(url);
             return { success: true };
         } catch (error) {

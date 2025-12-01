@@ -35,17 +35,20 @@ describe('KeyboardShortcutManager', () => {
     describe('getShortcut', () => {
         it('should return default shortcut when no custom shortcut is set', () => {
             const shortcut = manager.getShortcut('file:save');
+
             expect(shortcut).toBe('Mod-S');
         });
 
         it('should return custom shortcut when set', () => {
             manager.setShortcut('file:save', 'Mod-Shift-S');
             const shortcut = manager.getShortcut('file:save');
+
             expect(shortcut).toBe('Mod-Shift-S');
         });
 
         it('should return undefined for non-existent action', () => {
             const shortcut = manager.getShortcut('non:existent');
+
             expect(shortcut).toBeUndefined();
         });
     });
@@ -71,6 +74,7 @@ describe('KeyboardShortcutManager', () => {
         it('should persist custom shortcut to ConfigStore', () => {
             manager.setShortcut('file:save', 'Mod-Shift-S');
             const stored = configStore.getKeyboardShortcut('file:save');
+
             expect(stored).toBe('Mod-Shift-S');
         });
     });
@@ -93,6 +97,7 @@ describe('KeyboardShortcutManager', () => {
             manager.resetShortcut('file:save');
 
             const stored = configStore.getKeyboardShortcut('file:save');
+
             expect(stored).toBeUndefined();
         });
     });
@@ -115,6 +120,7 @@ describe('KeyboardShortcutManager', () => {
             manager.resetAllShortcuts();
 
             const allShortcuts = configStore.getAllKeyboardShortcuts();
+
             expect(Object.keys(allShortcuts).length).toBe(0);
         });
     });
@@ -122,27 +128,32 @@ describe('KeyboardShortcutManager', () => {
     describe('hasConflict', () => {
         it('should return false when no conflict exists', () => {
             const hasConflict = manager.hasConflict('Ctrl-Alt-X');
+
             expect(hasConflict).toBe(false);
         });
 
         it('should return true when conflict exists with default shortcut', () => {
             const hasConflict = manager.hasConflict('Mod-S');
+
             expect(hasConflict).toBe(true);
         });
 
         it('should return true when conflict exists with custom shortcut', () => {
             manager.setShortcut('file:save', 'Ctrl-Alt-S');
             const hasConflict = manager.hasConflict('Ctrl-Alt-S');
+
             expect(hasConflict).toBe(true);
         });
 
         it('should exclude specified action from conflict check', () => {
             const hasConflict = manager.hasConflict('Mod-S', 'file:save');
+
             expect(hasConflict).toBe(false);
         });
 
         it('should be case-insensitive', () => {
             const hasConflict = manager.hasConflict('mod-s');
+
             expect(hasConflict).toBe(true);
         });
     });
@@ -150,16 +161,19 @@ describe('KeyboardShortcutManager', () => {
     describe('getConflictingAction', () => {
         it('should return null when no conflict exists', () => {
             const conflicting = manager.getConflictingAction('Ctrl-Alt-X');
+
             expect(conflicting).toBeNull();
         });
 
         it('should return conflicting action ID', () => {
             const conflicting = manager.getConflictingAction('Mod-S');
+
             expect(conflicting).toBe('file:save');
         });
 
         it('should exclude specified action from conflict check', () => {
             const conflicting = manager.getConflictingAction('Mod-S', 'file:save');
+
             expect(conflicting).toBeNull();
         });
     });
@@ -167,6 +181,7 @@ describe('KeyboardShortcutManager', () => {
     describe('getAvailableActions', () => {
         it('should return all available actions', () => {
             const actions = manager.getAvailableActions();
+
             expect(Array.isArray(actions)).toBe(true);
             expect(actions.length).toBeGreaterThan(0);
         });
@@ -196,6 +211,7 @@ describe('KeyboardShortcutManager', () => {
     describe('getAllShortcuts', () => {
         it('should return all shortcuts', () => {
             const shortcuts = manager.getAllShortcuts();
+
             expect(typeof shortcuts).toBe('object');
             expect(Object.keys(shortcuts).length).toBeGreaterThan(0);
         });
@@ -204,11 +220,13 @@ describe('KeyboardShortcutManager', () => {
             manager.setShortcut('file:save', 'Ctrl-Alt-S');
 
             const shortcuts = manager.getAllShortcuts();
+
             expect(shortcuts['file:save']).toBe('Ctrl-Alt-S');
         });
 
         it('should include default shortcuts for actions without custom shortcuts', () => {
             const shortcuts = manager.getAllShortcuts();
+
             expect(shortcuts['file:open']).toBe('Mod-O');
         });
     });
@@ -216,17 +234,20 @@ describe('KeyboardShortcutManager', () => {
     describe('getDefaultShortcut', () => {
         it('should return default shortcut', () => {
             const shortcut = manager.getDefaultShortcut('file:save');
+
             expect(shortcut).toBe('Mod-S');
         });
 
         it('should return undefined for non-existent action', () => {
             const shortcut = manager.getDefaultShortcut('non:existent');
+
             expect(shortcut).toBeUndefined();
         });
 
         it('should return default even when custom shortcut is set', () => {
             manager.setShortcut('file:save', 'Ctrl-Alt-S');
             const shortcut = manager.getDefaultShortcut('file:save');
+
             expect(shortcut).toBe('Mod-S');
         });
     });
@@ -234,12 +255,14 @@ describe('KeyboardShortcutManager', () => {
     describe('hasCustomShortcut', () => {
         it('should return false when no custom shortcut is set', () => {
             const hasCustom = manager.hasCustomShortcut('file:save');
+
             expect(hasCustom).toBe(false);
         });
 
         it('should return true when custom shortcut is set', () => {
             manager.setShortcut('file:save', 'Ctrl-Alt-S');
             const hasCustom = manager.hasCustomShortcut('file:save');
+
             expect(hasCustom).toBe(true);
         });
 
@@ -247,6 +270,7 @@ describe('KeyboardShortcutManager', () => {
             manager.setShortcut('file:save', 'Ctrl-Alt-S');
             manager.resetShortcut('file:save');
             const hasCustom = manager.hasCustomShortcut('file:save');
+
             expect(hasCustom).toBe(false);
         });
     });
@@ -257,6 +281,7 @@ describe('KeyboardShortcutManager', () => {
 
             // Create new manager with same config store
             const newManager = new KeyboardShortcutManager(configStore);
+
             expect(newManager.getShortcut('file:save')).toBe('Ctrl-Alt-S');
         });
 
@@ -264,6 +289,7 @@ describe('KeyboardShortcutManager', () => {
             configStore.setKeyboardShortcut('file:save', 'Ctrl-Alt-S');
 
             const newManager = new KeyboardShortcutManager(configStore);
+
             expect(newManager.getShortcut('file:save')).toBe('Ctrl-Alt-S');
         });
     });

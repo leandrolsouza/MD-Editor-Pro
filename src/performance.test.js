@@ -52,6 +52,7 @@ describe('Performance Tests', () => {
 
             let renderCount = 0;
             const originalRender = preview.render.bind(preview);
+
             preview.render = function (content) {
                 renderCount++;
                 return originalRender(content);
@@ -64,6 +65,7 @@ describe('Performance Tests', () => {
             editor.setValue('# Test 3');
             editor.setValue('# Test 4');
             const finalContent = '# Test 5';
+
             editor.setValue(finalContent);
 
             // In real usage, only the final render would be called after debounce
@@ -91,6 +93,7 @@ describe('Performance Tests', () => {
 
             // Preview should contain the final content
             const previewHTML = previewContainer.innerHTML;
+
             expect(previewHTML).toContain('Final Content');
         });
 
@@ -111,6 +114,7 @@ describe('Performance Tests', () => {
         it('should handle large markdown files without crashing', () => {
             // Generate a large markdown document (approximately 10,000 lines)
             const lines = [];
+
             for (let i = 0; i < 10000; i++) {
                 lines.push(`## Heading ${i}`);
                 lines.push(`This is paragraph ${i} with some content.`);
@@ -130,6 +134,7 @@ describe('Performance Tests', () => {
         it('should render large files without excessive delay', () => {
             // Generate a moderately large document (1,000 lines)
             const lines = [];
+
             for (let i = 0; i < 1000; i++) {
                 lines.push(`# Heading ${i}`);
                 lines.push(`Paragraph with **bold** and *italic* text.`);
@@ -143,6 +148,7 @@ describe('Performance Tests', () => {
 
             // Measure render time
             const startTime = performance.now();
+
             preview.render(content);
             const endTime = performance.now();
 
@@ -155,6 +161,7 @@ describe('Performance Tests', () => {
         it('should handle files with many headings', () => {
             // Generate document with 500 headings
             const headings = [];
+
             for (let i = 1; i <= 500; i++) {
                 headings.push(`# Heading ${i}`);
             }
@@ -171,6 +178,7 @@ describe('Performance Tests', () => {
         it('should handle files with many list items', () => {
             // Generate document with 1000 list items
             const items = [];
+
             for (let i = 1; i <= 1000; i++) {
                 items.push(`- List item ${i}`);
             }
@@ -187,6 +195,7 @@ describe('Performance Tests', () => {
         it('should handle files with large code blocks', () => {
             // Generate document with large code block
             const codeLines = [];
+
             for (let i = 1; i <= 500; i++) {
                 codeLines.push(`function example${i}() {`);
                 codeLines.push(`  return ${i};`);
@@ -205,6 +214,7 @@ describe('Performance Tests', () => {
         it('should handle files with many links', () => {
             // Generate document with 200 links
             const links = [];
+
             for (let i = 1; i <= 200; i++) {
                 links.push(`[Link ${i}](https://example.com/${i})`);
             }
@@ -224,6 +234,7 @@ describe('Performance Tests', () => {
             const simpleContent = '# Hello World\n\nThis is a simple document.';
 
             const startTime = performance.now();
+
             preview.render(simpleContent);
             const endTime = performance.now();
 
@@ -238,6 +249,7 @@ describe('Performance Tests', () => {
 
             // Render multiple times
             const startTime = performance.now();
+
             for (let i = 0; i < 100; i++) {
                 preview.render(content);
             }
@@ -267,6 +279,7 @@ describe('Performance Tests', () => {
             // Note: This test may not be reliable in all environments
             if (performance.memory) {
                 const memoryGrowth = finalMemory - initialMemory;
+
                 expect(memoryGrowth).toBeLessThan(10 * 1024 * 1024); // 10MB
             } else {
                 // If memory API not available, just verify no crash
@@ -297,6 +310,7 @@ describe('Performance Tests', () => {
             const largeText = 'Lorem ipsum '.repeat(1000);
 
             const startTime = performance.now();
+
             editor.insertText(largeText);
             const endTime = performance.now();
 
@@ -339,6 +353,7 @@ describe('Performance Tests', () => {
         it('should handle scroll position updates efficiently', () => {
             // Set content with many lines
             const lines = [];
+
             for (let i = 0; i < 100; i++) {
                 lines.push(`Line ${i}`);
             }

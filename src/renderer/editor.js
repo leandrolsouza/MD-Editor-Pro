@@ -54,6 +54,7 @@ class Editor {
                 EditorView.updateListener.of((update) => {
                     if (update.docChanged) {
                         const content = this.getValue();
+
                         this.contentChangeCallbacks.forEach(callback => {
                             if (callback) {
                                 callback(content);
@@ -271,6 +272,7 @@ class Editor {
 
         const scrollDOM = this.view.scrollDOM;
         const scrollHeight = scrollDOM.scrollHeight - scrollDOM.clientHeight;
+
         scrollDOM.scrollTop = scrollHeight * position;
     }
 
@@ -307,6 +309,7 @@ class Editor {
         } else {
             // Insert at cursor position
             const selection = this.view.state.selection.main;
+
             transaction = this.view.state.update({
                 changes: {
                     from: selection.from,
@@ -346,12 +349,14 @@ class Editor {
         const placeholderLength = match[0].length;
 
         let absolutePosition;
+
         if (mode === 'replace') {
             // Position is from start of document
             absolutePosition = placeholderPosition;
         } else {
             // Position is from where we inserted
             const selection = this.view.state.selection.main;
+
             absolutePosition = selection.from + placeholderPosition;
         }
 
@@ -428,6 +433,7 @@ class Editor {
         }
 
         const selection = this.view.state.selection.main;
+
         return {
             from: selection.from,
             to: selection.to,
@@ -547,6 +553,7 @@ class Editor {
                         head: selection.to - 2
                     }
                 });
+
                 this.view.dispatch(transaction);
             } else {
                 // Add bold markers
@@ -593,6 +600,7 @@ class Editor {
                         head: selection.to - 1
                     }
                 });
+
                 this.view.dispatch(transaction);
             } else {
                 // Add italic markers
@@ -639,6 +647,7 @@ class Editor {
                         head: selection.to - 2
                     }
                 });
+
                 this.view.dispatch(transaction);
             } else {
                 // Add strikethrough markers
@@ -667,13 +676,16 @@ class Editor {
 
         if (headingMatch) {
             const currentLevel = headingMatch[1].length;
+
             if (currentLevel === level) {
                 // Remove heading formatting
                 const newText = line.text.replace(/^#{1,6}\s/, '');
+
                 this.replaceCurrentLine(newText);
             } else {
                 // Replace heading level
                 const newText = line.text.replace(/^#{1,6}\s/, newHeadingMarker);
+
                 this.replaceCurrentLine(newText);
             }
         } else {
@@ -701,6 +713,7 @@ class Editor {
         // Check all lines in selection
         for (let i = startLine.number; i <= endLine.number; i++) {
             const line = this.view.state.doc.line(i);
+
             if (!line.text.match(/^-\s/)) {
                 allLinesAreUnorderedList = false;
                 break;
@@ -714,6 +727,7 @@ class Editor {
             if (allLinesAreUnorderedList) {
                 // Remove list formatting
                 const newText = line.text.replace(/^-\s/, '');
+
                 changes.push({
                     from: line.from,
                     to: line.to,
@@ -736,6 +750,7 @@ class Editor {
                 changes,
                 scrollIntoView: true
             });
+
             this.view.dispatch(transaction);
         }
     }
@@ -759,6 +774,7 @@ class Editor {
         // Check all lines in selection
         for (let i = startLine.number; i <= endLine.number; i++) {
             const line = this.view.state.doc.line(i);
+
             if (!line.text.match(/^\d+\.\s/)) {
                 allLinesAreOrderedList = false;
                 break;
@@ -773,6 +789,7 @@ class Editor {
             if (allLinesAreOrderedList) {
                 // Remove list formatting
                 const newText = line.text.replace(/^\d+\.\s/, '');
+
                 changes.push({
                     from: line.from,
                     to: line.to,
@@ -795,6 +812,7 @@ class Editor {
                 changes,
                 scrollIntoView: true
             });
+
             this.view.dispatch(transaction);
         }
     }
@@ -818,6 +836,7 @@ class Editor {
         // Check all lines in selection
         for (let i = startLine.number; i <= endLine.number; i++) {
             const line = this.view.state.doc.line(i);
+
             if (!line.text.match(/^>\s/)) {
                 allLinesAreBlockquote = false;
                 break;
@@ -831,6 +850,7 @@ class Editor {
             if (allLinesAreBlockquote) {
                 // Remove blockquote formatting
                 const newText = line.text.replace(/^>\s/, '');
+
                 changes.push({
                     from: line.from,
                     to: line.to,
@@ -853,6 +873,7 @@ class Editor {
                 changes,
                 scrollIntoView: true
             });
+
             this.view.dispatch(transaction);
         }
     }
@@ -895,6 +916,7 @@ class Editor {
                         head: selection.to - 1
                     }
                 });
+
                 this.view.dispatch(transaction);
             } else {
                 // Add code markers
@@ -934,9 +956,11 @@ class Editor {
         if (selection.isEmpty) {
             // No selection - insert placeholder text and URL
             const linkText = '[text](url)';
+
             this.replaceSelection(linkText);
             // Select the URL placeholder
             const urlStart = selection.from + 7; // After '[text]('
+
             this.view.dispatch(this.view.state.update({
                 selection: {
                     anchor: urlStart,
@@ -957,6 +981,7 @@ class Editor {
                     head: selection.from + selection.text.length + 6 // Select 'url'
                 }
             });
+
             this.view.dispatch(transaction);
         }
     }
@@ -976,6 +1001,7 @@ class Editor {
         this.replaceSelection(imageText);
         // Select the URL placeholder
         const urlStart = selection.from + 7; // After '![alt]('
+
         this.view.dispatch(this.view.state.update({
             selection: {
                 anchor: urlStart,
@@ -1088,6 +1114,7 @@ class Editor {
         }
 
         const line = this.getCurrentLine();
+
         return /^-\s/.test(line.text);
     }
 
@@ -1102,6 +1129,7 @@ class Editor {
         }
 
         const line = this.getCurrentLine();
+
         return /^\d+\.\s/.test(line.text);
     }
 
@@ -1116,6 +1144,7 @@ class Editor {
         }
 
         const line = this.getCurrentLine();
+
         return /^>\s/.test(line.text);
     }
 
@@ -1154,6 +1183,7 @@ class Editor {
         }
 
         const line = this.getCurrentLine();
+
         return /^-\s\[[ x]\]\s/.test(line.text);
     }
 
@@ -1181,6 +1211,7 @@ class Editor {
                     insert: newText
                 }
             });
+
             this.view.dispatch(transaction);
         } else {
             // Add task list formatting
@@ -1193,6 +1224,7 @@ class Editor {
                     insert: newText
                 }
             });
+
             this.view.dispatch(transaction);
         }
     }
@@ -1265,8 +1297,10 @@ class Editor {
         const endLine = doc.lineAt(selection.to);
 
         const changes = [];
+
         for (let i = startLine.number; i <= endLine.number; i++) {
             const line = doc.line(i);
+
             changes.push({
                 from: line.from,
                 to: line.from,
@@ -1293,6 +1327,7 @@ class Editor {
         const endLine = doc.lineAt(selection.to);
 
         const changes = [];
+
         for (let i = startLine.number; i <= endLine.number; i++) {
             const line = doc.line(i);
             const text = line.text;

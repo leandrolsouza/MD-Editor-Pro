@@ -131,6 +131,7 @@ class SearchManager {
                     regexp: false
                 }))
             });
+
             this.editor.view.dispatch(transaction);
         }
 
@@ -188,14 +189,17 @@ class SearchManager {
         const transaction = this.editor.view.state.update({
             effects: setSearchQuery.of(searchQuery)
         });
+
         this.editor.view.dispatch(transaction);
 
         // Count matches
         const results = this._findAllMatches(query);
+
         this.totalMatches = results.length;
 
         // Find current match index based on cursor position
         const cursorPos = this.editor.view.state.selection.main.head;
+
         this.currentMatchIndex = this._findCurrentMatchIndex(results, cursorPos);
 
         this._updateResultsDisplay(this.currentMatchIndex, this.totalMatches);
@@ -216,6 +220,7 @@ class SearchManager {
         const lowerContent = content.toLowerCase();
 
         let index = 0;
+
         while ((index = lowerContent.indexOf(lowerQuery, index)) !== -1) {
             results.push({
                 from: index,
@@ -276,6 +281,7 @@ class SearchManager {
         }
 
         const query = this.searchInput.value;
+
         if (!query) {
             return;
         }
@@ -286,6 +292,7 @@ class SearchManager {
         // Update current match index
         const results = this._findAllMatches(query);
         const cursorPos = this.editor.view.state.selection.main.head;
+
         this.currentMatchIndex = this._findCurrentMatchIndex(results, cursorPos);
         this._updateResultsDisplay(this.currentMatchIndex, this.totalMatches);
     }
@@ -299,6 +306,7 @@ class SearchManager {
         }
 
         const query = this.searchInput.value;
+
         if (!query) {
             return;
         }
@@ -309,6 +317,7 @@ class SearchManager {
         // Update current match index
         const results = this._findAllMatches(query);
         const cursorPos = this.editor.view.state.selection.main.head;
+
         this.currentMatchIndex = this._findCurrentMatchIndex(results, cursorPos);
         this._updateResultsDisplay(this.currentMatchIndex, this.totalMatches);
     }
@@ -323,6 +332,7 @@ class SearchManager {
         }
 
         const query = this.searchInput.value;
+
         if (!query) {
             return;
         }
@@ -338,6 +348,7 @@ class SearchManager {
         const transaction = this.editor.view.state.update({
             effects: setSearchQuery.of(searchQuery)
         });
+
         this.editor.view.dispatch(transaction);
 
         // Use CodeMirror's replaceNext command
@@ -361,6 +372,7 @@ class SearchManager {
         }
 
         const query = this.searchInput.value;
+
         if (!query) {
             return;
         }
@@ -376,6 +388,7 @@ class SearchManager {
         const transaction = this.editor.view.state.update({
             effects: setSearchQuery.of(searchQuery)
         });
+
         this.editor.view.dispatch(transaction);
 
         // Use CodeMirror's replaceAll command

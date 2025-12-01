@@ -1,9 +1,9 @@
 /**
  * markdown-it plugin for Callout blocks (admonitions)
- * 
+ *
  * This plugin detects blockquotes with callout syntax (> [!TYPE])
  * and generates styled divs with appropriate classes and content.
- * 
+ *
  * Supported callout types: NOTE, WARNING, TIP, IMPORTANT, CAUTION
  */
 
@@ -110,7 +110,7 @@ function calloutBlock(state, startLine, endLine, silent) {
     // Collect all lines that are part of this blockquote
     const oldLineMax = state.lineMax;
     let nextLine = startLine + 1;
-    let contentLines = [];
+    const contentLines = [];
 
     // Skip the first line (it contains the callout identifier)
     // Collect subsequent lines that are part of the blockquote
@@ -140,18 +140,22 @@ function calloutBlock(state, startLine, endLine, silent) {
     // Parse the content as markdown
     const oldParent = state.parentType;
     const oldLineMax2 = state.lineMax;
+
     state.parentType = 'callout';
 
     // Create the callout token
     const token = state.push('callout_open', 'div', 1);
+
     token.markup = '>';
     token.map = [startLine, nextLine];
     token.info = calloutInfo;
 
     // Parse the content
     const content = contentLines.join('\n');
+
     if (content.trim()) {
         const oldSrc = state.src;
+
         state.src = content;
         state.md.block.parse(content, state.md, state.env, state.tokens);
         state.src = oldSrc;
@@ -159,6 +163,7 @@ function calloutBlock(state, startLine, endLine, silent) {
 
     // Close the callout
     const closeToken = state.push('callout_close', 'div', -1);
+
     closeToken.markup = '>';
 
     state.parentType = oldParent;

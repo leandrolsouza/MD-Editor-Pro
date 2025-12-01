@@ -139,6 +139,7 @@ describe('AdvancedMarkdownSettingsUI', () => {
             await settingsUI.show();
 
             const mermaidCheckbox = settingsUI.dialog.querySelector('#feature-mermaid');
+
             mermaidCheckbox.checked = false;
             mermaidCheckbox.dispatchEvent(new dom.window.Event('change'));
 
@@ -155,6 +156,7 @@ describe('AdvancedMarkdownSettingsUI', () => {
             await settingsUI.show();
 
             const katexCheckbox = settingsUI.dialog.querySelector('#feature-katex');
+
             katexCheckbox.checked = false;
             katexCheckbox.dispatchEvent(new dom.window.Event('change'));
 
@@ -166,11 +168,13 @@ describe('AdvancedMarkdownSettingsUI', () => {
 
         it('should call onChange callback when feature toggles', async () => {
             const onChangeSpy = vi.fn();
+
             settingsUI.onChange(onChangeSpy);
 
             await settingsUI.show();
 
             const calloutsCheckbox = settingsUI.dialog.querySelector('#feature-callouts');
+
             calloutsCheckbox.checked = false;
             calloutsCheckbox.dispatchEvent(new dom.window.Event('change'));
 
@@ -189,6 +193,7 @@ describe('AdvancedMarkdownSettingsUI', () => {
 
             const mermaidCheckbox = settingsUI.dialog.querySelector('#feature-mermaid');
             const originalChecked = mermaidCheckbox.checked;
+
             mermaidCheckbox.checked = !originalChecked;
             mermaidCheckbox.dispatchEvent(new dom.window.Event('change'));
 
@@ -216,6 +221,7 @@ describe('AdvancedMarkdownSettingsUI', () => {
             await settingsUI.show();
 
             const closeBtn = settingsUI.dialog.querySelector('.settings-close-btn');
+
             closeBtn.click();
 
             expect(settingsUI.dialog.style.display).toBe('none');
@@ -225,6 +231,7 @@ describe('AdvancedMarkdownSettingsUI', () => {
             await settingsUI.show();
 
             const doneBtn = settingsUI.dialog.querySelector('.settings-done-btn');
+
             doneBtn.click();
 
             expect(settingsUI.dialog.style.display).toBe('none');
@@ -247,6 +254,7 @@ describe('AdvancedMarkdownSettingsUI', () => {
                 key: 'Escape',
                 bubbles: true
             });
+
             document.dispatchEvent(escapeEvent);
 
             expect(settingsUI.dialog.style.display).toBe('none');
@@ -256,6 +264,7 @@ describe('AdvancedMarkdownSettingsUI', () => {
     describe('Callback Registration', () => {
         it('should register onChange callback', () => {
             const callback = vi.fn();
+
             settingsUI.onChange(callback);
             expect(settingsUI.onSettingsChanged).toBe(callback);
         });

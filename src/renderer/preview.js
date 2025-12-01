@@ -71,11 +71,13 @@ class Preview {
         try {
             // Render the markdown to HTML
             let html;
+
             if (this.markdownParser) {
                 html = this.markdownParser.parse(markdown);
             } else {
                 // Fallback to basic rendering if no parser provided
                 const { renderMarkdown } = require('./markdown-parser.js');
+
                 html = renderMarkdown(markdown);
             }
 
@@ -128,6 +130,7 @@ class Preview {
         }
 
         const scrollHeight = this.container.scrollHeight - this.container.clientHeight;
+
         this.container.scrollTop = scrollHeight * position;
     }
 

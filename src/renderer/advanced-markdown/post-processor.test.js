@@ -1,6 +1,6 @@
 /**
  * Tests for Advanced Markdown Post-Processor
- * 
+ *
  * Basic unit tests for the post-processor structure and error handling.
  * Full integration tests with actual Mermaid and KaTeX rendering are in integration tests.
  */
@@ -22,6 +22,7 @@ describe('AdvancedMarkdownPostProcessor - Structure', () => {
 
         // The plugin should have already marked empty diagrams
         const diagram = container.querySelector('.mermaid-diagram');
+
         expect(diagram).toBeTruthy();
         expect(diagram.textContent.trim()).toBe('');
     });
@@ -35,6 +36,7 @@ describe('AdvancedMarkdownPostProcessor - Structure', () => {
 
         // Verify structure
         const diagram = container.querySelector('.mermaid-diagram');
+
         expect(diagram).toBeTruthy();
         expect(diagram.getAttribute('data-mermaid-id')).toBe(mermaidId);
         expect(diagram.textContent).toContain('graph TD');
@@ -43,10 +45,12 @@ describe('AdvancedMarkdownPostProcessor - Structure', () => {
     test('KaTeX inline placeholders have correct structure', () => {
         // Setup - inline math placeholder
         const latex = 'E = mc^2';
+
         container.innerHTML = `<span class="katex-inline" data-katex="${latex}"></span>`;
 
         // Verify structure
         const element = container.querySelector('.katex-inline');
+
         expect(element).toBeTruthy();
         expect(element.getAttribute('data-katex')).toBe(latex);
     });
@@ -54,10 +58,12 @@ describe('AdvancedMarkdownPostProcessor - Structure', () => {
     test('KaTeX block placeholders have correct structure', () => {
         // Setup - block math placeholder
         const latex = '\\int_0^\\infty e^{-x^2} dx';
+
         container.innerHTML = `<div class="katex-block" data-katex="${latex}" data-display="true"></div>`;
 
         // Verify structure
         const element = container.querySelector('.katex-block');
+
         expect(element).toBeTruthy();
         expect(element.getAttribute('data-katex')).toBe(latex);
         expect(element.getAttribute('data-display')).toBe('true');
@@ -72,6 +78,7 @@ describe('AdvancedMarkdownPostProcessor - Structure', () => {
 
         // Verify we can find all diagrams
         const diagrams = container.querySelectorAll('.mermaid-diagram');
+
         expect(diagrams.length).toBe(2);
         expect(diagrams[0].getAttribute('data-mermaid-id')).toBe('test1');
         expect(diagrams[1].getAttribute('data-mermaid-id')).toBe('test2');
@@ -127,17 +134,21 @@ describe('AdvancedMarkdownPostProcessor - Error Handling', () => {
 
     test('null data attributes are handled', () => {
         const container = document.createElement('div');
+
         container.innerHTML = '<div class="mermaid-diagram"></div>';
 
         const diagram = container.querySelector('.mermaid-diagram');
+
         expect(diagram.getAttribute('data-mermaid-id')).toBeNull();
     });
 
     test('missing data-katex attribute', () => {
         const container = document.createElement('div');
+
         container.innerHTML = '<span class="katex-inline"></span>';
 
         const element = container.querySelector('.katex-inline');
+
         expect(element.getAttribute('data-katex')).toBeNull();
     });
 });

@@ -80,6 +80,7 @@ class FormattingToolbar {
 
         // Create toolbar wrapper
         const toolbarWrapper = document.createElement('div');
+
         toolbarWrapper.className = 'formatting-toolbar-wrapper';
 
         // Create buttons from configuration
@@ -87,11 +88,13 @@ class FormattingToolbar {
             if (config.type === 'separator') {
                 // Create separator
                 const separator = document.createElement('div');
+
                 separator.className = 'toolbar-separator';
                 toolbarWrapper.appendChild(separator);
             } else {
                 // Create button
                 const button = this.createButton(config);
+
                 toolbarWrapper.appendChild(button);
                 this.buttons.set(config.id, button);
             }
@@ -108,6 +111,7 @@ class FormattingToolbar {
      */
     createButton(config) {
         const button = document.createElement('button');
+
         button.className = 'toolbar-button';
         button.setAttribute('data-action', config.action);
         button.setAttribute('data-button-id', config.id);
@@ -250,22 +254,26 @@ class FormattingToolbar {
     showLanguageDialog(callback) {
         // Create dialog overlay
         const overlay = document.createElement('div');
+
         overlay.className = 'language-dialog-overlay';
         overlay.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; align-items: center; justify-content: center;';
 
         // Create dialog
         const dialog = document.createElement('div');
+
         dialog.className = 'language-dialog';
         dialog.style.cssText = 'background: var(--bg-color, white); padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); min-width: 300px; max-width: 400px;';
 
         // Title
         const title = document.createElement('h3');
+
         title.textContent = 'Select Code Language';
         title.style.cssText = 'margin: 0 0 15px 0; font-size: 16px; color: var(--text-color, #333);';
         dialog.appendChild(title);
 
         // Input
         const input = document.createElement('input');
+
         input.type = 'text';
         input.placeholder = 'e.g., javascript, python, html...';
         input.style.cssText = 'width: 100%; padding: 8px; border: 1px solid var(--border-color, #ccc); border-radius: 4px; font-size: 14px; margin-bottom: 10px; box-sizing: border-box;';
@@ -274,10 +282,12 @@ class FormattingToolbar {
         // Common languages
         const commonLangs = ['javascript', 'python', 'java', 'html', 'css', 'typescript', 'bash', 'json', 'markdown', 'sql'];
         const langsContainer = document.createElement('div');
+
         langsContainer.style.cssText = 'display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 15px;';
 
         commonLangs.forEach(lang => {
             const btn = document.createElement('button');
+
             btn.textContent = lang;
             btn.className = 'lang-quick-btn';
             btn.style.cssText = 'padding: 4px 8px; border: 1px solid var(--border-color, #ccc); border-radius: 4px; background: var(--bg-secondary, #f5f5f5); cursor: pointer; font-size: 12px;';
@@ -290,9 +300,11 @@ class FormattingToolbar {
 
         // Buttons
         const buttonsDiv = document.createElement('div');
+
         buttonsDiv.style.cssText = 'display: flex; gap: 10px; justify-content: flex-end;';
 
         const cancelBtn = document.createElement('button');
+
         cancelBtn.textContent = 'Cancel';
         cancelBtn.style.cssText = 'padding: 8px 16px; border: 1px solid var(--border-color, #ccc); border-radius: 4px; background: var(--bg-secondary, #f5f5f5); cursor: pointer;';
         cancelBtn.onclick = () => {
@@ -301,10 +313,12 @@ class FormattingToolbar {
         };
 
         const okBtn = document.createElement('button');
+
         okBtn.textContent = 'Insert';
         okBtn.style.cssText = 'padding: 8px 16px; border: 1px solid #0969da; border-radius: 4px; background: #0969da; color: white; cursor: pointer;';
         okBtn.onclick = () => {
             const language = input.value.trim();
+
             document.body.removeChild(overlay);
             callback(language);
         };
@@ -437,6 +451,7 @@ class FormattingToolbar {
      */
     setButtonActive(buttonId, active) {
         const button = this.buttons.get(buttonId);
+
         if (!button) {
             return;
         }
@@ -492,6 +507,7 @@ class FormattingToolbar {
 
         // Set initial visibility based on current view mode
         const currentMode = viewModeManager.getCurrentViewMode();
+
         if (currentMode === 'preview') {
             this.hide();
         } else {

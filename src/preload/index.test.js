@@ -28,12 +28,14 @@ describe('Preload API Exposure', () => {
             // Event listeners - wrapped to prevent direct ipcRenderer exposure
             onFileDropped: (callback) => {
                 const subscription = (event, filePath) => callback(filePath);
+
                 ipcRenderer.on('file:dropped', subscription);
                 return () => ipcRenderer.removeListener('file:dropped', subscription);
             },
 
             onMenuAction: (callback) => {
                 const subscription = (event, action) => callback(action);
+
                 ipcRenderer.on('menu:action', subscription);
                 return () => ipcRenderer.removeListener('menu:action', subscription);
             }
@@ -104,6 +106,7 @@ describe('Preload API Exposure', () => {
 
         it('should expose exactly 9 methods (no more, no less)', () => {
             const apiKeys = Object.keys(exposedAPI);
+
             expect(apiKeys).toHaveLength(9);
             expect(apiKeys).toEqual([
                 'openFile',
@@ -156,12 +159,14 @@ describe('Preload API Exposure', () => {
         it('saveFile should call ipcRenderer.invoke with correct channel and arguments', () => {
             const filePath = '/path/to/file.md';
             const content = '# Test Content';
+
             exposedAPI.saveFile(filePath, content);
             expect(mockIpcRenderer.invoke).toHaveBeenCalledWith('file:save', filePath, content);
         });
 
         it('saveFileAs should call ipcRenderer.invoke with correct channel and content', () => {
             const content = '# New File';
+
             exposedAPI.saveFileAs(content);
             expect(mockIpcRenderer.invoke).toHaveBeenCalledWith('file:save-as', content);
         });
@@ -170,12 +175,14 @@ describe('Preload API Exposure', () => {
     describe('Export Operations API', () => {
         it('exportHTML should call ipcRenderer.invoke with correct channel', () => {
             const content = '# Markdown Content';
+
             exposedAPI.exportHTML(content);
             expect(mockIpcRenderer.invoke).toHaveBeenCalledWith('export:html', content);
         });
 
         it('exportPDF should call ipcRenderer.invoke with correct channel', () => {
             const content = '# Markdown Content';
+
             exposedAPI.exportPDF(content);
             expect(mockIpcRenderer.invoke).toHaveBeenCalledWith('export:pdf', content);
         });
@@ -184,6 +191,7 @@ describe('Preload API Exposure', () => {
     describe('Config Operations API', () => {
         it('getConfig should call ipcRenderer.invoke with correct channel and key', () => {
             const key = 'theme';
+
             exposedAPI.getConfig(key);
             expect(mockIpcRenderer.invoke).toHaveBeenCalledWith('config:get', key);
         });
@@ -191,6 +199,7 @@ describe('Preload API Exposure', () => {
         it('setConfig should call ipcRenderer.invoke with correct channel, key, and value', () => {
             const key = 'theme';
             const value = 'dark';
+
             exposedAPI.setConfig(key, value);
             expect(mockIpcRenderer.invoke).toHaveBeenCalledWith('config:set', key, value);
         });
@@ -225,6 +234,7 @@ describe('Preload API Exposure', () => {
 
         it('onFileDropped should wrap callback to exclude event object', () => {
             const callback = vi.fn();
+
             exposedAPI.onFileDropped(callback);
 
             // Get the subscription function that was registered
@@ -233,6 +243,7 @@ describe('Preload API Exposure', () => {
             // Simulate ipcRenderer calling the subscription with event and filePath
             const mockEvent = { sender: 'mock' };
             const filePath = '/path/to/file.md';
+
             subscriptionFn(mockEvent, filePath);
 
             // Callback should receive only filePath, not event
@@ -268,6 +279,7 @@ describe('Preload API Exposure', () => {
 
         it('onMenuAction should wrap callback to exclude event object', () => {
             const callback = vi.fn();
+
             exposedAPI.onMenuAction(callback);
 
             // Get the subscription function that was registered
@@ -276,6 +288,7 @@ describe('Preload API Exposure', () => {
             // Simulate ipcRenderer calling the subscription with event and action
             const mockEvent = { sender: 'mock' };
             const action = 'save';
+
             subscriptionFn(mockEvent, action);
 
             // Callback should receive only action, not event

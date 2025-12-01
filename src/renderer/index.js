@@ -76,6 +76,7 @@ async function initialize() {
 
         // Initialize Editor
         const editorContainer = document.getElementById('editor-container');
+
         if (!editorContainer) {
             throw new Error('Editor container not found');
         }
@@ -85,6 +86,7 @@ async function initialize() {
 
         // Initialize Preview with post-processor and markdown parser
         const previewContainer = document.getElementById('preview-container');
+
         if (!previewContainer) {
             throw new Error('Preview container not found');
         }
@@ -94,6 +96,7 @@ async function initialize() {
 
         // Initialize FormattingToolbar
         const formattingToolbarContainer = document.getElementById('formatting-toolbar');
+
         if (!formattingToolbarContainer) {
             throw new Error('Formatting toolbar container not found');
         }
@@ -134,6 +137,7 @@ async function initialize() {
         });
         // Set initial visibility based on current view mode
         const currentViewMode = viewModeManager.getCurrentViewMode();
+
         if (currentViewMode === 'preview') {
             formattingToolbar.hide();
         } else {
@@ -152,6 +156,7 @@ async function initialize() {
 
         // Initialize TabBar
         const tabBarContainer = document.getElementById('tab-bar');
+
         if (!tabBarContainer) {
             throw new Error('Tab bar container not found');
         }
@@ -180,21 +185,25 @@ async function initialize() {
         snippetManager = new SnippetManager(editor, {
             getCustomSnippets: async () => {
                 const result = await window.electronAPI.getConfig('customSnippets');
+
                 return result || [];
             },
             addCustomSnippet: async (snippet) => {
                 const snippets = await window.electronAPI.getConfig('customSnippets') || [];
+
                 snippets.push(snippet);
                 await window.electronAPI.setConfig('customSnippets', snippets);
             },
             deleteCustomSnippet: async (trigger) => {
                 const snippets = await window.electronAPI.getConfig('customSnippets') || [];
                 const filtered = snippets.filter(s => s.trigger !== trigger);
+
                 await window.electronAPI.setConfig('customSnippets', filtered);
             },
             updateCustomSnippet: async (trigger, updates) => {
                 const snippets = await window.electronAPI.getConfig('customSnippets') || [];
                 const index = snippets.findIndex(s => s.trigger === trigger);
+
                 if (index !== -1) {
                     snippets[index] = { ...snippets[index], ...updates };
                     await window.electronAPI.setConfig('customSnippets', snippets);
@@ -203,6 +212,7 @@ async function initialize() {
         });
         // Enable snippet extensions in the editor
         const snippetExtensions = snippetManager.createSnippetExtension();
+
         editor.enableSnippetExtensions(snippetExtensions);
         console.log('SnippetManager initialized');
 
@@ -217,6 +227,7 @@ async function initialize() {
 
             // Re-render preview immediately
             const content = editor.getValue();
+
             preview.render(content, true);
 
             console.log(`Advanced markdown feature '${featureName}' ${enabled ? 'enabled' : 'disabled'}, preview updated`);
@@ -233,6 +244,7 @@ async function initialize() {
 
             // Re-render preview
             const content = editor.getValue();
+
             preview.render(content, true);
         });
 
@@ -282,8 +294,10 @@ function setupScrollSynchronization() {
 
     // Listen to editor scroll events
     const editorScrollDOM = editor.view.scrollDOM;
+
     editorScrollDOM.addEventListener('scroll', () => {
         const scrollPercent = editor.getScrollPosition();
+
         preview.syncScroll(scrollPercent);
     });
 }
@@ -387,8 +401,10 @@ async function handleMenuAction(action) {
                 if (autoSaveManager) {
                     const currentDelay = autoSaveManager.getDelay();
                     const newDelay = prompt(`Enter auto-save delay in seconds (1-60):`, currentDelay);
+
                     if (newDelay !== null) {
                         const delay = parseInt(newDelay, 10);
+
                         if (!isNaN(delay) && delay >= 1 && delay <= 60) {
                             await autoSaveManager.setDelay(delay);
                             alert(`Auto-save delay set to ${delay} seconds`);
@@ -437,6 +453,7 @@ async function handleOpenFile() {
 
         console.log('Calling window.electronAPI.openFile()...');
         const result = await window.electronAPI.openFile();
+
         console.log('openFile result:', result);
 
         if (result && result.filePath && result.content !== undefined) {
@@ -448,7 +465,6 @@ async function handleOpenFile() {
         alert('Failed to open file: ' + error.message);
     }
 }
-
 
 
 /**
@@ -506,6 +522,7 @@ async function handleSaveFileAs() {
 
                 // Update tab title
                 const tabResult = await window.electronAPI.getTab(currentTabId);
+
                 if (tabResult.success && tabResult.tab) {
                     tabBar.updateTabTitle(currentTabId, tabResult.tab.title);
                     tabBar.markTabModified(currentTabId, false);
@@ -589,6 +606,7 @@ function setupKeyboardShortcuts() {
         if (modifier && e.key === 'Tab' && !e.shiftKey) {
             e.preventDefault();
             const result = await window.electronAPI.getNextTab();
+
             if (result.success && result.tabId) {
                 await switchToTab(result.tabId);
             }
@@ -598,6 +616,7 @@ function setupKeyboardShortcuts() {
         if (modifier && e.shiftKey && e.key === 'Tab') {
             e.preventDefault();
             const result = await window.electronAPI.getPreviousTab();
+
             if (result.success && result.tabId) {
                 await switchToTab(result.tabId);
             }
@@ -714,6 +733,7 @@ function setupDragAndDrop() {
         appContainer.classList.remove('drag-over');
 
         const files = e.dataTransfer.files;
+
         if (files.length > 0) {
             const file = files[0];
 
@@ -721,8 +741,10 @@ function setupDragAndDrop() {
             if (file.name.endsWith('.md') || file.name.endsWith('.markdown')) {
                 // Read file content
                 const reader = new FileReader();
+
                 reader.onload = async (event) => {
                     const content = event.target.result;
+
                     // Create a new tab for the dropped file
                     await createNewTab(file.path, content);
                     console.log('File loaded via drag-and-drop:', file.path);
@@ -756,8 +778,10 @@ function setupTabBarHandlers() {
 async function restoreTabsFromSession() {
     try {
         const result = await window.electronAPI.restoreTabs();
+
         if (result.success) {
             const tabsResult = await window.electronAPI.getAllTabs();
+
             if (tabsResult.success && tabsResult.tabs.length > 0) {
                 // Add tabs to UI
                 for (const tab of tabsResult.tabs) {
@@ -766,6 +790,7 @@ async function restoreTabsFromSession() {
 
                 // Switch to active tab
                 const activeResult = await window.electronAPI.getActiveTab();
+
                 if (activeResult.success && activeResult.tab) {
                     await switchToTab(activeResult.tab.id);
                 }
@@ -792,8 +817,10 @@ async function restoreTabsFromSession() {
 async function createNewTab(filePath = null, content = '') {
     try {
         const result = await window.electronAPI.createTab(filePath, content);
+
         if (result.success && result.tab) {
             const tab = result.tab;
+
             tabBar.addTab(tab.id, tab.title, true, tab.isModified);
             currentTabId = tab.id;
 
@@ -826,10 +853,12 @@ async function switchToTab(tabId) {
         // Save current tab state before switching
         if (currentTabId) {
             const scrollPos = editor.getScrollPosition();
+
             await window.electronAPI.updateTabScroll(currentTabId, scrollPos);
         }
 
         const result = await window.electronAPI.switchTab(tabId);
+
         if (result.success && result.tab) {
             const tab = result.tab;
 
@@ -869,8 +898,10 @@ async function closeTab(tabId) {
     try {
         // Check if tab is modified
         const tabResult = await window.electronAPI.getTab(tabId);
+
         if (tabResult.success && tabResult.tab && tabResult.tab.isModified) {
             const confirmed = await tabBar.showCloseConfirmation(tabResult.tab.title);
+
             if (!confirmed) {
                 return;
             }
@@ -878,12 +909,14 @@ async function closeTab(tabId) {
 
         // Close the tab
         const result = await window.electronAPI.closeTab(tabId);
+
         if (result.success) {
             tabBar.removeTab(tabId);
 
             // If this was the current tab, switch to another
             if (currentTabId === tabId) {
                 const activeResult = await window.electronAPI.getActiveTab();
+
                 if (activeResult.success && activeResult.tab) {
                     await switchToTab(activeResult.tab.id);
                 } else {
@@ -907,6 +940,7 @@ async function closeTab(tabId) {
 function showAboutDialog() {
     // Create modal overlay
     const overlay = document.createElement('div');
+
     overlay.className = 'about-dialog-overlay';
     overlay.style.cssText = `
         position: fixed;
@@ -923,6 +957,7 @@ function showAboutDialog() {
 
     // Create dialog
     const dialog = document.createElement('div');
+
     dialog.className = 'about-dialog';
     dialog.style.cssText = `
         background: var(--bg-primary, #ffffff);
@@ -1032,6 +1067,7 @@ function showAboutDialog() {
             document.removeEventListener('keydown', handleEscape);
         }
     };
+
     document.addEventListener('keydown', handleEscape);
 }
 
@@ -1051,6 +1087,7 @@ async function handleTemplateInsert(template, mode) {
 
         // Mark document as modified
         const content = editor.getValue();
+
         updateDirtyState(content);
 
         console.log('Template inserted:', template.name, 'mode:', mode);

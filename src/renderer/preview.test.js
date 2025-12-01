@@ -56,6 +56,7 @@ describe('Preview Component', () => {
             preview.initialize(container);
 
             const markdown = '# Test\n\nSome content';
+
             await preview.render(markdown, true);
 
             // Wait for async rendering to complete
@@ -69,6 +70,7 @@ describe('Preview Component', () => {
             preview.initialize(container);
 
             const markdown = '# Test\n\nSome content';
+
             await preview.render(markdown, true);
 
             // Should render HTML without errors
@@ -85,6 +87,7 @@ describe('Preview Component', () => {
             preview.initialize(container);
 
             const markdown = '# Test';
+
             await preview.render(markdown, true);
 
             // Wait for async rendering
@@ -135,9 +138,11 @@ describe('Preview Component', () => {
             preview.initialize(container);
 
             const markdown = '# Heading\n\n**Bold** and *italic*';
+
             await preview.render(markdown, true);
 
             const html = container.innerHTML;
+
             expect(html).toContain('<h1>Heading</h1>');
             expect(html).toContain('<strong>Bold</strong>');
             expect(html).toContain('<em>italic</em>');
@@ -186,6 +191,7 @@ describe('Preview Component', () => {
             preview.initialize(container);
 
             const markdown = '# Test';
+
             await preview.render(markdown, true);
 
             // Wait for async rendering

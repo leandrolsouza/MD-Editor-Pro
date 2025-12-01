@@ -84,6 +84,7 @@ describe('End-to-End Integration Tests', () => {
         it('should handle edit and preview workflow', () => {
             // User types markdown content
             const markdownContent = '# Hello World\n\nThis is a **test** document.';
+
             editor.setValue(markdownContent);
 
             // Verify editor has content
@@ -94,6 +95,7 @@ describe('End-to-End Integration Tests', () => {
 
             // Verify preview contains rendered HTML
             const previewHTML = previewContainer.innerHTML;
+
             expect(previewHTML).toContain('<h1>Hello World</h1>');
             expect(previewHTML).toContain('<strong>test</strong>');
         });
@@ -101,6 +103,7 @@ describe('End-to-End Integration Tests', () => {
         it('should handle complete edit-save-load cycle', () => {
             // Step 1: Create content
             const originalContent = '# My Document\n\n- Item 1\n- Item 2';
+
             editor.setValue(originalContent);
             expect(editor.getValue()).toBe(originalContent);
 
@@ -118,6 +121,7 @@ describe('End-to-End Integration Tests', () => {
             // Step 5: Verify preview renders correctly
             preview.render(editor.getValue(), true);
             const previewHTML = previewContainer.innerHTML;
+
             expect(previewHTML).toContain('<h1>My Document</h1>');
             expect(previewHTML).toContain('<li>Item 1</li>');
         });
@@ -132,6 +136,7 @@ describe('End-to-End Integration Tests', () => {
             const transaction = editor.view.state.update({
                 selection: { anchor: length, head: length }
             });
+
             editor.view.dispatch(transaction);
 
             editor.insertText(' Modified');
@@ -169,6 +174,7 @@ describe('End-to-End Integration Tests', () => {
             // Verify theme stylesheets
             const lightSheet = document.getElementById('theme-light');
             const darkSheet = document.getElementById('theme-dark');
+
             expect(lightSheet.disabled).toBe(true);
             expect(darkSheet.disabled).toBe(false);
         });
@@ -219,10 +225,12 @@ describe('End-to-End Integration Tests', () => {
 
             // Search for term
             const searchInput = document.getElementById('search-input');
+
             searchInput.value = 'test';
             searchInput.dispatchEvent(new Event('input'));
 
             const results = searchManager.search('test');
+
             expect(results.length).toBe(3);
 
             // Navigate through results
@@ -270,6 +278,7 @@ describe('End-to-End Integration Tests', () => {
             await searchManager.replaceAll('exam');
 
             const content = editor.getValue();
+
             expect(content).toBe('exam exam exam');
             expect(content).not.toContain('test');
         });
@@ -291,6 +300,7 @@ describe('End-to-End Integration Tests', () => {
             const transaction = editor.view.state.update({
                 selection: { anchor: 0, head: 4 }
             });
+
             editor.view.dispatch(transaction);
 
             // Apply bold formatting
@@ -305,6 +315,7 @@ describe('End-to-End Integration Tests', () => {
             const transaction = editor.view.state.update({
                 selection: { anchor: 0, head: 4 }
             });
+
             editor.view.dispatch(transaction);
 
             editor.applyFormatting('italic');
@@ -320,6 +331,7 @@ describe('End-to-End Integration Tests', () => {
             const transaction = editor.view.state.update({
                 selection: { anchor: length, head: length }
             });
+
             editor.view.dispatch(transaction);
 
             editor.insertText(' Modified');
@@ -345,6 +357,7 @@ describe('End-to-End Integration Tests', () => {
             const transaction = editor.view.state.update({
                 selection: { anchor: 0, head: 4 }
             });
+
             editor.view.dispatch(transaction);
 
             editor.applyFormatting('code');
@@ -380,6 +393,7 @@ describe('End-to-End Integration Tests', () => {
             await viewModeManager.initialize();
 
             const content = '# Test Content\n\nParagraph text.';
+
             editor.setValue(content);
             preview.render(content, true);
 
@@ -404,6 +418,7 @@ describe('End-to-End Integration Tests', () => {
 
             // Simulate content change callback
             let previewContent = '';
+
             editor.onContentChange((newContent) => {
                 preview.render(newContent, true);
                 previewContent = newContent;
@@ -435,6 +450,7 @@ const code = 'example';
             preview.render(markdown, true);
 
             const html = previewContainer.innerHTML;
+
             expect(html).toContain('<h1>Heading 1</h1>');
             expect(html).toContain('<h2>Heading 2</h2>');
             expect(html).toContain('<strong>Bold text</strong>');
@@ -453,6 +469,7 @@ const code = 'example';
 
             // 2. Type content
             const content = '# My Document\n\nSome content here.';
+
             editor.setValue(content);
 
             // 3. Preview updates
@@ -462,6 +479,7 @@ const code = 'example';
             // 4. Search for text
             searchManager.show();
             const results = searchManager.search('content');
+
             expect(results.length).toBe(1);
             searchManager.hide();
 
@@ -470,6 +488,7 @@ const code = 'example';
             const transaction = editor.view.state.update({
                 selection: { anchor: 0, head: 4 }
             });
+
             editor.view.dispatch(transaction);
             editor.applyFormatting('bold');
             expect(editor.getValue()).toBe('**text**');
@@ -495,10 +514,12 @@ const code = 'example';
             const transaction = editor.view.state.update({
                 selection: { anchor: initialLength, head: initialLength }
             });
+
             editor.view.dispatch(transaction);
 
             editor.insertText(' - modified');
             const modifiedContent = editor.getValue();
+
             expect(modifiedContent).toContain('modified');
 
             // Undo modification

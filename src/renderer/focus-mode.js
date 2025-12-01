@@ -48,6 +48,7 @@ class FocusMode {
         }
 
         const style = document.createElement('style');
+
         style.id = 'focus-mode-styles';
         style.textContent = `
             /* Focus Mode Styles */
@@ -250,6 +251,7 @@ class FocusMode {
         if (event.key === 'Escape') {
             // Check if search panel is open - don't exit focus mode if it is
             const searchPanel = document.querySelector('.search-panel');
+
             if (searchPanel && !searchPanel.classList.contains('hidden')) {
                 // Let the search panel handle the Escape key
                 return;
@@ -277,6 +279,7 @@ class FocusMode {
 
         // Remove injected styles
         const styleElement = document.getElementById('focus-mode-styles');
+
         if (styleElement && styleElement.parentNode) {
             styleElement.parentNode.removeChild(styleElement);
         }

@@ -102,6 +102,7 @@ class KeyboardShortcutManager {
     getShortcut(actionId) {
         // Check for custom shortcut first
         const customShortcut = this.configStore.getKeyboardShortcut(actionId);
+
         if (customShortcut) {
             return customShortcut;
         }
@@ -155,6 +156,7 @@ class KeyboardShortcutManager {
      */
     hasConflict(keyBinding, excludeActionId = null) {
         const conflictingAction = this.getConflictingAction(keyBinding, excludeActionId);
+
         return conflictingAction !== null;
     }
 
@@ -175,6 +177,7 @@ class KeyboardShortcutManager {
             }
 
             const existingBinding = this.getShortcut(actionId);
+
             if (existingBinding && existingBinding.toLowerCase().trim() === normalizedBinding) {
                 return actionId;
             }

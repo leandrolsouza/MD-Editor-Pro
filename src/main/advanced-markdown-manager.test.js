@@ -176,6 +176,7 @@ describe('AdvancedMarkdownManager', () => {
 
         it('should return a copy of features object', () => {
             const features = manager.getAllFeatures();
+
             features.mermaid = false;
 
             // Original should not be modified
@@ -224,6 +225,7 @@ describe('AdvancedMarkdownManager', () => {
     describe('Configuration Persistence (Requirement 6.4)', () => {
         it('should persist configuration across manager instances', () => {
             const manager1 = new AdvancedMarkdownManager(mockConfigStore);
+
             manager1.toggleFeature('mermaid', false);
             manager1.toggleFeature('callouts', false);
 

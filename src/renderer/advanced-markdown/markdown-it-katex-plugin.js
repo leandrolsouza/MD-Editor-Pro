@@ -1,6 +1,6 @@
 /**
  * markdown-it plugin for KaTeX mathematical formulas
- * 
+ *
  * This plugin detects inline math ($...$) and display math ($$...$$) delimiters
  * and generates placeholder elements that will be processed by the KaTeX library
  * in the post-processing step.
@@ -19,6 +19,7 @@ function escapeHtml(text) {
         '"': '&quot;',
         "'": '&#039;'
     };
+
     return text.replace(/[&<>"']/g, (m) => map[m]);
 }
 
@@ -95,6 +96,7 @@ function mathInline(state, silent) {
 
     if (!silent) {
         const token = state.push('math_inline', 'math', 0);
+
         token.content = content;
         token.markup = '$';
     }
@@ -134,6 +136,7 @@ function mathBlock(state, startLine, endLine, silent) {
     // If there's content on the first line, check if it ends with $$
     if (firstLineContent) {
         const closingIndex = state.src.indexOf('$$', pos);
+
         if (closingIndex !== -1 && closingIndex < max) {
             foundClosing = true;
             closingLine = startLine;
@@ -170,6 +173,7 @@ function mathBlock(state, startLine, endLine, silent) {
 
     if (!silent) {
         const token = state.push('math_block', 'math', 0);
+
         token.content = content;
         token.markup = '$$';
         token.block = true;
@@ -196,12 +200,14 @@ function markdownItKatex(md) {
     // Renderer for inline math
     md.renderer.rules.math_inline = function (tokens, idx) {
         const content = tokens[idx].content;
+
         return '<span class="katex-inline" data-katex="' + escapeHtml(content) + '"></span>';
     };
 
     // Renderer for block math
     md.renderer.rules.math_block = function (tokens, idx) {
         const content = tokens[idx].content;
+
         return '<div class="katex-block" data-katex="' + escapeHtml(content) + '" data-display="true"></div>\n';
     };
 }

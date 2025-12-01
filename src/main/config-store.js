@@ -353,6 +353,7 @@ class ConfigStore {
         }
 
         const templates = this.getCustomTemplates();
+
         // Check for duplicate ID
         if (templates.some(t => t.id === template.id)) {
             throw new Error(`Template with id ${template.id} already exists`);
@@ -369,6 +370,7 @@ class ConfigStore {
     updateCustomTemplate(templateId, updates) {
         const templates = this.getCustomTemplates();
         const index = templates.findIndex(t => t.id === templateId);
+
         if (index === -1) {
             throw new Error(`Template with id ${templateId} not found`);
         }
@@ -383,6 +385,7 @@ class ConfigStore {
     deleteCustomTemplate(templateId) {
         const templates = this.getCustomTemplates();
         const filtered = templates.filter(t => t.id !== templateId);
+
         if (filtered.length === templates.length) {
             throw new Error(`Template with id ${templateId} not found`);
         }
@@ -396,6 +399,7 @@ class ConfigStore {
      */
     getCustomTemplate(templateId) {
         const templates = this.getCustomTemplates();
+
         return templates.find(t => t.id === templateId);
     }
 
@@ -425,6 +429,7 @@ class ConfigStore {
         }
 
         const snippets = this.getCustomSnippets();
+
         // Check for duplicate trigger
         if (snippets.some(s => s.trigger === snippet.trigger)) {
             throw new Error(`Snippet with trigger ${snippet.trigger} already exists`);
@@ -441,6 +446,7 @@ class ConfigStore {
     updateCustomSnippet(trigger, updates) {
         const snippets = this.getCustomSnippets();
         const index = snippets.findIndex(s => s.trigger === trigger);
+
         if (index === -1) {
             throw new Error(`Snippet with trigger ${trigger} not found`);
         }
@@ -455,6 +461,7 @@ class ConfigStore {
     deleteCustomSnippet(trigger) {
         const snippets = this.getCustomSnippets();
         const filtered = snippets.filter(s => s.trigger !== trigger);
+
         if (filtered.length === snippets.length) {
             throw new Error(`Snippet with trigger ${trigger} not found`);
         }
@@ -468,6 +475,7 @@ class ConfigStore {
      */
     getCustomSnippet(trigger) {
         const snippets = this.getCustomSnippets();
+
         return snippets.find(s => s.trigger === trigger);
     }
 

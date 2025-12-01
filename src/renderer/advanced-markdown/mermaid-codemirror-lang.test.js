@@ -1,6 +1,6 @@
 /**
  * Tests for Mermaid CodeMirror language support
- * 
+ *
  * These tests verify that the Mermaid language definition can be created
  * and integrated with CodeMirror. The actual syntax highlighting is tested
  * through integration tests with the editor.
@@ -22,6 +22,7 @@ describe('Mermaid CodeMirror Language', () => {
 
         it('should create language support', () => {
             const languageSupport = mermaid();
+
             expect(languageSupport).toBeDefined();
         });
     });

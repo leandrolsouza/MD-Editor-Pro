@@ -118,6 +118,7 @@ class MarkdownParser {
 
         try {
             const html = this.md.render(markdown);
+
             return html;
         } catch (error) {
             console.error('Markdown parsing error:', error);
@@ -157,6 +158,7 @@ let parserInstance = null;
  */
 function createMarkdownParser() {
     const parser = new MarkdownParser();
+
     return parser.md;
 }
 
@@ -179,6 +181,7 @@ function getMarkdownParser() {
  */
 function renderMarkdown(markdown) {
     const parser = getMarkdownParser();
+
     return parser.render(markdown);
 }
 

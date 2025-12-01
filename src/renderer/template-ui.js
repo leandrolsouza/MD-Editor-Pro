@@ -29,6 +29,7 @@ class TemplateUI {
      */
     createTemplateMenuDialog() {
         const dialog = document.createElement('div');
+
         dialog.id = 'template-menu-dialog';
         dialog.className = 'template-dialog hidden';
         dialog.innerHTML = `
@@ -72,6 +73,7 @@ class TemplateUI {
      */
     createCustomTemplateDialog() {
         const dialog = document.createElement('div');
+
         dialog.id = 'custom-template-dialog';
         dialog.className = 'template-dialog hidden';
         dialog.innerHTML = `
@@ -129,6 +131,7 @@ class TemplateUI {
     async loadTemplates() {
         try {
             const result = await window.electronAPI.getAllTemplates();
+
             if (result.success) {
                 this.templates = result.templates;
                 this.updateCategories();
@@ -143,6 +146,7 @@ class TemplateUI {
      */
     updateCategories() {
         const categories = [...new Set(this.templates.map(t => t.category))].sort();
+
         this.categories = categories;
     }
 
@@ -190,6 +194,7 @@ class TemplateUI {
 
         // Update button states
         const buttons = this.templateMenuDialog.querySelectorAll('.template-mode-button');
+
         buttons.forEach(btn => btn.classList.remove('active'));
         button.classList.add('active');
     }
@@ -199,10 +204,12 @@ class TemplateUI {
      */
     renderCategories() {
         const container = this.templateMenuDialog.querySelector('#template-categories');
+
         container.innerHTML = '';
 
         // Add "All" category
         const allButton = document.createElement('button');
+
         allButton.className = 'category-button active';
         allButton.textContent = 'All';
         allButton.dataset.category = 'all';
@@ -212,6 +219,7 @@ class TemplateUI {
         // Add category buttons
         this.categories.forEach(category => {
             const button = document.createElement('button');
+
             button.className = 'category-button';
             button.textContent = category.charAt(0).toUpperCase() + category.slice(1);
             button.dataset.category = category;
@@ -228,6 +236,7 @@ class TemplateUI {
     filterByCategory(category, button) {
         // Update button states
         const buttons = this.templateMenuDialog.querySelectorAll('.category-button');
+
         buttons.forEach(btn => btn.classList.remove('active'));
         button.classList.add('active');
 
@@ -241,6 +250,7 @@ class TemplateUI {
      */
     renderTemplates(filterCategory = null) {
         const container = this.templateMenuDialog.querySelector('#template-list');
+
         container.innerHTML = '';
 
         const filteredTemplates = filterCategory
@@ -254,6 +264,7 @@ class TemplateUI {
 
         filteredTemplates.forEach(template => {
             const item = document.createElement('div');
+
             item.className = 'template-item';
             item.innerHTML = `
                 <div class="template-item-header">
@@ -277,6 +288,7 @@ class TemplateUI {
             // Delete button for custom templates
             if (!template.isBuiltIn) {
                 const deleteButton = item.querySelector('.template-delete-button');
+
                 deleteButton.addEventListener('click', (e) => {
                     e.stopPropagation();
                     this.deleteTemplate(template.id);
@@ -309,6 +321,7 @@ class TemplateUI {
 
         try {
             const result = await window.electronAPI.deleteCustomTemplate(templateId);
+
             if (result.success) {
                 await this.loadTemplates();
                 this.renderTemplates();

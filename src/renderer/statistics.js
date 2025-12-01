@@ -37,6 +37,7 @@ class StatisticsCalculator {
         // Load configuration from electronAPI
         try {
             const config = await window.electronAPI.getConfig('statistics');
+
             if (config && config.value) {
                 this.visible = config.value.visible !== false;
             }
@@ -54,6 +55,7 @@ class StatisticsCalculator {
 
         // Calculate initial statistics
         const initialContent = this.editor.getValue();
+
         this._updateStatistics(initialContent);
     }
 
@@ -69,12 +71,15 @@ class StatisticsCalculator {
 
         // Create statistics content
         const content = document.createElement('div');
+
         content.className = 'statistics-content';
 
         // Word count
         const wordCountContainer = document.createElement('div');
+
         wordCountContainer.className = 'stat-item';
         const wordCountLabel = document.createElement('span');
+
         wordCountLabel.className = 'stat-label';
         wordCountLabel.textContent = 'Words: ';
         this.wordCountElement = document.createElement('span');
@@ -85,8 +90,10 @@ class StatisticsCalculator {
 
         // Character count
         const charCountContainer = document.createElement('div');
+
         charCountContainer.className = 'stat-item';
         const charCountLabel = document.createElement('span');
+
         charCountLabel.className = 'stat-label';
         charCountLabel.textContent = 'Characters: ';
         this.characterCountElement = document.createElement('span');
@@ -97,8 +104,10 @@ class StatisticsCalculator {
 
         // Reading time
         const readingTimeContainer = document.createElement('div');
+
         readingTimeContainer.className = 'stat-item';
         const readingTimeLabel = document.createElement('span');
+
         readingTimeLabel.className = 'stat-label';
         readingTimeLabel.textContent = 'Reading time: ';
         this.readingTimeElement = document.createElement('span');
@@ -117,6 +126,7 @@ class StatisticsCalculator {
 
         // Add panel to status bar
         const statusBar = document.getElementById('status-bar');
+
         if (statusBar) {
             statusBar.appendChild(this.panel);
         } else {
@@ -154,6 +164,7 @@ class StatisticsCalculator {
     _updateStatistics(content) {
         // Calculate statistics
         const stats = this.getStatistics(content);
+
         this.currentStats = stats;
 
         // Update display
@@ -326,6 +337,7 @@ class StatisticsCalculator {
 
         // Split by whitespace and filter out empty strings
         const words = plainText.trim().split(/\s+/).filter(word => word.length > 0);
+
         return words.length;
     }
 

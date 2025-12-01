@@ -26,6 +26,7 @@ describe('StatisticsCalculator', () => {
 
         // Create status bar for statistics panel
         const statusBar = document.createElement('div');
+
         statusBar.id = 'status-bar';
         document.body.appendChild(statusBar);
 
@@ -48,6 +49,7 @@ describe('StatisticsCalculator', () => {
             container.parentNode.removeChild(container);
         }
         const statusBar = document.getElementById('status-bar');
+
         if (statusBar && statusBar.parentNode) {
             statusBar.parentNode.removeChild(statusBar);
         }
@@ -67,6 +69,7 @@ describe('StatisticsCalculator', () => {
         it('should create statistics panel in DOM', async () => {
             await calculator.initialize();
             const panel = document.getElementById('statistics-panel');
+
             expect(panel).not.toBeNull();
         });
     });
@@ -88,6 +91,7 @@ describe('StatisticsCalculator', () => {
         it('should exclude markdown headers from word count', () => {
             const content = '# Header\nSome text';
             const wordCount = calculator.calculateWordCount(content);
+
             // After stripping markdown, we get "Header\nSome text" = 3 words
             expect(wordCount).toBe(3); // "Header Some text"
         });
@@ -95,30 +99,35 @@ describe('StatisticsCalculator', () => {
         it('should exclude markdown bold from word count', () => {
             const content = '**bold** text';
             const wordCount = calculator.calculateWordCount(content);
+
             expect(wordCount).toBe(2); // "bold text" without **
         });
 
         it('should exclude markdown italic from word count', () => {
             const content = '*italic* text';
             const wordCount = calculator.calculateWordCount(content);
+
             expect(wordCount).toBe(2); // "italic text" without *
         });
 
         it('should exclude markdown links from word count', () => {
             const content = '[link text](https://example.com)';
             const wordCount = calculator.calculateWordCount(content);
+
             expect(wordCount).toBe(2); // Only "link text"
         });
 
         it('should exclude markdown code blocks from word count', () => {
             const content = '```\ncode here\n```\nregular text';
             const wordCount = calculator.calculateWordCount(content);
+
             expect(wordCount).toBe(2); // Only "regular text"
         });
 
         it('should exclude inline code from word count', () => {
             const content = 'Some `code` here';
             const wordCount = calculator.calculateWordCount(content);
+
             expect(wordCount).toBe(2); // "Some here"
         });
 
@@ -138,6 +147,7 @@ code block
 
 Regular paragraph text.`;
             const wordCount = calculator.calculateWordCount(content);
+
             // Should count: Bold text and italic text, List item one, List item two, Link, Image, Regular paragraph text
             expect(wordCount).toBeGreaterThan(0);
         });
@@ -176,16 +186,19 @@ Regular paragraph text.`;
         it('should calculate reading time at 200 WPM', () => {
             // 200 words should take 1 minute
             const words = Array(200).fill('word').join(' ');
+
             expect(calculator.calculateReadingTime(words)).toBe(1);
         });
 
         it('should round to nearest minute', () => {
             // 250 words should round to 1 minute (250/200 = 1.25)
             const words = Array(250).fill('word').join(' ');
+
             expect(calculator.calculateReadingTime(words)).toBe(1);
 
             // 350 words should round to 2 minutes (350/200 = 1.75)
             const words2 = Array(350).fill('word').join(' ');
+
             expect(calculator.calculateReadingTime(words2)).toBe(2);
         });
 
@@ -195,6 +208,7 @@ Regular paragraph text.`;
 
         it('should use custom words per minute', () => {
             const words = Array(300).fill('word').join(' ');
+
             // At 300 WPM, 300 words should take 1 minute
             expect(calculator.calculateReadingTime(words, 300)).toBe(1);
         });
@@ -278,46 +292,55 @@ Regular paragraph text.`;
     describe('_stripMarkdownSyntax', () => {
         it('should remove headers', () => {
             const result = calculator._stripMarkdownSyntax('# Header');
+
             expect(result).toBe('Header');
         });
 
         it('should remove bold', () => {
             const result = calculator._stripMarkdownSyntax('**bold**');
+
             expect(result).toBe('bold');
         });
 
         it('should remove italic', () => {
             const result = calculator._stripMarkdownSyntax('*italic*');
+
             expect(result).toBe('italic');
         });
 
         it('should remove links', () => {
             const result = calculator._stripMarkdownSyntax('[text](url)');
+
             expect(result).toBe('text');
         });
 
         it('should remove images', () => {
             const result = calculator._stripMarkdownSyntax('![alt](url)');
+
             expect(result).toBe('alt');
         });
 
         it('should remove code blocks', () => {
             const result = calculator._stripMarkdownSyntax('```code```');
+
             expect(result).toBe('');
         });
 
         it('should remove inline code', () => {
             const result = calculator._stripMarkdownSyntax('`code`');
+
             expect(result).toBe('');
         });
 
         it('should remove list markers', () => {
             const result = calculator._stripMarkdownSyntax('- item');
+
             expect(result).toBe('item');
         });
 
         it('should remove blockquotes', () => {
             const result = calculator._stripMarkdownSyntax('> quote');
+
             expect(result).toBe('quote');
         });
     });
@@ -351,11 +374,13 @@ Regular paragraph text.`;
 
         it('should remove panel from DOM', () => {
             const panel = document.getElementById('statistics-panel');
+
             expect(panel).not.toBeNull();
 
             calculator.destroy();
 
             const panelAfter = document.getElementById('statistics-panel');
+
             expect(panelAfter).toBeNull();
         });
 

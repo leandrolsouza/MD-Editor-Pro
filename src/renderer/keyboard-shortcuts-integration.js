@@ -35,6 +35,7 @@ class KeyboardShortcutsIntegration {
     async loadShortcuts() {
         try {
             const result = await window.electronAPI.getAllShortcuts();
+
             if (result.success) {
                 this.shortcuts = result.shortcuts;
             }
@@ -79,8 +80,10 @@ class KeyboardShortcutsIntegration {
 
         for (const [actionId, keyBinding] of Object.entries(this.shortcuts)) {
             const handler = this.actionHandlers.get(actionId);
+
             if (handler) {
                 const codemirrorKey = this.convertToCodeMirrorKey(keyBinding);
+
                 bindings.push({
                     key: codemirrorKey,
                     run: handler,
@@ -144,9 +147,11 @@ class KeyboardShortcutsIntegration {
      */
     getKeymapExtension() {
         const { Compartment } = require('@codemirror/state');
+
         this.keymapCompartment = new Compartment();
 
         const keymapBindings = this.buildKeymapBindings();
+
         return this.keymapCompartment.of(keymap.of(keymapBindings));
     }
 

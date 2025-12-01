@@ -48,6 +48,7 @@ describe('Editor', () => {
 
         it('should set and get content', () => {
             const content = 'Hello, World!';
+
             editor.setValue(content);
             expect(editor.getValue()).toBe(content);
         });
@@ -60,11 +61,13 @@ describe('Editor', () => {
 
         it('should throw error when getting value before initialization', () => {
             const uninitializedEditor = new Editor();
+
             expect(() => uninitializedEditor.getValue()).toThrow('Editor not initialized');
         });
 
         it('should throw error when setting value before initialization', () => {
             const uninitializedEditor = new Editor();
+
             expect(() => uninitializedEditor.setValue('test')).toThrow('Editor not initialized');
         });
     });
@@ -80,6 +83,7 @@ describe('Editor', () => {
             const transaction = editor.view.state.update({
                 selection: { anchor: 11, head: 11 }
             });
+
             editor.view.dispatch(transaction);
 
             editor.insertText(' Beautiful');
@@ -93,6 +97,7 @@ describe('Editor', () => {
 
         it('should throw error before initialization', () => {
             const uninitializedEditor = new Editor();
+
             expect(() => uninitializedEditor.insertText('test')).toThrow('Editor not initialized');
         });
     });
@@ -108,6 +113,7 @@ describe('Editor', () => {
             const transaction = editor.view.state.update({
                 selection: { anchor: 0, head: 4 }
             });
+
             editor.view.dispatch(transaction);
 
             editor.applyFormatting('bold');
@@ -119,6 +125,7 @@ describe('Editor', () => {
             const transaction = editor.view.state.update({
                 selection: { anchor: 0, head: 4 }
             });
+
             editor.view.dispatch(transaction);
 
             editor.applyFormatting('italic');
@@ -130,6 +137,7 @@ describe('Editor', () => {
             const transaction = editor.view.state.update({
                 selection: { anchor: 0, head: 4 }
             });
+
             editor.view.dispatch(transaction);
 
             editor.applyFormatting('code');
@@ -142,6 +150,7 @@ describe('Editor', () => {
 
         it('should throw error before initialization', () => {
             const uninitializedEditor = new Editor();
+
             expect(() => uninitializedEditor.applyFormatting('bold')).toThrow('Editor not initialized');
         });
     });
@@ -160,11 +169,13 @@ describe('Editor', () => {
             const transaction = editor.view.state.update({
                 selection: { anchor: len, head: len }
             });
+
             editor.view.dispatch(transaction);
 
             // Make a change that can be undone
             editor.insertText(' World');
             const afterInsert = editor.getValue();
+
             expect(afterInsert).toBe('Hello World');
 
             // Undo should remove the last insertion
@@ -182,11 +193,13 @@ describe('Editor', () => {
 
         it('should throw error when undo before initialization', () => {
             const uninitializedEditor = new Editor();
+
             expect(() => uninitializedEditor.undo()).toThrow('Editor not initialized');
         });
 
         it('should throw error when redo before initialization', () => {
             const uninitializedEditor = new Editor();
+
             expect(() => uninitializedEditor.redo()).toThrow('Editor not initialized');
         });
     });
@@ -198,6 +211,7 @@ describe('Editor', () => {
 
         it('should call callback when content changes', () => {
             const callback = vi.fn();
+
             editor.onContentChange(callback);
 
             editor.setValue('New content');
@@ -218,6 +232,7 @@ describe('Editor', () => {
 
         it('should get scroll position', () => {
             const position = editor.getScrollPosition();
+
             expect(position).toBeGreaterThanOrEqual(0);
             expect(position).toBeLessThanOrEqual(1);
         });
@@ -235,11 +250,13 @@ describe('Editor', () => {
 
         it('should throw error when getting scroll position before initialization', () => {
             const uninitializedEditor = new Editor();
+
             expect(() => uninitializedEditor.getScrollPosition()).toThrow('Editor not initialized');
         });
 
         it('should throw error when setting scroll position before initialization', () => {
             const uninitializedEditor = new Editor();
+
             expect(() => uninitializedEditor.setScrollPosition(0.5)).toThrow('Editor not initialized');
         });
     });
@@ -253,6 +270,7 @@ describe('Editor', () => {
             editor.setValue('Hello World');
             editor.insertTemplate('# {{title}}\n\n{{content}}', 'insert');
             const content = editor.getValue();
+
             expect(content).toContain('# {{title}}');
             expect(content).toContain('{{content}}');
         });
@@ -261,6 +279,7 @@ describe('Editor', () => {
             editor.setValue('Old content');
             editor.insertTemplate('# {{title}}\n\n{{content}}', 'replace');
             const content = editor.getValue();
+
             expect(content).toBe('# {{title}}\n\n{{content}}');
             expect(content).not.toContain('Old content');
         });
@@ -276,6 +295,7 @@ describe('Editor', () => {
 
         it('should throw error when inserting before initialization', () => {
             const uninitializedEditor = new Editor();
+
             expect(() => uninitializedEditor.insertTemplate('content', 'insert')).toThrow('Editor not initialized');
         });
     });
@@ -288,6 +308,7 @@ describe('Editor', () => {
         it('should get cursor position', () => {
             editor.setValue('Hello World');
             const position = editor.getCursorPosition();
+
             expect(position).toBeGreaterThanOrEqual(0);
         });
 
@@ -295,6 +316,7 @@ describe('Editor', () => {
             editor.setValue('Hello World');
             editor.setCursorPosition(5);
             const position = editor.getCursorPosition();
+
             expect(position).toBe(5);
         });
 
@@ -306,16 +328,19 @@ describe('Editor', () => {
             editor.setValue('Hello');
             editor.setCursorPosition(1000);
             const position = editor.getCursorPosition();
+
             expect(position).toBeLessThanOrEqual(5);
         });
 
         it('should throw error when getting cursor position before initialization', () => {
             const uninitializedEditor = new Editor();
+
             expect(() => uninitializedEditor.getCursorPosition()).toThrow('Editor not initialized');
         });
 
         it('should throw error when setting cursor position before initialization', () => {
             const uninitializedEditor = new Editor();
+
             expect(() => uninitializedEditor.setCursorPosition(0)).toThrow('Editor not initialized');
         });
     });
@@ -346,9 +371,11 @@ describe('Editor', () => {
                 const transaction = editor.view.state.update({
                     selection: { anchor: 0, head: 5 }
                 });
+
                 editor.view.dispatch(transaction);
 
                 const selection = editor.getSelection();
+
                 expect(selection.from).toBe(0);
                 expect(selection.to).toBe(5);
                 expect(selection.text).toBe('Hello');
@@ -360,9 +387,11 @@ describe('Editor', () => {
                 const transaction = editor.view.state.update({
                     selection: { anchor: 7 }
                 });
+
                 editor.view.dispatch(transaction);
 
                 const line = editor.getCurrentLine();
+
                 expect(line.text).toBe('Line 2');
                 expect(line.lineNumber).toBe(2);
             });
@@ -372,6 +401,7 @@ describe('Editor', () => {
                 const transaction = editor.view.state.update({
                     selection: { anchor: 6, head: 11 }
                 });
+
                 editor.view.dispatch(transaction);
 
                 editor.replaceSelection('Universe');
@@ -383,6 +413,7 @@ describe('Editor', () => {
                 const transaction = editor.view.state.update({
                     selection: { anchor: 7 }
                 });
+
                 editor.view.dispatch(transaction);
 
                 editor.replaceCurrentLine('New Line');
@@ -396,6 +427,7 @@ describe('Editor', () => {
                 const transaction = editor.view.state.update({
                     selection: { anchor: 0, head: 4 }
                 });
+
                 editor.view.dispatch(transaction);
 
                 editor.applyBold();
@@ -413,6 +445,7 @@ describe('Editor', () => {
                 const transaction = editor.view.state.update({
                     selection: { anchor: 2, head: 6 }
                 });
+
                 editor.view.dispatch(transaction);
 
                 editor.applyBold();
@@ -426,6 +459,7 @@ describe('Editor', () => {
                 const transaction = editor.view.state.update({
                     selection: { anchor: 0, head: 4 }
                 });
+
                 editor.view.dispatch(transaction);
 
                 editor.applyItalic();
@@ -437,6 +471,7 @@ describe('Editor', () => {
                 const transaction = editor.view.state.update({
                     selection: { anchor: 1, head: 5 }
                 });
+
                 editor.view.dispatch(transaction);
 
                 editor.applyItalic();
@@ -450,6 +485,7 @@ describe('Editor', () => {
                 const transaction = editor.view.state.update({
                     selection: { anchor: 0, head: 4 }
                 });
+
                 editor.view.dispatch(transaction);
 
                 editor.applyStrikethrough();
@@ -461,6 +497,7 @@ describe('Editor', () => {
                 const transaction = editor.view.state.update({
                     selection: { anchor: 2, head: 6 }
                 });
+
                 editor.view.dispatch(transaction);
 
                 editor.applyStrikethrough();
@@ -506,6 +543,7 @@ describe('Editor', () => {
                 const transaction = editor.view.state.update({
                     selection: { anchor: 0, head: 13 }
                 });
+
                 editor.view.dispatch(transaction);
 
                 editor.applyUnorderedList();
@@ -547,6 +585,7 @@ describe('Editor', () => {
                 const transaction = editor.view.state.update({
                     selection: { anchor: 0, head: 4 }
                 });
+
                 editor.view.dispatch(transaction);
 
                 editor.applyInlineCode();
@@ -558,6 +597,7 @@ describe('Editor', () => {
                 const transaction = editor.view.state.update({
                     selection: { anchor: 1, head: 5 }
                 });
+
                 editor.view.dispatch(transaction);
 
                 editor.applyInlineCode();
@@ -579,6 +619,7 @@ describe('Editor', () => {
                 const transaction = editor.view.state.update({
                     selection: { anchor: 0, head: 9 }
                 });
+
                 editor.view.dispatch(transaction);
 
                 editor.insertLink();
@@ -606,6 +647,7 @@ describe('Editor', () => {
                 const transaction = editor.view.state.update({
                     selection: { anchor: 2, head: 6 }
                 });
+
                 editor.view.dispatch(transaction);
 
                 expect(editor.isBoldActive()).toBe(true);
@@ -616,6 +658,7 @@ describe('Editor', () => {
                 const transaction = editor.view.state.update({
                     selection: { anchor: 1, head: 5 }
                 });
+
                 editor.view.dispatch(transaction);
 
                 expect(editor.isItalicActive()).toBe(true);
@@ -626,6 +669,7 @@ describe('Editor', () => {
                 const transaction = editor.view.state.update({
                     selection: { anchor: 2, head: 6 }
                 });
+
                 editor.view.dispatch(transaction);
 
                 expect(editor.isStrikethroughActive()).toBe(true);
@@ -656,6 +700,7 @@ describe('Editor', () => {
                 const transaction = editor.view.state.update({
                     selection: { anchor: 1, head: 5 }
                 });
+
                 editor.view.dispatch(transaction);
 
                 expect(editor.isInlineCodeActive()).toBe(true);

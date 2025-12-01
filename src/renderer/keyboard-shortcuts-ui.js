@@ -105,6 +105,7 @@ class KeyboardShortcutsUI {
     async loadShortcuts() {
         try {
             const result = await window.electronAPI.getAvailableActions();
+
             if (result.success) {
                 this.actions = result.actions;
                 this.renderShortcuts();
@@ -119,10 +120,12 @@ class KeyboardShortcutsUI {
      */
     renderShortcuts(filter = '') {
         const listContainer = this.dialog.querySelector('.shortcuts-list');
+
         listContainer.innerHTML = '';
 
         // Group actions by category
         const categories = {};
+
         for (const action of this.actions) {
             // Apply filter
             if (filter && !action.name.toLowerCase().includes(filter.toLowerCase()) &&
@@ -139,15 +142,18 @@ class KeyboardShortcutsUI {
         // Render each category
         for (const [category, actions] of Object.entries(categories)) {
             const categorySection = document.createElement('div');
+
             categorySection.className = 'shortcuts-category';
 
             const categoryHeader = document.createElement('h3');
+
             categoryHeader.className = 'shortcuts-category-header';
             categoryHeader.textContent = category;
             categorySection.appendChild(categoryHeader);
 
             for (const action of actions) {
                 const actionRow = this.createActionRow(action);
+
                 categorySection.appendChild(actionRow);
             }
 
@@ -160,17 +166,21 @@ class KeyboardShortcutsUI {
      */
     createActionRow(action) {
         const row = document.createElement('div');
+
         row.className = 'shortcuts-action-row';
         row.dataset.actionId = action.id;
 
         const nameCell = document.createElement('div');
+
         nameCell.className = 'shortcuts-action-name';
         nameCell.textContent = action.name;
 
         const shortcutCell = document.createElement('div');
+
         shortcutCell.className = 'shortcuts-action-shortcut';
 
         const shortcutButton = document.createElement('button');
+
         shortcutButton.className = 'shortcuts-shortcut-btn';
         shortcutButton.textContent = this.formatShortcut(action.shortcut);
         shortcutButton.dataset.actionId = action.id;
@@ -179,10 +189,12 @@ class KeyboardShortcutsUI {
         shortcutCell.appendChild(shortcutButton);
 
         const actionsCell = document.createElement('div');
+
         actionsCell.className = 'shortcuts-action-actions';
 
         if (!action.isDefault) {
             const resetButton = document.createElement('button');
+
             resetButton.className = 'shortcuts-reset-btn';
             resetButton.textContent = 'Reset';
             resetButton.title = 'Reset to default';
@@ -240,6 +252,7 @@ class KeyboardShortcutsUI {
     cancelRecording() {
         if (this.recordingElement) {
             const action = this.actions.find(a => a.id === this.recordingActionId);
+
             if (action) {
                 this.recordingElement.textContent = this.formatShortcut(action.shortcut);
             }
@@ -282,6 +295,7 @@ class KeyboardShortcutsUI {
 
         // Add the actual key
         let key = e.key;
+
         if (key === ' ') {
             key = 'Space';
         } else if (key.length === 1) {
@@ -336,6 +350,7 @@ class KeyboardShortcutsUI {
             if (result.success) {
                 // Update local action
                 const action = this.actions.find(a => a.id === actionId);
+
                 if (action) {
                     action.shortcut = keyBinding;
                     action.isDefault = false;

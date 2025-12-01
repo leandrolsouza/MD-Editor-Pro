@@ -74,6 +74,7 @@ describe('ViewModeManager', () => {
 
         it('should notify listeners when view mode changes', async () => {
             const callback = vi.fn();
+
             viewModeManager.onViewModeChange(callback);
 
             await viewModeManager.setViewMode('editor');
@@ -136,6 +137,7 @@ describe('ViewModeManager', () => {
 
         it('should notify listeners with correct mode for each change', async () => {
             const callback = vi.fn();
+
             viewModeManager.onViewModeChange(callback);
 
             await viewModeManager.setViewMode('editor');

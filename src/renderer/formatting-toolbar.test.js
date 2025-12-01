@@ -84,6 +84,7 @@ describe('FormattingToolbar', () => {
 
             // Check if bold button is active
             const boldButton = toolbar.buttons.get('bold');
+
             expect(boldButton.classList.contains('active')).toBe(true);
         });
 
@@ -97,6 +98,7 @@ describe('FormattingToolbar', () => {
 
             // Check if heading1 button is active
             const heading1Button = toolbar.buttons.get('heading1');
+
             expect(heading1Button.classList.contains('active')).toBe(true);
         });
 
@@ -111,6 +113,7 @@ describe('FormattingToolbar', () => {
             await new Promise(resolve => setTimeout(resolve, 100));
 
             const boldButton = toolbar.buttons.get('bold');
+
             expect(boldButton.classList.contains('active')).toBe(true);
 
             // Move cursor to normal text
@@ -152,6 +155,7 @@ describe('FormattingToolbar', () => {
             }));
 
             const boldButton = toolbar.buttons.get('bold');
+
             boldButton.click();
 
             expect(editor.getValue()).toBe('**test**');
@@ -165,6 +169,7 @@ describe('FormattingToolbar', () => {
             }));
 
             const italicButton = toolbar.buttons.get('italic');
+
             italicButton.click();
 
             expect(editor.getValue()).toBe('*test*');
@@ -175,6 +180,7 @@ describe('FormattingToolbar', () => {
             editor.setCursorPosition(0);
 
             const heading1Button = toolbar.buttons.get('heading1');
+
             heading1Button.click();
 
             expect(editor.getValue()).toBe('# test');
@@ -231,6 +237,7 @@ describe('FormattingToolbar', () => {
 
             // Buttons should be present and styled
             const buttons = container.querySelectorAll('.toolbar-button');
+
             expect(buttons.length).toBeGreaterThan(0);
 
             // Each button should have the toolbar-button class which uses CSS variables
@@ -254,6 +261,7 @@ describe('FormattingToolbar', () => {
                     this.viewModeChangeListeners.push(callback);
                     return () => {
                         const index = this.viewModeChangeListeners.indexOf(callback);
+
                         if (index !== -1) {
                             this.viewModeChangeListeners.splice(index, 1);
                         }
@@ -271,6 +279,7 @@ describe('FormattingToolbar', () => {
 
         it('should connect to ViewModeManager', () => {
             const removeListener = toolbar.connectToViewModeManager(mockViewModeManager);
+
             expect(typeof removeListener).toBe('function');
             expect(mockViewModeManager.viewModeChangeListeners.length).toBe(1);
         });
@@ -329,6 +338,7 @@ describe('FormattingToolbar', () => {
 
         it('should remove listener when cleanup function is called', () => {
             const removeListener = toolbar.connectToViewModeManager(mockViewModeManager);
+
             expect(mockViewModeManager.viewModeChangeListeners.length).toBe(1);
 
             removeListener();

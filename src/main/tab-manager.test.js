@@ -83,6 +83,7 @@ describe('TabManager', () => {
 
         it('should set first tab as active', () => {
             const tab = tabManager.createTab(null, 'content');
+
             expect(tabManager.getActiveTabId()).toBe(tab.id);
         });
 
@@ -105,6 +106,7 @@ describe('TabManager', () => {
 
         it('should return false for non-existent tab', () => {
             const result = tabManager.closeTab('non-existent-id');
+
             expect(result).toBe(false);
         });
 
@@ -118,6 +120,7 @@ describe('TabManager', () => {
 
         it('should set active tab to null when closing last tab', () => {
             const tab = tabManager.createTab(null, 'content');
+
             tabManager.closeTab(tab.id);
 
             expect(tabManager.getActiveTabId()).toBeNull();
@@ -138,6 +141,7 @@ describe('TabManager', () => {
 
         it('should return null for non-existent tab', () => {
             const result = tabManager.switchTab('non-existent-id');
+
             expect(result).toBeNull();
         });
     });
@@ -153,6 +157,7 @@ describe('TabManager', () => {
 
         it('should return null for non-existent tab', () => {
             const result = tabManager.getTab('non-existent-id');
+
             expect(result).toBeNull();
         });
     });
@@ -164,11 +169,13 @@ describe('TabManager', () => {
             tabManager.createTab(null, 'content3');
 
             const tabs = tabManager.getAllTabs();
+
             expect(tabs).toHaveLength(3);
         });
 
         it('should return empty array when no tabs', () => {
             const tabs = tabManager.getAllTabs();
+
             expect(tabs).toEqual([]);
         });
     });
@@ -184,6 +191,7 @@ describe('TabManager', () => {
 
         it('should mark tab as unmodified', () => {
             const tab = tabManager.createTab(null, 'content');
+
             tabManager.markTabModified(tab.id, true);
             tabManager.markTabModified(tab.id, false);
 
@@ -192,6 +200,7 @@ describe('TabManager', () => {
 
         it('should return false for non-existent tab', () => {
             const result = tabManager.markTabModified('non-existent-id', true);
+
             expect(result).toBe(false);
         });
     });
@@ -203,11 +212,13 @@ describe('TabManager', () => {
 
             expect(result).toBe(true);
             const updated = tabManager.getTab(tab.id);
+
             expect(updated.content).toBe('new content');
         });
 
         it('should return false for non-existent tab', () => {
             const result = tabManager.updateTabContent('non-existent-id', 'content');
+
             expect(result).toBe(false);
         });
     });
@@ -219,12 +230,14 @@ describe('TabManager', () => {
 
             expect(result).toBe(true);
             const updated = tabManager.getTab(tab.id);
+
             expect(updated.filePath).toBe('/path/to/newfile.md');
             expect(updated.title).toBe('newfile.md');
         });
 
         it('should return false for non-existent tab', () => {
             const result = tabManager.updateTabFilePath('non-existent-id', '/path/to/file.md');
+
             expect(result).toBe(false);
         });
     });
@@ -235,6 +248,7 @@ describe('TabManager', () => {
             const tab2 = tabManager.createTab(null, 'content2');
 
             const nextId = tabManager.getNextTabId();
+
             expect(nextId).toBe(tab2.id);
         });
 
@@ -244,11 +258,13 @@ describe('TabManager', () => {
 
             tabManager.switchTab(tab2.id);
             const nextId = tabManager.getNextTabId();
+
             expect(nextId).toBe(tab1.id);
         });
 
         it('should return null when no tabs', () => {
             const nextId = tabManager.getNextTabId();
+
             expect(nextId).toBeNull();
         });
     });
@@ -260,6 +276,7 @@ describe('TabManager', () => {
 
             tabManager.switchTab(tab2.id);
             const prevId = tabManager.getPreviousTabId();
+
             expect(prevId).toBe(tab1.id);
         });
 
@@ -268,11 +285,13 @@ describe('TabManager', () => {
             const tab2 = tabManager.createTab(null, 'content2');
 
             const prevId = tabManager.getPreviousTabId();
+
             expect(prevId).toBe(tab2.id);
         });
 
         it('should return null when no tabs', () => {
             const prevId = tabManager.getPreviousTabId();
+
             expect(prevId).toBeNull();
         });
     });
@@ -281,6 +300,7 @@ describe('TabManager', () => {
         it('should save and restore tabs', () => {
             const tab1 = tabManager.createTab('/path/to/file1.md', 'content1');
             const tab2 = tabManager.createTab('/path/to/file2.md', 'content2');
+
             tabManager.markTabModified(tab2.id, true);
 
             tabManager.saveTabs();
@@ -296,6 +316,7 @@ describe('TabManager', () => {
 
         it('should return false when no tabs to restore', () => {
             const result = tabManager.restoreTabs();
+
             expect(result).toBe(false);
         });
     });

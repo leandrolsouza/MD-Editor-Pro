@@ -8,6 +8,8 @@
     "dev": "electron . --inspect",
     "test": "vitest --run",
     "test:watch": "vitest",
+    "lint": "eslint src/**/*.js",
+    "lint:fix": "eslint src/**/*.js --fix",
     "build": "electron-builder",
     "build:win": "electron-builder --win",
     "build:mac": "electron-builder --mac",
@@ -43,6 +45,8 @@
   "devDependencies": {
     "electron": "^39.2.4",
     "electron-builder": "^26.0.12",
+    "eslint": "^9.39.1",
+    "eslint-plugin-node": "^11.1.0",
     "fast-check": "^4.3.0",
     "happy-dom": "^20.0.11",
     "jsdom": "^27.2.0",

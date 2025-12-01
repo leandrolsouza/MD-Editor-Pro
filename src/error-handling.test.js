@@ -71,21 +71,25 @@ describe('Error Handling Tests', () => {
     describe('Editor Error Handling', () => {
         it('should throw error when initializing without element', () => {
             const newEditor = new Editor();
+
             expect(() => newEditor.initialize(null)).toThrow('Editor element is required');
         });
 
         it('should throw error when getting value before initialization', () => {
             const newEditor = new Editor();
+
             expect(() => newEditor.getValue()).toThrow('Editor not initialized');
         });
 
         it('should throw error when setting value before initialization', () => {
             const newEditor = new Editor();
+
             expect(() => newEditor.setValue('test')).toThrow('Editor not initialized');
         });
 
         it('should throw error when inserting text before initialization', () => {
             const newEditor = new Editor();
+
             expect(() => newEditor.insertText('test')).toThrow('Editor not initialized');
         });
 
@@ -95,16 +99,19 @@ describe('Error Handling Tests', () => {
 
         it('should throw error when applying formatting before initialization', () => {
             const newEditor = new Editor();
+
             expect(() => newEditor.applyFormatting('bold')).toThrow('Editor not initialized');
         });
 
         it('should throw error when undoing before initialization', () => {
             const newEditor = new Editor();
+
             expect(() => newEditor.undo()).toThrow('Editor not initialized');
         });
 
         it('should throw error when redoing before initialization', () => {
             const newEditor = new Editor();
+
             expect(() => newEditor.redo()).toThrow('Editor not initialized');
         });
 
@@ -116,11 +123,13 @@ describe('Error Handling Tests', () => {
 
         it('should throw error when getting scroll position before initialization', () => {
             const newEditor = new Editor();
+
             expect(() => newEditor.getScrollPosition()).toThrow('Editor not initialized');
         });
 
         it('should throw error when setting scroll position before initialization', () => {
             const newEditor = new Editor();
+
             expect(() => newEditor.setScrollPosition(0.5)).toThrow('Editor not initialized');
         });
 
@@ -137,20 +146,24 @@ describe('Error Handling Tests', () => {
 
         it('should handle very long single line gracefully', () => {
             const longLine = 'a'.repeat(100000);
+
             expect(() => editor.setValue(longLine)).not.toThrow();
             expect(editor.getValue().length).toBe(100000);
         });
 
         it('should handle special characters gracefully', () => {
             const specialChars = '!@#$%^&*()_+-=[]{}|;:\'",.<>?/~`\n\t\r';
+
             expect(() => editor.setValue(specialChars)).not.toThrow();
             // CodeMirror normalizes \r to \n
             const expected = specialChars.replace(/\r/g, '\n');
+
             expect(editor.getValue()).toBe(expected);
         });
 
         it('should handle unicode characters gracefully', () => {
             const unicode = '你好世界 🌍 Привет мир';
+
             expect(() => editor.setValue(unicode)).not.toThrow();
             expect(editor.getValue()).toBe(unicode);
         });
@@ -159,11 +172,13 @@ describe('Error Handling Tests', () => {
     describe('Preview Error Handling', () => {
         it('should throw error when initializing without element', () => {
             const newPreview = new Preview();
+
             expect(() => newPreview.initialize(null)).toThrow('Preview element is required');
         });
 
         it('should throw error when rendering before initialization', () => {
             const newPreview = new Preview();
+
             expect(() => newPreview.render('test')).toThrow('Preview not initialized');
         });
 
@@ -173,17 +188,20 @@ describe('Error Handling Tests', () => {
 
         it('should handle invalid markdown gracefully', () => {
             const invalidMarkdown = '# Unclosed [link\n**Unclosed bold\n`Unclosed code';
+
             expect(() => preview.render(invalidMarkdown)).not.toThrow();
         });
 
         it('should handle malformed HTML in markdown gracefully', () => {
             // HTML should be disabled for security, so this should be safe
             const malformedHTML = '<div><span>Unclosed tags';
+
             expect(() => preview.render(malformedHTML)).not.toThrow();
         });
 
         it('should handle very large content gracefully', () => {
             const largeContent = '# Heading\n\n'.repeat(10000);
+
             expect(() => preview.render(largeContent)).not.toThrow();
         });
 
@@ -195,11 +213,13 @@ describe('Error Handling Tests', () => {
 
         it('should throw error when syncing scroll before initialization', () => {
             const newPreview = new Preview();
+
             expect(() => newPreview.syncScroll(0.5)).toThrow('Preview not initialized');
         });
 
         it('should handle special markdown characters gracefully', () => {
             const specialMarkdown = '\\* \\# \\[ \\] \\( \\) \\` \\~ \\_ \\-';
+
             expect(() => preview.render(specialMarkdown)).not.toThrow();
         });
     });
@@ -214,24 +234,28 @@ describe('Error Handling Tests', () => {
             document.body.innerHTML = '<div></div>';
             const newEditor = new Editor();
             const newSearchManager = new SearchManager(newEditor);
+
             expect(() => newSearchManager.initialize()).toThrow();
         });
 
         it('should throw error when showing panel without initialization', () => {
             const newEditor = new Editor();
             const newSearchManager = new SearchManager(newEditor);
+
             expect(() => newSearchManager.show()).toThrow('SearchManager not initialized');
         });
 
         it('should throw error when hiding panel without initialization', () => {
             const newEditor = new Editor();
             const newSearchManager = new SearchManager(newEditor);
+
             expect(() => newSearchManager.hide()).toThrow('SearchManager not initialized');
         });
 
         it('should throw error when searching without initialized editor', () => {
             const newEditor = new Editor();
             const newSearchManager = new SearchManager(newEditor);
+
             newSearchManager.initialize();
             expect(() => newSearchManager.search('test')).toThrow('Editor not initialized');
         });
@@ -239,6 +263,7 @@ describe('Error Handling Tests', () => {
         it('should throw error when navigating without initialized editor', () => {
             const newEditor = new Editor();
             const newSearchManager = new SearchManager(newEditor);
+
             newSearchManager.initialize();
             expect(() => newSearchManager.navigateNext()).toThrow('Editor not initialized');
             expect(() => newSearchManager.navigatePrevious()).toThrow('Editor not initialized');
@@ -247,18 +272,21 @@ describe('Error Handling Tests', () => {
         it('should throw error when replacing without initialized editor', () => {
             const newEditor = new Editor();
             const newSearchManager = new SearchManager(newEditor);
+
             newSearchManager.initialize();
             expect(() => newSearchManager.replace('test')).toThrow('Editor not initialized');
         });
 
         it('should handle empty search query gracefully', () => {
             const results = searchManager.search('');
+
             expect(results).toEqual([]);
         });
 
         it('should handle search with no matches gracefully', () => {
             editor.setValue('Hello world');
             const results = searchManager.search('xyz');
+
             expect(results).toEqual([]);
         });
 
@@ -279,10 +307,12 @@ describe('Error Handling Tests', () => {
     describe('ThemeManager Error Handling', () => {
         it('should handle invalid theme gracefully', async () => {
             const themeManager = new ThemeManager();
+
             await themeManager.initialize();
 
             // Should not throw, but log error
             const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
+
             await themeManager.setTheme('invalid');
             expect(consoleSpy).toHaveBeenCalled();
             consoleSpy.mockRestore();
@@ -294,6 +324,7 @@ describe('Error Handling Tests', () => {
             document.getElementById('theme-dark')?.remove();
 
             const themeManager = new ThemeManager();
+
             await themeManager.initialize();
 
             // Should not throw even without stylesheets
@@ -306,6 +337,7 @@ describe('Error Handling Tests', () => {
             document.getElementById('preview-pane')?.remove();
 
             const themeManager = new ThemeManager();
+
             await themeManager.initialize();
 
             // Should not throw even without panes
@@ -329,6 +361,7 @@ describe('Error Handling Tests', () => {
 
         it('should handle multiple initializations gracefully', async () => {
             const themeManager = new ThemeManager();
+
             await themeManager.initialize();
             await themeManager.initialize();
             await themeManager.initialize();
@@ -341,10 +374,12 @@ describe('Error Handling Tests', () => {
     describe('ViewModeManager Error Handling', () => {
         it('should handle invalid view mode gracefully', async () => {
             const viewModeManager = new ViewModeManager();
+
             await viewModeManager.initialize();
 
             // Should not throw, but log error
             const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
+
             await viewModeManager.setViewMode('invalid');
             expect(consoleSpy).toHaveBeenCalled();
             consoleSpy.mockRestore();
@@ -356,6 +391,7 @@ describe('Error Handling Tests', () => {
             document.getElementById('preview-pane')?.remove();
 
             const viewModeManager = new ViewModeManager();
+
             await viewModeManager.initialize();
 
             // Should not throw even without panes
@@ -378,6 +414,7 @@ describe('Error Handling Tests', () => {
 
         it('should handle multiple initializations gracefully', async () => {
             const viewModeManager = new ViewModeManager();
+
             await viewModeManager.initialize();
             await viewModeManager.initialize();
             await viewModeManager.initialize();
@@ -453,6 +490,7 @@ describe('Error Handling Tests', () => {
     describe('User-Friendly Error Messages', () => {
         it('should provide clear error message for missing editor element', () => {
             const newEditor = new Editor();
+
             try {
                 newEditor.initialize(null);
             } catch (error) {
@@ -464,6 +502,7 @@ describe('Error Handling Tests', () => {
 
         it('should provide clear error message for uninitialized editor', () => {
             const newEditor = new Editor();
+
             try {
                 newEditor.getValue();
             } catch (error) {

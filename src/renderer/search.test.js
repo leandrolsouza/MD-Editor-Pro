@@ -54,6 +54,7 @@ describe('SearchManager', () => {
 
         it('should initialize with editor instance', () => {
             const sm = new SearchManager(editor);
+
             expect(sm.editor).toBe(editor);
         });
 
@@ -62,6 +63,7 @@ describe('SearchManager', () => {
             document.body.innerHTML = '';
 
             const sm = new SearchManager(editor);
+
             expect(() => sm.initialize()).toThrow('Required search UI elements not found');
         });
     });
@@ -69,6 +71,7 @@ describe('SearchManager', () => {
     describe('Show and Hide', () => {
         it('should show search panel', () => {
             const panel = document.getElementById('search-panel');
+
             expect(panel.classList.contains('hidden')).toBe(true);
 
             searchManager.show();
@@ -77,6 +80,7 @@ describe('SearchManager', () => {
 
         it('should hide search panel', () => {
             const panel = document.getElementById('search-panel');
+
             searchManager.show();
             expect(panel.classList.contains('hidden')).toBe(false);
 
@@ -108,6 +112,7 @@ describe('SearchManager', () => {
             editor.setValue('Hello world, hello universe, HELLO cosmos');
 
             const results = searchManager.search('hello');
+
             expect(results.length).toBe(3);
         });
 
@@ -115,6 +120,7 @@ describe('SearchManager', () => {
             editor.setValue('Hello world');
 
             const results = searchManager.search('');
+
             expect(results).toEqual([]);
         });
 
@@ -122,6 +128,7 @@ describe('SearchManager', () => {
             editor.setValue('Hello world');
 
             const results = searchManager.search('xyz');
+
             expect(results.length).toBe(0);
         });
 
@@ -145,6 +152,7 @@ describe('SearchManager', () => {
             editor.setValue('Hello HELLO hello');
 
             const results = searchManager.search('hello');
+
             expect(results.length).toBe(3);
         });
     });
@@ -153,10 +161,12 @@ describe('SearchManager', () => {
         it('should navigate to next occurrence', () => {
             editor.setValue('test test test');
             const searchInput = document.getElementById('search-input');
+
             searchInput.value = 'test';
             searchManager.search('test');
 
             const initialPos = editor.view.state.selection.main.head;
+
             searchManager.navigateNext();
             const newPos = editor.view.state.selection.main.head;
 
@@ -167,6 +177,7 @@ describe('SearchManager', () => {
         it('should navigate to previous occurrence', () => {
             editor.setValue('test test test');
             const searchInput = document.getElementById('search-input');
+
             searchInput.value = 'test';
             searchManager.search('test');
 
@@ -197,6 +208,7 @@ describe('SearchManager', () => {
             editor.setValue('hello world hello universe');
             const replaceInput = document.getElementById('replace-input');
             const searchInput = document.getElementById('search-input');
+
             replaceInput.value = 'hi';
             searchInput.value = 'hello';
 
@@ -210,6 +222,7 @@ describe('SearchManager', () => {
             editor.setValue('hello world hello universe hello cosmos');
             const replaceInput = document.getElementById('replace-input');
             const searchInput = document.getElementById('search-input');
+
             replaceInput.value = 'hi';
             searchInput.value = 'hello';
 
@@ -220,6 +233,7 @@ describe('SearchManager', () => {
             await new Promise(resolve => setTimeout(resolve, 20));
 
             const content = editor.getValue();
+
             expect(content).not.toContain('hello');
             expect((content.match(/hi/g) || []).length).toBe(3);
         });
@@ -236,6 +250,7 @@ describe('SearchManager', () => {
     describe('Error handling', () => {
         it('should throw error when searching without initialized editor', () => {
             const sm = new SearchManager(editor);
+
             sm.initialize();
             sm.editor.view = null;
 
@@ -244,6 +259,7 @@ describe('SearchManager', () => {
 
         it('should throw error when navigating without initialized editor', () => {
             const sm = new SearchManager(editor);
+
             sm.initialize();
             sm.editor.view = null;
 
@@ -253,6 +269,7 @@ describe('SearchManager', () => {
 
         it('should throw error when replacing without initialized editor', () => {
             const sm = new SearchManager(editor);
+
             sm.initialize();
             sm.editor.view = null;
 
@@ -262,11 +279,13 @@ describe('SearchManager', () => {
 
         it('should throw error when showing panel without initialization', () => {
             const sm = new SearchManager(editor);
+
             expect(() => sm.show()).toThrow('SearchManager not initialized');
         });
 
         it('should throw error when hiding panel without initialization', () => {
             const sm = new SearchManager(editor);
+
             expect(() => sm.hide()).toThrow('SearchManager not initialized');
         });
     });
@@ -288,6 +307,7 @@ Some other text.`;
 
                 // Search for text within Mermaid diagram
                 const results = searchManager.search('Process');
+
                 expect(results.length).toBe(1);
                 expect(results[0].text).toBe('Process');
             });
@@ -303,6 +323,7 @@ sequenceDiagram
 
                 // "Alice" appears 3 times: twice in the diagram and once in "Hi Alice"
                 const results = searchManager.search('Alice');
+
                 expect(results.length).toBe(3);
             });
 
@@ -322,6 +343,7 @@ graph TD
                 editor.setValue(content);
 
                 const results = searchManager.search('User');
+
                 expect(results.length).toBe(2);
             });
         });
@@ -333,6 +355,7 @@ graph TD
                 editor.setValue(mathContent);
 
                 const results = searchManager.search('mc');
+
                 expect(results.length).toBe(1);
             });
 
@@ -346,6 +369,7 @@ This is useful.`;
                 editor.setValue(mathContent);
 
                 const results = searchManager.search('sqrt');
+
                 expect(results.length).toBe(1);
             });
 
@@ -356,6 +380,7 @@ Display: $$\\int_0^\\infty e^{-x} dx = 1$$`;
                 editor.setValue(mathContent);
 
                 const results = searchManager.search('alpha');
+
                 expect(results.length).toBe(1);
             });
 
@@ -366,6 +391,7 @@ Second: $x^2 - y^2 = z^2$`;
                 editor.setValue(content);
 
                 const results = searchManager.search('x^2');
+
                 expect(results.length).toBe(2);
             });
         });
@@ -378,6 +404,7 @@ Second: $x^2 - y^2 = z^2$`;
                 editor.setValue(calloutContent);
 
                 const results = searchManager.search('important');
+
                 expect(results.length).toBe(1);
             });
 
@@ -388,6 +415,7 @@ Second: $x^2 - y^2 = z^2$`;
                 editor.setValue(calloutContent);
 
                 const results = searchManager.search('careful');
+
                 expect(results.length).toBe(1);
             });
 
@@ -404,6 +432,7 @@ Second: $x^2 - y^2 = z^2$`;
                 editor.setValue(content);
 
                 const results = searchManager.search('message');
+
                 expect(results.length).toBe(3);
             });
 
@@ -417,6 +446,7 @@ Second: $x^2 - y^2 = z^2$`;
                 editor.setValue(content);
 
                 const results = searchManager.search('NOTE');
+
                 expect(results.length).toBe(1);
             });
         });
@@ -438,6 +468,7 @@ The formula $E = mc^2$ shows energy.
                 editor.setValue(mixedContent);
 
                 const results = searchManager.search('User');
+
                 expect(results.length).toBe(2);
             });
 
@@ -460,6 +491,7 @@ Math: $testing = true$
 
                 // "testing" appears 5 times: in title, paragraph, mermaid, math, and callout
                 const results = searchManager.search('testing');
+
                 expect(results.length).toBe(5);
             });
         });
@@ -474,6 +506,7 @@ graph TD
                 editor.setValue(content);
 
                 const searchInput = document.getElementById('search-input');
+
                 searchInput.value = 'OldName';
                 searchManager.search('OldName');
                 searchManager.replaceAll('NewName');
@@ -481,6 +514,7 @@ graph TD
                 await new Promise(resolve => setTimeout(resolve, 20));
 
                 const newContent = editor.getValue();
+
                 expect(newContent).toContain('NewName');
                 expect(newContent).not.toContain('OldName');
             });
@@ -491,6 +525,7 @@ graph TD
                 editor.setValue(content);
 
                 const searchInput = document.getElementById('search-input');
+
                 searchInput.value = 'oldvar';
                 searchManager.search('oldvar');
                 searchManager.replaceAll('newvar');
@@ -498,6 +533,7 @@ graph TD
                 await new Promise(resolve => setTimeout(resolve, 20));
 
                 const newContent = editor.getValue();
+
                 expect(newContent).toContain('newvar');
                 expect(newContent).not.toContain('oldvar');
             });
@@ -509,6 +545,7 @@ graph TD
                 editor.setValue(content);
 
                 const searchInput = document.getElementById('search-input');
+
                 searchInput.value = 'oldtext';
                 searchManager.search('oldtext');
                 searchManager.replaceAll('newtext');
@@ -516,6 +553,7 @@ graph TD
                 await new Promise(resolve => setTimeout(resolve, 20));
 
                 const newContent = editor.getValue();
+
                 expect(newContent).toContain('newtext');
                 expect(newContent).not.toContain('oldtext');
             });

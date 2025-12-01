@@ -32,11 +32,13 @@ describe('TemplateManager', () => {
     describe('Built-in Templates', () => {
         it('should have built-in templates', () => {
             const templates = templateManager.getBuiltInTemplates();
+
             expect(templates.length).toBeGreaterThan(0);
         });
 
         it('should have README template', () => {
             const template = templateManager.getTemplate('readme');
+
             expect(template).toBeDefined();
             expect(template.name).toBe('README');
             expect(template.isBuiltIn).toBe(true);
@@ -44,6 +46,7 @@ describe('TemplateManager', () => {
 
         it('should have blog post template', () => {
             const template = templateManager.getTemplate('blog-post');
+
             expect(template).toBeDefined();
             expect(template.name).toBe('Blog Post');
             expect(template.isBuiltIn).toBe(true);
@@ -51,6 +54,7 @@ describe('TemplateManager', () => {
 
         it('should have meeting notes template', () => {
             const template = templateManager.getTemplate('meeting-notes');
+
             expect(template).toBeDefined();
             expect(template.name).toBe('Meeting Notes');
             expect(template.isBuiltIn).toBe(true);
@@ -58,6 +62,7 @@ describe('TemplateManager', () => {
 
         it('should have documentation template', () => {
             const template = templateManager.getTemplate('documentation');
+
             expect(template).toBeDefined();
             expect(template.name).toBe('Documentation');
             expect(template.isBuiltIn).toBe(true);
@@ -67,12 +72,14 @@ describe('TemplateManager', () => {
     describe('getTemplate', () => {
         it('should return built-in template by ID', () => {
             const template = templateManager.getTemplate('readme');
+
             expect(template).toBeDefined();
             expect(template.id).toBe('readme');
         });
 
         it('should return null for non-existent template', () => {
             const template = templateManager.getTemplate('non-existent');
+
             expect(template).toBeNull();
         });
 
@@ -85,6 +92,7 @@ describe('TemplateManager', () => {
     describe('getAllTemplates', () => {
         it('should return all templates (built-in and custom)', () => {
             const templates = templateManager.getAllTemplates();
+
             expect(templates.length).toBeGreaterThanOrEqual(4); // At least 4 built-in templates
         });
 
@@ -92,6 +100,7 @@ describe('TemplateManager', () => {
             templateManager.saveCustomTemplate('Test Template', '# Test\n\n{{content}}');
             const templates = templateManager.getAllTemplates();
             const customTemplate = templates.find(t => t.name === 'Test Template');
+
             expect(customTemplate).toBeDefined();
         });
     });
@@ -114,6 +123,7 @@ describe('TemplateManager', () => {
 
         it('should extract placeholders from content', () => {
             const template = templateManager.saveCustomTemplate('Test', '# {{title}}\n\n{{content}}\n\n{{footer}}');
+
             expect(template.placeholders).toEqual(['{{title}}', '{{content}}', '{{footer}}']);
         });
 
@@ -132,14 +142,17 @@ describe('TemplateManager', () => {
         it('should delete custom template', () => {
             const template = templateManager.saveCustomTemplate('Test', 'content');
             const result = templateManager.deleteCustomTemplate(template.id);
+
             expect(result).toBe(true);
 
             const retrieved = templateManager.getTemplate(template.id);
+
             expect(retrieved).toBeNull();
         });
 
         it('should return false for non-existent template', () => {
             const result = templateManager.deleteCustomTemplate('non-existent');
+
             expect(result).toBe(false);
         });
     });
@@ -155,22 +168,26 @@ describe('TemplateManager', () => {
             expect(result).toBe(true);
 
             const updated = templateManager.getTemplate(template.id);
+
             expect(updated.name).toBe('Updated Test');
             expect(updated.content).toBe('new content');
         });
 
         it('should recalculate placeholders when content is updated', () => {
             const template = templateManager.saveCustomTemplate('Test', '{{old}}');
+
             templateManager.updateCustomTemplate(template.id, {
                 content: '{{new1}} {{new2}}'
             });
 
             const updated = templateManager.getTemplate(template.id);
+
             expect(updated.placeholders).toEqual(['{{new1}}', '{{new2}}']);
         });
 
         it('should return false for non-existent template', () => {
             const result = templateManager.updateCustomTemplate('non-existent', { name: 'Test' });
+
             expect(result).toBe(false);
         });
     });
@@ -178,21 +195,25 @@ describe('TemplateManager', () => {
     describe('findPlaceholders', () => {
         it('should find all placeholders in content', () => {
             const placeholders = templateManager.findPlaceholders('# {{title}}\n\n{{content}}\n\n{{footer}}');
+
             expect(placeholders).toEqual(['{{title}}', '{{content}}', '{{footer}}']);
         });
 
         it('should return empty array for content without placeholders', () => {
             const placeholders = templateManager.findPlaceholders('# Title\n\nContent');
+
             expect(placeholders).toEqual([]);
         });
 
         it('should remove duplicate placeholders', () => {
             const placeholders = templateManager.findPlaceholders('{{title}} {{title}} {{content}}');
+
             expect(placeholders).toEqual(['{{title}}', '{{content}}']);
         });
 
         it('should return empty array for empty content', () => {
             const placeholders = templateManager.findPlaceholders('');
+
             expect(placeholders).toEqual([]);
         });
     });
@@ -200,16 +221,19 @@ describe('TemplateManager', () => {
     describe('getFirstPlaceholderPosition', () => {
         it('should return position of first placeholder', () => {
             const position = templateManager.getFirstPlaceholderPosition('# Title\n\n{{content}}');
+
             expect(position).toBe(9); // Position after "# Title\n\n"
         });
 
         it('should return -1 for content without placeholders', () => {
             const position = templateManager.getFirstPlaceholderPosition('# Title\n\nContent');
+
             expect(position).toBe(-1);
         });
 
         it('should return -1 for empty content', () => {
             const position = templateManager.getFirstPlaceholderPosition('');
+
             expect(position).toBe(-1);
         });
     });
@@ -217,6 +241,7 @@ describe('TemplateManager', () => {
     describe('getTemplatesByCategory', () => {
         it('should return templates by category', () => {
             const templates = templateManager.getTemplatesByCategory('documentation');
+
             expect(templates.length).toBeGreaterThan(0);
             templates.forEach(t => {
                 expect(t.category).toBe('documentation');
@@ -225,6 +250,7 @@ describe('TemplateManager', () => {
 
         it('should return empty array for non-existent category', () => {
             const templates = templateManager.getTemplatesByCategory('non-existent');
+
             expect(templates).toEqual([]);
         });
 
@@ -236,6 +262,7 @@ describe('TemplateManager', () => {
     describe('getCategories', () => {
         it('should return all unique categories', () => {
             const categories = templateManager.getCategories();
+
             expect(categories.length).toBeGreaterThan(0);
             expect(categories).toContain('documentation');
             expect(categories).toContain('blog');
@@ -245,12 +272,14 @@ describe('TemplateManager', () => {
         it('should include custom categories', () => {
             templateManager.saveCustomTemplate('Test', 'content', { category: 'test-category' });
             const categories = templateManager.getCategories();
+
             expect(categories).toContain('test-category');
         });
 
         it('should return sorted categories', () => {
             const categories = templateManager.getCategories();
             const sorted = [...categories].sort();
+
             expect(categories).toEqual(sorted);
         });
     });
@@ -258,11 +287,13 @@ describe('TemplateManager', () => {
     describe('markTemplateUsed', () => {
         it('should update lastUsed timestamp for custom template', () => {
             const template = templateManager.saveCustomTemplate('Test', 'content');
+
             expect(template.lastUsed).toBeNull();
 
             templateManager.markTemplateUsed(template.id);
 
             const updated = templateManager.getTemplate(template.id);
+
             expect(updated.lastUsed).toBeGreaterThan(0);
         });
 

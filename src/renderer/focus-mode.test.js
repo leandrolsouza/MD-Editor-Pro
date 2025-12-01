@@ -46,6 +46,7 @@ describe('FocusMode', () => {
 
         it('should initialize with inactive state', () => {
             const fm = new FocusMode(mockEditor);
+
             expect(fm.isActiveMode()).toBe(false);
         });
     });
@@ -53,12 +54,14 @@ describe('FocusMode', () => {
     describe('Initialize', () => {
         it('should create overlay element', () => {
             const overlay = document.querySelector('.focus-mode-overlay');
+
             expect(overlay).toBeTruthy();
             expect(overlay.classList.contains('hidden')).toBe(true);
         });
 
         it('should inject CSS styles', () => {
             const styleElement = document.getElementById('focus-mode-styles');
+
             expect(styleElement).toBeTruthy();
             expect(styleElement.textContent).toContain('body.focus-mode');
         });
@@ -66,6 +69,7 @@ describe('FocusMode', () => {
         it('should not inject styles twice', () => {
             focusMode.initialize(); // Call again
             const styleElements = document.querySelectorAll('#focus-mode-styles');
+
             expect(styleElements.length).toBe(1);
         });
     });
@@ -84,12 +88,14 @@ describe('FocusMode', () => {
         it('should show overlay initially', () => {
             focusMode.enter();
             const overlay = document.querySelector('.focus-mode-overlay');
+
             expect(overlay.classList.contains('hidden')).toBe(false);
         });
 
         it('should not enter twice if already active', () => {
             focusMode.enter();
             const firstState = focusMode.isActiveMode();
+
             focusMode.enter();
             expect(focusMode.isActiveMode()).toBe(firstState);
         });
@@ -113,12 +119,14 @@ describe('FocusMode', () => {
         it('should hide overlay', () => {
             focusMode.exit();
             const overlay = document.querySelector('.focus-mode-overlay');
+
             expect(overlay.classList.contains('hidden')).toBe(true);
         });
 
         it('should not exit twice if already inactive', () => {
             focusMode.exit();
             const firstState = focusMode.isActiveMode();
+
             focusMode.exit();
             expect(focusMode.isActiveMode()).toBe(firstState);
         });
@@ -164,9 +172,11 @@ describe('FocusMode', () => {
 
         it('should show overlay on mouse movement', () => {
             const overlay = document.querySelector('.focus-mode-overlay');
+
             overlay.classList.add('hidden');
 
             const event = new MouseEvent('mousemove');
+
             document.dispatchEvent(event);
 
             expect(overlay.classList.contains('hidden')).toBe(false);
@@ -176,6 +186,7 @@ describe('FocusMode', () => {
             const overlay = document.querySelector('.focus-mode-overlay');
 
             const event = new MouseEvent('mousemove');
+
             document.dispatchEvent(event);
 
             expect(overlay.classList.contains('hidden')).toBe(false);
@@ -219,6 +230,7 @@ describe('FocusMode', () => {
 
         it('should exit focus mode on Escape key', () => {
             const event = new KeyboardEvent('keydown', { key: 'Escape' });
+
             document.dispatchEvent(event);
 
             expect(focusMode.isActiveMode()).toBe(false);
@@ -226,9 +238,11 @@ describe('FocusMode', () => {
 
         it('should not exit if search panel is open', () => {
             const searchPanel = document.querySelector('.search-panel');
+
             searchPanel.classList.remove('hidden');
 
             const event = new KeyboardEvent('keydown', { key: 'Escape' });
+
             document.dispatchEvent(event);
 
             expect(focusMode.isActiveMode()).toBe(true);
@@ -236,6 +250,7 @@ describe('FocusMode', () => {
 
         it('should not respond to other keys', () => {
             const event = new KeyboardEvent('keydown', { key: 'Enter' });
+
             document.dispatchEvent(event);
 
             expect(focusMode.isActiveMode()).toBe(true);
@@ -267,12 +282,14 @@ describe('FocusMode', () => {
         it('should remove overlay element', () => {
             focusMode.destroy();
             const overlay = document.querySelector('.focus-mode-overlay');
+
             expect(overlay).toBeFalsy();
         });
 
         it('should remove injected styles', () => {
             focusMode.destroy();
             const styleElement = document.getElementById('focus-mode-styles');
+
             expect(styleElement).toBeFalsy();
         });
 

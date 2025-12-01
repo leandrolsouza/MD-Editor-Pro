@@ -68,7 +68,7 @@ const snippetPlaceholdersField = StateField.define({
         return { placeholders: [], currentIndex: -1 };
     },
     update(value, tr) {
-        for (let effect of tr.effects) {
+        for (const effect of tr.effects) {
             if (effect.is(setSnippetPlaceholders)) {
                 return effect.value;
             }
@@ -112,12 +112,14 @@ class SnippetManager {
 
         // Check built-in snippets first
         const builtIn = BUILT_IN_SNIPPETS.find(s => s.trigger === trigger);
+
         if (builtIn) {
             return builtIn;
         }
 
         // Check custom snippets
         const custom = this.customSnippets.find(s => s.trigger === trigger);
+
         return custom || null;
     }
 
@@ -163,6 +165,7 @@ class SnippetManager {
 
         // Check for duplicate trigger in both built-in and custom
         const existingSnippet = this.getSnippet(trigger.trim());
+
         if (existingSnippet) {
             throw new Error(`Snippet with trigger "${trigger.trim()}" already exists`);
         }
@@ -197,6 +200,7 @@ class SnippetManager {
         }
 
         const index = this.customSnippets.findIndex(s => s.trigger === trigger);
+
         if (index === -1) {
             return false;
         }
@@ -230,6 +234,7 @@ class SnippetManager {
         }
 
         const index = this.customSnippets.findIndex(s => s.trigger === trigger);
+
         if (index === -1) {
             return false;
         }
@@ -272,6 +277,7 @@ class SnippetManager {
 
         // Match word at end of line (word boundary)
         const wordMatch = lineText.match(/(\w+)$/);
+
         if (!wordMatch) {
             return null;
         }
@@ -303,6 +309,7 @@ class SnippetManager {
         }
 
         const snippet = this.getSnippet(trigger);
+
         if (!snippet) {
             return false;
         }
@@ -348,9 +355,11 @@ class SnippetManager {
         }
 
         const placeholders = this.findPlaceholders(content);
+
         if (placeholders.length === 0) {
             // No placeholders, position at end of snippet
             const endPosition = insertPosition + content.length;
+
             this.editor.setCursorPosition(endPosition);
             return;
         }
@@ -363,6 +372,7 @@ class SnippetManager {
         // Calculate all placeholder positions for Tab navigation
         const placeholderPositions = placeholders.map(ph => {
             const pos = content.indexOf(ph);
+
             return {
                 from: insertPosition + pos,
                 to: insertPosition + pos + ph.length,
@@ -372,6 +382,7 @@ class SnippetManager {
 
         // Store placeholder positions in editor state
         const view = this.editor.view;
+
         view.dispatch({
             effects: setSnippetPlaceholders.of({
                 placeholders: placeholderPositions,
@@ -411,6 +422,7 @@ class SnippetManager {
         }
 
         const nextIndex = placeholderState.currentIndex + 1;
+
         if (nextIndex >= placeholderState.placeholders.length) {
             // No more placeholders, clear state and position at end
             view.dispatch({
@@ -459,6 +471,7 @@ class SnippetManager {
         }
 
         const prevIndex = placeholderState.currentIndex - 1;
+
         if (prevIndex < 0) {
             return false;
         }
@@ -522,6 +535,7 @@ class SnippetManager {
 
                     // Check if we're in placeholder navigation mode
                     const placeholderState = state.field(snippetPlaceholdersField, false);
+
                     if (placeholderState && placeholderState.placeholders.length > 0) {
                         // Navigate to next placeholder
                         return snippetManager.nextPlaceholder();

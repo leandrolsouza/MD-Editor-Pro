@@ -26,6 +26,7 @@ function getPlatformAcceleratorKey(platform) {
  */
 function createPlatformShortcut(platform, key) {
     const modifier = getPlatformAcceleratorKey(platform);
+
     return `${modifier}+${key}`;
 }
 

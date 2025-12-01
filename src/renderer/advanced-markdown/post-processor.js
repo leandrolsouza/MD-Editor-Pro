@@ -1,6 +1,6 @@
 /**
  * Advanced Markdown Post-Processor
- * 
+ *
  * Handles client-side rendering of Mermaid diagrams and KaTeX mathematical formulas
  * after the initial markdown-to-HTML conversion. This two-stage approach allows
  * markdown-it plugins to generate placeholders that are then processed by the
@@ -20,6 +20,7 @@ function escapeHtml(text) {
         '"': '&quot;',
         "'": '&#039;'
     };
+
     return text.replace(/[&<>"']/g, (m) => map[m]);
 }
 
@@ -41,6 +42,7 @@ class AdvancedMarkdownPostProcessor {
     initializeMermaid() {
         try {
             const mermaidModule = require('mermaid');
+
             // Handle both CommonJS and ES module exports
             this.mermaid = mermaidModule.default || mermaidModule;
 
@@ -148,6 +150,7 @@ class AdvancedMarkdownPostProcessor {
     processKatex(container) {
         // Process inline math
         const inlineMath = container.querySelectorAll('.katex-inline');
+
         inlineMath.forEach(element => {
             // Skip if already rendered
             if (element.classList.contains('katex-rendered') ||
@@ -177,6 +180,7 @@ class AdvancedMarkdownPostProcessor {
 
         // Process block math
         const blockMath = container.querySelectorAll('.katex-block');
+
         blockMath.forEach(element => {
             // Skip if already rendered
             if (element.classList.contains('katex-rendered') ||

@@ -34,6 +34,7 @@ class KeyboardShortcutsManager {
     async loadShortcuts() {
         try {
             const result = await window.electronAPI.getAllShortcuts();
+
             if (result.success) {
                 this.shortcuts = result.shortcuts;
             }
@@ -66,8 +67,10 @@ class KeyboardShortcutsManager {
 
         for (const [actionId, keyBinding] of Object.entries(this.shortcuts)) {
             const handler = this.actionHandlers.get(actionId);
+
             if (handler) {
                 const codemirrorKey = this.convertToCodeMirrorKey(keyBinding);
+
                 bindings.push({
                     key: codemirrorKey,
                     run: handler,
@@ -89,7 +92,7 @@ class KeyboardShortcutsManager {
         const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
 
         // Replace Mod with platform-specific modifier
-        let result = keyBinding.replace(/Mod/g, isMac ? 'Cmd' : 'Ctrl');
+        const result = keyBinding.replace(/Mod/g, isMac ? 'Cmd' : 'Ctrl');
 
         return result;
     }

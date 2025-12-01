@@ -41,6 +41,7 @@ function createApplicationMenu(windowManager, fileManager, exporter) {
                     accelerator: isMac ? 'Cmd+N' : 'Ctrl+N',
                     click: () => {
                         const mainWindow = windowManager.getMainWindow();
+
                         if (mainWindow) {
                             mainWindow.webContents.send('menu:action', 'new');
                         }
@@ -52,6 +53,7 @@ function createApplicationMenu(windowManager, fileManager, exporter) {
                     click: () => {
                         console.log('Open menu clicked');
                         const mainWindow = windowManager.getMainWindow();
+
                         console.log('Main window:', mainWindow ? 'exists' : 'null');
                         if (mainWindow) {
                             console.log('Sending menu:action open');
@@ -65,6 +67,7 @@ function createApplicationMenu(windowManager, fileManager, exporter) {
                     accelerator: isMac ? 'Cmd+S' : 'Ctrl+S',
                     click: () => {
                         const mainWindow = windowManager.getMainWindow();
+
                         if (mainWindow) {
                             mainWindow.webContents.send('menu:action', 'save');
                         }
@@ -75,6 +78,7 @@ function createApplicationMenu(windowManager, fileManager, exporter) {
                     accelerator: isMac ? 'Cmd+Shift+S' : 'Ctrl+Shift+S',
                     click: () => {
                         const mainWindow = windowManager.getMainWindow();
+
                         if (mainWindow) {
                             mainWindow.webContents.send('menu:action', 'save-as');
                         }
@@ -88,6 +92,7 @@ function createApplicationMenu(windowManager, fileManager, exporter) {
                             label: 'Export to HTML...',
                             click: () => {
                                 const mainWindow = windowManager.getMainWindow();
+
                                 if (mainWindow) {
                                     mainWindow.webContents.send('menu:action', 'export-html');
                                 }
@@ -97,6 +102,7 @@ function createApplicationMenu(windowManager, fileManager, exporter) {
                             label: 'Export to PDF...',
                             click: () => {
                                 const mainWindow = windowManager.getMainWindow();
+
                                 if (mainWindow) {
                                     mainWindow.webContents.send('menu:action', 'export-pdf');
                                 }
@@ -126,6 +132,7 @@ function createApplicationMenu(windowManager, fileManager, exporter) {
                     accelerator: isMac ? 'Cmd+Shift+T' : 'Ctrl+Shift+T',
                     click: () => {
                         const mainWindow = windowManager.getMainWindow();
+
                         if (mainWindow) {
                             mainWindow.webContents.send('menu:action', 'insert-template');
                         }
@@ -143,6 +150,7 @@ function createApplicationMenu(windowManager, fileManager, exporter) {
                     accelerator: isMac ? 'Cmd+Z' : 'Ctrl+Z',
                     click: () => {
                         const mainWindow = windowManager.getMainWindow();
+
                         if (mainWindow) {
                             mainWindow.webContents.send('menu:action', 'undo');
                         }
@@ -153,6 +161,7 @@ function createApplicationMenu(windowManager, fileManager, exporter) {
                     accelerator: isMac ? 'Cmd+Shift+Z' : 'Ctrl+Y',
                     click: () => {
                         const mainWindow = windowManager.getMainWindow();
+
                         if (mainWindow) {
                             mainWindow.webContents.send('menu:action', 'redo');
                         }
@@ -168,6 +177,7 @@ function createApplicationMenu(windowManager, fileManager, exporter) {
                     accelerator: isMac ? 'Cmd+F' : 'Ctrl+F',
                     click: () => {
                         const mainWindow = windowManager.getMainWindow();
+
                         if (mainWindow) {
                             mainWindow.webContents.send('menu:action', 'find');
                         }
@@ -185,6 +195,7 @@ function createApplicationMenu(windowManager, fileManager, exporter) {
                     accelerator: isMac ? 'Cmd+T' : 'Ctrl+T',
                     click: () => {
                         const mainWindow = windowManager.getMainWindow();
+
                         if (mainWindow) {
                             mainWindow.webContents.send('menu:action', 'toggle-theme');
                         }
@@ -198,6 +209,7 @@ function createApplicationMenu(windowManager, fileManager, exporter) {
                             label: 'Editor Only',
                             click: () => {
                                 const mainWindow = windowManager.getMainWindow();
+
                                 if (mainWindow) {
                                     mainWindow.webContents.send('menu:action', 'view-mode-editor');
                                 }
@@ -207,6 +219,7 @@ function createApplicationMenu(windowManager, fileManager, exporter) {
                             label: 'Preview Only',
                             click: () => {
                                 const mainWindow = windowManager.getMainWindow();
+
                                 if (mainWindow) {
                                     mainWindow.webContents.send('menu:action', 'view-mode-preview');
                                 }
@@ -216,6 +229,7 @@ function createApplicationMenu(windowManager, fileManager, exporter) {
                             label: 'Split View',
                             click: () => {
                                 const mainWindow = windowManager.getMainWindow();
+
                                 if (mainWindow) {
                                     mainWindow.webContents.send('menu:action', 'view-mode-split');
                                 }
@@ -229,6 +243,7 @@ function createApplicationMenu(windowManager, fileManager, exporter) {
                     accelerator: 'F11',
                     click: () => {
                         const mainWindow = windowManager.getMainWindow();
+
                         if (mainWindow) {
                             mainWindow.webContents.send('menu:action', 'focus-mode');
                         }
@@ -239,6 +254,7 @@ function createApplicationMenu(windowManager, fileManager, exporter) {
                     label: 'Toggle Statistics',
                     click: () => {
                         const mainWindow = windowManager.getMainWindow();
+
                         if (mainWindow) {
                             mainWindow.webContents.send('menu:action', 'toggle-statistics');
                         }
@@ -266,6 +282,7 @@ function createApplicationMenu(windowManager, fileManager, exporter) {
                     accelerator: isMac ? 'Cmd+K Cmd+S' : 'Ctrl+K Ctrl+S',
                     click: () => {
                         const mainWindow = windowManager.getMainWindow();
+
                         if (mainWindow) {
                             mainWindow.webContents.send('menu:action', 'open-keyboard-shortcuts');
                         }
@@ -281,6 +298,7 @@ function createApplicationMenu(windowManager, fileManager, exporter) {
                             checked: true,
                             click: (menuItem) => {
                                 const mainWindow = windowManager.getMainWindow();
+
                                 if (mainWindow) {
                                     mainWindow.webContents.send('menu:action', 'toggle-auto-save');
                                 }
@@ -290,6 +308,7 @@ function createApplicationMenu(windowManager, fileManager, exporter) {
                             label: 'Auto-Save Settings...',
                             click: () => {
                                 const mainWindow = windowManager.getMainWindow();
+
                                 if (mainWindow) {
                                     mainWindow.webContents.send('menu:action', 'auto-save-settings');
                                 }
@@ -308,6 +327,7 @@ function createApplicationMenu(windowManager, fileManager, exporter) {
                     label: 'Learn More',
                     click: async () => {
                         const { shell } = require('electron');
+
                         await shell.openExternal('https://commonmark.org/');
                     }
                 },
@@ -315,6 +335,7 @@ function createApplicationMenu(windowManager, fileManager, exporter) {
                     label: 'GitHub Flavored Markdown',
                     click: async () => {
                         const { shell } = require('electron');
+
                         await shell.openExternal('https://github.github.com/gfm/');
                     }
                 },
@@ -324,6 +345,7 @@ function createApplicationMenu(windowManager, fileManager, exporter) {
                         label: 'About',
                         click: () => {
                             const mainWindow = windowManager.getMainWindow();
+
                             if (mainWindow) {
                                 mainWindow.webContents.send('menu:action', 'about');
                             }

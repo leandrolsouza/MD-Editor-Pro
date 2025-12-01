@@ -1,6 +1,6 @@
 /**
  * markdown-it plugin for Mermaid diagrams
- * 
+ *
  * This plugin detects fenced code blocks with the 'mermaid' language identifier
  * and generates placeholder divs that will be processed by the Mermaid library
  * in the post-processing step.
@@ -27,6 +27,7 @@ function escapeHtml(text) {
         '"': '&quot;',
         "'": '&#039;'
     };
+
     return text.replace(/[&<>"']/g, (m) => map[m]);
 }
 

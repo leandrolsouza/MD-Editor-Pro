@@ -81,6 +81,7 @@ class Exporter {
     async _getKatexCSS() {
         try {
             const katexCssPath = path.join(__dirname, '../../node_modules/katex/dist/katex.min.css');
+
             return await fs.readFile(katexCssPath, 'utf-8');
         } catch (error) {
             console.error('Failed to load KaTeX CSS:', error);
@@ -546,12 +547,14 @@ class Exporter {
 
             // Get KaTeX CSS if KaTeX is enabled
             let katexCSS = '';
+
             if (this.advancedMarkdownManager && this.advancedMarkdownManager.isFeatureEnabled('katex')) {
                 katexCSS = await this._getKatexCSS();
             }
 
             // Get callout CSS if callouts are enabled
             let calloutCSS = '';
+
             if (this.advancedMarkdownManager && this.advancedMarkdownManager.isFeatureEnabled('callouts')) {
                 calloutCSS = this._generateCalloutCSS(theme);
             }
@@ -657,12 +660,14 @@ class Exporter {
 
             // Get KaTeX CSS if KaTeX is enabled
             let katexCSS = '';
+
             if (this.advancedMarkdownManager && this.advancedMarkdownManager.isFeatureEnabled('katex')) {
                 katexCSS = await this._getKatexCSS();
             }
 
             // Get callout CSS if callouts are enabled
             let calloutCSS = '';
+
             if (this.advancedMarkdownManager && this.advancedMarkdownManager.isFeatureEnabled('callouts')) {
                 calloutCSS = this._generateCalloutCSS(theme);
             }
@@ -745,6 +750,7 @@ class Exporter {
 
             // Wait for content to be ready (longer wait for KaTeX rendering)
             const waitTime = this.advancedMarkdownManager && this.advancedMarkdownManager.isFeatureEnabled('katex') ? 2000 : 500;
+
             await new Promise(resolve => setTimeout(resolve, waitTime));
 
             // Generate PDF
