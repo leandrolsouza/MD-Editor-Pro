@@ -61,7 +61,8 @@ class Exporter {
 
         // Load plugins based on enabled features
         if (this.advancedMarkdownManager.isFeatureEnabled('mermaid')) {
-            this.md.use(markdownItMermaid);
+            // Use custom Mermaid plugin for export that generates CDN-compatible HTML
+            this.md.use(this._createMermaidExportPlugin());
         }
 
         if (this.advancedMarkdownManager.isFeatureEnabled('katex')) {
@@ -71,6 +72,38 @@ class Exporter {
         if (this.advancedMarkdownManager.isFeatureEnabled('callouts')) {
             this.md.use(markdownItCallouts);
         }
+    }
+
+    /**
+     * Create a Mermaid plugin optimized for export (HTML/PDF)
+     * Generates HTML compatible with Mermaid CDN auto-initialization
+     * @returns {Function} markdown-it plugin function
+     * @private
+     */
+    _createMermaidExportPlugin() {
+        return function (md) {
+            const defaultRenderer = md.renderer.rules.fence || function (tokens, idx, options, env, self) {
+                return self.renderToken(tokens, idx, options);
+            };
+
+            md.renderer.rules.fence = function (tokens, idx, options, env, self) {
+                const token = tokens[idx];
+                const code = token.content.trim();
+                const info = token.info ? token.info.trim() : '';
+
+                if (info === 'mermaid') {
+                    if (!code) {
+                        return '<div class="mermaid-error">Empty Mermaid diagram</div>\n';
+                    }
+
+                    // Generate HTML compatible with Mermaid CDN
+                    // The 'mermaid' class triggers auto-rendering
+                    return '<div class="mermaid">\n' + code + '\n</div>\n';
+                }
+
+                return defaultRenderer(tokens, idx, options, env, self);
+            };
+        };
     }
 
     /**
@@ -460,68 +493,25 @@ class Exporter {
     }
 
     /**
-     * Process Mermaid diagrams to render SVGs
-     * @param {string} html - HTML content with Mermaid placeholders
-     * @returns {Promise<string>} HTML with rendered Mermaid SVGs
+     * Get Mermaid initialization script for export
+     * @returns {string} Mermaid initialization script
      * @private
      */
-    async _processMermaidForExport(html) {
-        // Check if Mermaid is enabled
+    _getMermaidScript() {
         if (!this.advancedMarkdownManager || !this.advancedMarkdownManager.isFeatureEnabled('mermaid')) {
-            return html;
+            return '';
         }
 
-        try {
-            const mermaid = require('mermaid');
-
-            // Initialize Mermaid
-            mermaid.initialize({
-                startOnLoad: false,
-                theme: 'default',
-                securityLevel: 'strict'
-            });
-
-            // Find all Mermaid diagram placeholders
-            const mermaidRegex = /<div class="mermaid-diagram" data-mermaid-id="([^"]+)">([^<]+)<\/div>/g;
-            let match;
-            let processedHtml = html;
-
-            while ((match = mermaidRegex.exec(html)) !== null) {
-                const id = match[1];
-                const code = match[0].match(/>([^<]+)</)[1];
-
-                // Decode HTML entities
-                const decodedCode = code
-                    .replace(/&amp;/g, '&')
-                    .replace(/&lt;/g, '<')
-                    .replace(/&gt;/g, '>')
-                    .replace(/&quot;/g, '"')
-                    .replace(/&#039;/g, "'");
-
-                try {
-                    // Render the diagram
-                    const { svg } = await mermaid.render(id, decodedCode);
-
-                    // Replace placeholder with rendered SVG
-                    processedHtml = processedHtml.replace(
-                        match[0],
-                        `<div class="mermaid-diagram">${svg}</div>`
-                    );
-                } catch (error) {
-                    console.error('Mermaid rendering error during export:', error);
-                    // Keep the placeholder with error message
-                    processedHtml = processedHtml.replace(
-                        match[0],
-                        `<div class="mermaid-diagram"><div class="mermaid-error"><strong>Mermaid Syntax Error:</strong><pre>${error.message || 'Unknown error'}</pre></div></div>`
-                    );
-                }
-            }
-
-            return processedHtml;
-        } catch (error) {
-            console.error('Failed to process Mermaid diagrams:', error);
-            return html;
-        }
+        return `
+            <script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
+            <script>
+                mermaid.initialize({ 
+                    startOnLoad: true,
+                    theme: 'default',
+                    securityLevel: 'loose'
+                });
+            </script>
+        `;
     }
 
     /**
@@ -540,10 +530,7 @@ class Exporter {
 
         try {
             // Render markdown to HTML
-            let htmlContent = this.md.render(content);
-
-            // Process Mermaid diagrams to render SVGs
-            htmlContent = await this._processMermaidForExport(htmlContent);
+            const htmlContent = this.md.render(content);
 
             // Get KaTeX CSS if KaTeX is enabled
             let katexCSS = '';
@@ -571,6 +558,7 @@ class Exporter {
         ${calloutCSS}
     </style>
     ${katexCSS ? `<style>${katexCSS}</style>` : ''}
+    ${this._getMermaidScript()}
     ${this.advancedMarkdownManager && this.advancedMarkdownManager.isFeatureEnabled('katex') ? '<script src="https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex.min.js"></script>' : ''}
     ${this.advancedMarkdownManager && this.advancedMarkdownManager.isFeatureEnabled('katex') ? `<script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -653,10 +641,7 @@ class Exporter {
 
         try {
             // Render markdown to HTML
-            let htmlContent = this.md.render(content);
-
-            // Process Mermaid diagrams to render SVGs
-            htmlContent = await this._processMermaidForExport(htmlContent);
+            const htmlContent = this.md.render(content);
 
             // Get KaTeX CSS if KaTeX is enabled
             let katexCSS = '';
@@ -684,6 +669,7 @@ class Exporter {
         ${calloutCSS}
     </style>
     ${katexCSS ? `<style>${katexCSS}</style>` : ''}
+    ${this._getMermaidScript()}
     ${this.advancedMarkdownManager && this.advancedMarkdownManager.isFeatureEnabled('katex') ? '<script src="https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex.min.js"></script>' : ''}
     ${this.advancedMarkdownManager && this.advancedMarkdownManager.isFeatureEnabled('katex') ? `<script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -748,8 +734,10 @@ class Exporter {
             // Load HTML content
             await pdfWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(fullHTML)}`);
 
-            // Wait for content to be ready (longer wait for KaTeX rendering)
-            const waitTime = this.advancedMarkdownManager && this.advancedMarkdownManager.isFeatureEnabled('katex') ? 2000 : 500;
+            // Wait for content to be ready (longer wait for Mermaid and KaTeX rendering)
+            const hasMermaid = this.advancedMarkdownManager && this.advancedMarkdownManager.isFeatureEnabled('mermaid');
+            const hasKatex = this.advancedMarkdownManager && this.advancedMarkdownManager.isFeatureEnabled('katex');
+            const waitTime = hasMermaid ? 3000 : (hasKatex ? 2000 : 500);
 
             await new Promise(resolve => {
                 setTimeout(resolve, waitTime);

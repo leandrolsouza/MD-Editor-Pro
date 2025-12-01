@@ -50,10 +50,12 @@ Este documento serve como um registro de ideias, sugestões de funcionalidades e
 
 ### Produtividade
 - [x] Auto-save configurável (com delay ajustável)
+- [x] Interface de configuração de auto-save (ativar/desativar, ajustar delay)
 - [x] Sistema de templates (built-in e customizáveis)
 - [x] Placeholders em templates com navegação automática
 - [x] Gerenciador de snippets customizáveis (built-in e custom)
 - [x] Atalhos de teclado configuráveis
+- [x] Interface de edição de keyboard shortcuts (visualizar, editar, resetar)
 - [x] Drag-and-drop de arquivos markdown
 - [x] Inserção rápida de elementos (headings, listas, tabelas, imagens, links)
 - [x] Categorização de templates
