@@ -50,7 +50,17 @@ const electronAPI = {
     saveTabs: () => ipcRenderer.invoke('tab:save'),
     restoreTabs: () => ipcRenderer.invoke('tab:restore'),
     getNextTab: () => ipcRenderer.invoke('tab:get-next'),
-    getPreviousTab: () => ipcRenderer.invoke('tab:get-previous')
+    getPreviousTab: () => ipcRenderer.invoke('tab:get-previous'),
+
+    // Keyboard shortcut operations
+    getShortcut: (actionId) => ipcRenderer.invoke('shortcuts:get', actionId),
+    setShortcut: (actionId, keyBinding) => ipcRenderer.invoke('shortcuts:set', actionId, keyBinding),
+    resetShortcut: (actionId) => ipcRenderer.invoke('shortcuts:reset', actionId),
+    resetAllShortcuts: () => ipcRenderer.invoke('shortcuts:reset-all'),
+    getAllShortcuts: () => ipcRenderer.invoke('shortcuts:get-all'),
+    getAvailableActions: () => ipcRenderer.invoke('shortcuts:get-available-actions'),
+    checkShortcutConflict: (keyBinding, excludeActionId) => ipcRenderer.invoke('shortcuts:check-conflict', keyBinding, excludeActionId),
+    getDefaultShortcut: (actionId) => ipcRenderer.invoke('shortcuts:get-default', actionId)
 }
 
 // Expose API directly to window when contextIsolation is disabled

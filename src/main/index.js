@@ -9,6 +9,7 @@ const FileManager = require('./file-manager');
 const Exporter = require('./exporter');
 const ConfigStore = require('./config-store');
 const TabManager = require('./tab-manager');
+const KeyboardShortcutManager = require('./keyboard-shortcut-manager');
 const { createApplicationMenu } = require('./menu');
 
 // Sandbox disabled to allow nodeIntegration in renderer
@@ -29,6 +30,9 @@ const configStore = new ConfigStore();
 
 // Create tab manager instance
 const tabManager = new TabManager(configStore);
+
+// Create keyboard shortcut manager instance
+const keyboardShortcutManager = new KeyboardShortcutManager(configStore);
 
 /**
  * Register IPC handlers for all main process operations
@@ -269,6 +273,88 @@ function registerIPCHandlers() {
             return { success: true, tabId };
         } catch (error) {
             console.error('Error getting previous tab:', error);
+            throw error;
+        }
+    });
+
+    // Keyboard shortcut operations
+    ipcMain.handle('shortcuts:get', async (event, actionId) => {
+        try {
+            const shortcut = keyboardShortcutManager.getShortcut(actionId);
+            return { success: true, shortcut };
+        } catch (error) {
+            console.error('Error getting shortcut:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('shortcuts:set', async (event, actionId, keyBinding) => {
+        try {
+            keyboardShortcutManager.setShortcut(actionId, keyBinding);
+            return { success: true };
+        } catch (error) {
+            console.error('Error setting shortcut:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('shortcuts:reset', async (event, actionId) => {
+        try {
+            keyboardShortcutManager.resetShortcut(actionId);
+            return { success: true };
+        } catch (error) {
+            console.error('Error resetting shortcut:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('shortcuts:reset-all', async () => {
+        try {
+            keyboardShortcutManager.resetAllShortcuts();
+            return { success: true };
+        } catch (error) {
+            console.error('Error resetting all shortcuts:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('shortcuts:get-all', async () => {
+        try {
+            const shortcuts = keyboardShortcutManager.getAllShortcuts();
+            return { success: true, shortcuts };
+        } catch (error) {
+            console.error('Error getting all shortcuts:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('shortcuts:get-available-actions', async () => {
+        try {
+            const actions = keyboardShortcutManager.getAvailableActions();
+            return { success: true, actions };
+        } catch (error) {
+            console.error('Error getting available actions:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('shortcuts:check-conflict', async (event, keyBinding, excludeActionId) => {
+        try {
+            const hasConflict = keyboardShortcutManager.hasConflict(keyBinding, excludeActionId);
+            const conflictingAction = keyboardShortcutManager.getConflictingAction(keyBinding, excludeActionId);
+            return { success: true, hasConflict, conflictingAction };
+        } catch (error) {
+            console.error('Error checking conflict:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('shortcuts:get-default', async (event, actionId) => {
+        try {
+            const shortcut = keyboardShortcutManager.getDefaultShortcut(actionId);
+            return { success: true, shortcut };
+        } catch (error) {
+            console.error('Error getting default shortcut:', error);
             throw error;
         }
     });

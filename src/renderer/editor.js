@@ -4,7 +4,7 @@
  */
 
 const { EditorView, keymap } = require('@codemirror/view');
-const { EditorState } = require('@codemirror/state');
+const { EditorState, Compartment } = require('@codemirror/state');
 const { defaultKeymap, history, historyKeymap, undo, redo } = require('@codemirror/commands');
 const { markdown } = require('@codemirror/lang-markdown');
 const { search, highlightSelectionMatches } = require('@codemirror/search');
@@ -13,13 +13,15 @@ class Editor {
     constructor() {
         this.view = null;
         this.contentChangeCallbacks = [];
+        this.customKeymapCompartment = new Compartment();
     }
 
     /**
      * Initialize the CodeMirror editor
      * @param {HTMLElement} element - The DOM element to attach the editor to
+     * @param {Array} customKeymap - Optional custom keymap bindings
      */
-    initialize(element) {
+    initialize(element, customKeymap = []) {
         if (!element) {
             throw new Error('Editor element is required');
         }
@@ -31,6 +33,9 @@ class Editor {
                 history(),
                 search(),
                 highlightSelectionMatches(),
+                // Custom keymap compartment (can be reconfigured dynamically)
+                this.customKeymapCompartment.of(keymap.of(customKeymap)),
+                // Default keymaps (lower priority)
                 keymap.of([
                     ...defaultKeymap,
                     ...historyKeymap
@@ -52,6 +57,20 @@ class Editor {
         this.view = new EditorView({
             state: startState,
             parent: element
+        });
+    }
+
+    /**
+     * Update the custom keymap dynamically
+     * @param {Array} customKeymap - New keymap bindings
+     */
+    updateKeymap(customKeymap) {
+        if (!this.view) {
+            throw new Error('Editor not initialized');
+        }
+
+        this.view.dispatch({
+            effects: this.customKeymapCompartment.reconfigure(keymap.of(customKeymap))
         });
     }
 
