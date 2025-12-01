@@ -38,7 +38,15 @@ describe('Preload API Exposure', () => {
 
                 ipcRenderer.on('menu:action', subscription);
                 return () => ipcRenderer.removeListener('menu:action', subscription);
-            }
+            },
+
+            // Workspace operations
+            openWorkspace: () => ipcRenderer.invoke('workspace:open'),
+            closeWorkspace: () => ipcRenderer.invoke('workspace:close'),
+            getWorkspacePath: () => ipcRenderer.invoke('workspace:get-path'),
+            getWorkspaceTree: () => ipcRenderer.invoke('workspace:get-tree'),
+            restoreWorkspace: () => ipcRenderer.invoke('workspace:restore'),
+            toggleFolder: (folderPath, isExpanded) => ipcRenderer.invoke('workspace:toggle-folder', folderPath, isExpanded)
         };
 
         contextBridge.exposeInMainWorld('electronAPI', api);
@@ -104,10 +112,10 @@ describe('Preload API Exposure', () => {
             expect(typeof exposedAPI.onMenuAction).toBe('function');
         });
 
-        it('should expose exactly 9 methods (no more, no less)', () => {
+        it('should expose exactly 15 methods (no more, no less)', () => {
             const apiKeys = Object.keys(exposedAPI);
 
-            expect(apiKeys).toHaveLength(9);
+            expect(apiKeys).toHaveLength(15);
             expect(apiKeys).toEqual([
                 'openFile',
                 'saveFile',
@@ -117,7 +125,13 @@ describe('Preload API Exposure', () => {
                 'getConfig',
                 'setConfig',
                 'onFileDropped',
-                'onMenuAction'
+                'onMenuAction',
+                'openWorkspace',
+                'closeWorkspace',
+                'getWorkspacePath',
+                'getWorkspaceTree',
+                'restoreWorkspace',
+                'toggleFolder'
             ]);
         });
     });
@@ -297,6 +311,56 @@ describe('Preload API Exposure', () => {
         });
     });
 
+    describe('Workspace Operations API', () => {
+        it('should expose all required workspace operation methods', () => {
+            expect(exposedAPI).toHaveProperty('openWorkspace');
+            expect(exposedAPI).toHaveProperty('closeWorkspace');
+            expect(exposedAPI).toHaveProperty('getWorkspacePath');
+            expect(exposedAPI).toHaveProperty('getWorkspaceTree');
+            expect(exposedAPI).toHaveProperty('restoreWorkspace');
+            expect(exposedAPI).toHaveProperty('toggleFolder');
+            expect(typeof exposedAPI.openWorkspace).toBe('function');
+            expect(typeof exposedAPI.closeWorkspace).toBe('function');
+            expect(typeof exposedAPI.getWorkspacePath).toBe('function');
+            expect(typeof exposedAPI.getWorkspaceTree).toBe('function');
+            expect(typeof exposedAPI.restoreWorkspace).toBe('function');
+            expect(typeof exposedAPI.toggleFolder).toBe('function');
+        });
+
+        it('openWorkspace should call ipcRenderer.invoke with correct channel', () => {
+            exposedAPI.openWorkspace();
+            expect(mockIpcRenderer.invoke).toHaveBeenCalledWith('workspace:open');
+        });
+
+        it('closeWorkspace should call ipcRenderer.invoke with correct channel', () => {
+            exposedAPI.closeWorkspace();
+            expect(mockIpcRenderer.invoke).toHaveBeenCalledWith('workspace:close');
+        });
+
+        it('getWorkspacePath should call ipcRenderer.invoke with correct channel', () => {
+            exposedAPI.getWorkspacePath();
+            expect(mockIpcRenderer.invoke).toHaveBeenCalledWith('workspace:get-path');
+        });
+
+        it('getWorkspaceTree should call ipcRenderer.invoke with correct channel', () => {
+            exposedAPI.getWorkspaceTree();
+            expect(mockIpcRenderer.invoke).toHaveBeenCalledWith('workspace:get-tree');
+        });
+
+        it('restoreWorkspace should call ipcRenderer.invoke with correct channel', () => {
+            exposedAPI.restoreWorkspace();
+            expect(mockIpcRenderer.invoke).toHaveBeenCalledWith('workspace:restore');
+        });
+
+        it('toggleFolder should call ipcRenderer.invoke with correct channel and arguments', () => {
+            const folderPath = '/path/to/folder';
+            const isExpanded = true;
+
+            exposedAPI.toggleFolder(folderPath, isExpanded);
+            expect(mockIpcRenderer.invoke).toHaveBeenCalledWith('workspace:toggle-folder', folderPath, isExpanded);
+        });
+    });
+
     describe('API Method Signatures', () => {
         it('file operation methods should accept correct number of parameters', () => {
             expect(exposedAPI.openFile.length).toBe(0);
@@ -317,6 +381,15 @@ describe('Preload API Exposure', () => {
         it('event listener methods should accept correct number of parameters', () => {
             expect(exposedAPI.onFileDropped.length).toBe(1);
             expect(exposedAPI.onMenuAction.length).toBe(1);
+        });
+
+        it('workspace operation methods should accept correct number of parameters', () => {
+            expect(exposedAPI.openWorkspace.length).toBe(0);
+            expect(exposedAPI.closeWorkspace.length).toBe(0);
+            expect(exposedAPI.getWorkspacePath.length).toBe(0);
+            expect(exposedAPI.getWorkspaceTree.length).toBe(0);
+            expect(exposedAPI.restoreWorkspace.length).toBe(0);
+            expect(exposedAPI.toggleFolder.length).toBe(2);
         });
     });
 });

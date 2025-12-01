@@ -9,6 +9,7 @@ const electronAPI = {
     // File operations - using invoke for async request-response
     openFile: () => ipcRenderer.invoke('file:open'),
     openRecentFile: (filePath) => ipcRenderer.invoke('file:open-recent', filePath),
+    readFile: (filePath) => ipcRenderer.invoke('file:read', filePath),
     saveFile: (filePath, content) => ipcRenderer.invoke('file:save', filePath, content),
     saveFileAs: (content) => ipcRenderer.invoke('file:save-as', content),
 
@@ -94,6 +95,14 @@ const electronAPI = {
 
     // Shell operations
     openExternal: (url) => ipcRenderer.invoke('shell:open-external', url),
+
+    // Workspace operations
+    openWorkspace: () => ipcRenderer.invoke('workspace:open'),
+    closeWorkspace: () => ipcRenderer.invoke('workspace:close'),
+    getWorkspacePath: () => ipcRenderer.invoke('workspace:get-path'),
+    getWorkspaceTree: () => ipcRenderer.invoke('workspace:get-tree'),
+    restoreWorkspace: () => ipcRenderer.invoke('workspace:restore'),
+    toggleFolder: (folderPath, isExpanded) => ipcRenderer.invoke('workspace:toggle-folder', folderPath, isExpanded),
 
     // System information
     getVersions: () => ({

@@ -37,6 +37,9 @@
     <link rel="stylesheet" href="styles/katex.min.css">
     <link rel="stylesheet" href="styles/callouts.css">
     <link rel="stylesheet" href="styles/advanced-markdown-settings.css">
+
+    <!-- File Tree Sidebar Stylesheet -->
+    <link rel="stylesheet" href="styles/file-tree-sidebar.css">
 </head>
 
 <body class="theme-light">
@@ -45,6 +48,18 @@
 
     <!-- Formatting Toolbar -->
     <div id="formatting-toolbar" class="formatting-toolbar"></div>
+
+    <!-- File Tree Sidebar -->
+    <div id="file-tree-sidebar" class="file-tree-sidebar file-tree-sidebar--hidden">
+        <div class="file-tree-sidebar__header">
+            <span class="file-tree-sidebar__title">Files</span>
+            <button class="file-tree-sidebar__toggle-btn" id="sidebar-toggle-btn" aria-label="Toggle sidebar visibility"
+                title="Toggle sidebar">
+                ✕
+            </button>
+        </div>
+        <div class="file-tree-sidebar__tree" id="file-tree-container"></div>
+    </div>
 
     <!-- Main Container -->
     <div id="app-container">

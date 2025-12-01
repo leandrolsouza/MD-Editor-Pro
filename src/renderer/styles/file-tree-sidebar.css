@@ -1,0 +1,523 @@
+/* File Tree Sidebar Styles - BEM Architecture */
+
+/* ============================================
+   Block: file-tree-sidebar
+   ============================================ */
+
+.file-tree-sidebar {
+    position: fixed;
+    left: 0;
+    top: 80px;
+    /* tab bar (36px) + formatting toolbar (44px) */
+    bottom: var(--space-6, 24px);
+    /* status bar height */
+    width: 250px;
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    overflow-y: auto;
+    overflow-x: hidden;
+    transition: transform var(--duration-slow, 300ms) var(--ease-in-out, ease),
+        opacity var(--duration-slow, 300ms) var(--ease-in-out, ease);
+    z-index: 100;
+    box-shadow: var(--shadow-sm);
+}
+
+/* Modifier: Hidden state */
+.file-tree-sidebar--hidden {
+    transform: translateX(-100%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Modifier: Visible state */
+.file-tree-sidebar--visible {
+    transform: translateX(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* ============================================
+   Element: Header
+   ============================================ */
+
+.file-tree-sidebar__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-2) var(--space-3);
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.file-tree-sidebar__title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.file-tree-sidebar__toggle-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+    font-size: 16px;
+    line-height: 1;
+    transition: background-color var(--duration-normal, 150ms) var(--ease-out, ease),
+        color var(--duration-normal, 150ms) var(--ease-out, ease);
+}
+
+.file-tree-sidebar__toggle-btn:hover {
+    background: var(--button-hover-bg);
+    color: var(--text-primary);
+}
+
+.file-tree-sidebar__toggle-btn:active {
+    background: var(--button-active-bg);
+}
+
+.file-tree-sidebar__toggle-btn:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+/* ============================================
+   Element: Tree Container
+   ============================================ */
+
+.file-tree-sidebar__tree {
+    padding: var(--space-2) 0;
+}
+
+/* ============================================
+   Element: Tree Node
+   ============================================ */
+
+.file-tree-sidebar__node {
+    display: flex;
+    align-items: center;
+    padding: var(--space-1) var(--space-2);
+    cursor: pointer;
+    user-select: none;
+    transition: background-color var(--duration-normal, 150ms) var(--ease-out, ease);
+    position: relative;
+    border-radius: var(--radius-sm);
+    margin: 0 var(--space-1);
+}
+
+.file-tree-sidebar__node:hover {
+    background: var(--button-hover-bg);
+}
+
+.file-tree-sidebar__node:active {
+    background: var(--button-active-bg);
+}
+
+.file-tree-sidebar__node:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: -2px;
+}
+
+/* Modifier: Active file */
+.file-tree-sidebar__node--active {
+    background: var(--accent-color-alpha);
+    font-weight: 500;
+}
+
+.file-tree-sidebar__node--active .file-tree-sidebar__name {
+    color: var(--accent-color);
+}
+
+.file-tree-sidebar__node--active .file-tree-sidebar__icon {
+    color: var(--accent-color);
+}
+
+/* Modifier: Folder node */
+.file-tree-sidebar__node--folder {
+    font-weight: 500;
+}
+
+/* Modifier: File node */
+.file-tree-sidebar__node--file {
+    font-weight: 400;
+}
+
+/* Modifier: Expanded folder */
+.file-tree-sidebar__node--expanded .file-tree-sidebar__expand-icon {
+    transform: rotate(90deg);
+}
+
+/* Modifier: Collapsed folder */
+.file-tree-sidebar__node--collapsed .file-tree-sidebar__expand-icon {
+    transform: rotate(0deg);
+}
+
+/* Modifier: Modified file */
+.file-tree-sidebar__node--modified .file-tree-sidebar__name {
+    font-style: italic;
+}
+
+/* ============================================
+   Element: Expand/Collapse Icon
+   ============================================ */
+
+.file-tree-sidebar__expand-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    margin-right: var(--space-1);
+    font-size: 10px;
+    color: var(--text-secondary);
+    transition: transform var(--duration-normal, 200ms) var(--ease-out, ease);
+    flex-shrink: 0;
+}
+
+.file-tree-sidebar__expand-icon::before {
+    content: '▶';
+}
+
+/* Empty expand icon for files (maintains alignment) */
+.file-tree-sidebar__expand-icon--empty {
+    visibility: hidden;
+}
+
+/* ============================================
+   Element: Node Icon
+   ============================================ */
+
+.file-tree-sidebar__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    margin-right: var(--space-1);
+    font-size: 14px;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+    transition: color var(--duration-normal, 150ms) var(--ease-out, ease);
+}
+
+/* Modifier: Folder icon */
+.file-tree-sidebar__icon--folder::before {
+    content: '📁';
+}
+
+/* Modifier: File icon */
+.file-tree-sidebar__icon--file::before {
+    content: '📄';
+}
+
+/* ============================================
+   Element: Node Name
+   ============================================ */
+
+.file-tree-sidebar__name {
+    flex: 1;
+    font-size: 13px;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color var(--duration-normal, 150ms) var(--ease-out, ease);
+}
+
+/* ============================================
+   Element: Modified Indicator
+   ============================================ */
+
+.file-tree-sidebar__modified-indicator {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: var(--space-1);
+    color: var(--modified-indicator-color, var(--warning-color));
+    font-size: 12px;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.file-tree-sidebar__modified-indicator::before {
+    content: '●';
+}
+
+/* ============================================
+   Element: Children Container
+   ============================================ */
+
+.file-tree-sidebar__children {
+    overflow: hidden;
+    transition: max-height var(--duration-slow, 300ms) var(--ease-in-out, ease),
+        opacity var(--duration-normal, 200ms) var(--ease-out, ease);
+}
+
+/* Modifier: Collapsed children */
+.file-tree-sidebar__children--collapsed {
+    max-height: 0;
+    opacity: 0;
+}
+
+/* Modifier: Expanded children */
+.file-tree-sidebar__children--expanded {
+    max-height: 10000px;
+    /* Large enough for any reasonable tree depth */
+    opacity: 1;
+}
+
+/* Indentation for nested levels */
+.file-tree-sidebar__node[data-depth="0"] {
+    padding-left: var(--space-2);
+}
+
+.file-tree-sidebar__node[data-depth="1"] {
+    padding-left: calc(var(--space-2) + 20px);
+}
+
+.file-tree-sidebar__node[data-depth="2"] {
+    padding-left: calc(var(--space-2) + 40px);
+}
+
+.file-tree-sidebar__node[data-depth="3"] {
+    padding-left: calc(var(--space-2) + 60px);
+}
+
+.file-tree-sidebar__node[data-depth="4"] {
+    padding-left: calc(var(--space-2) + 80px);
+}
+
+.file-tree-sidebar__node[data-depth="5"] {
+    padding-left: calc(var(--space-2) + 100px);
+}
+
+/* For deeper nesting, use a general rule */
+.file-tree-sidebar__node[data-depth] {
+    padding-left: calc(var(--space-2) + (attr(data-depth number) * 20px));
+}
+
+/* ============================================
+   Element: Empty State
+   ============================================ */
+
+.file-tree-sidebar__empty {
+    padding: var(--space-6) var(--space-4);
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.file-tree-sidebar__empty-icon {
+    font-size: 32px;
+    margin-bottom: var(--space-2);
+    opacity: 0.5;
+}
+
+.file-tree-sidebar__empty-text {
+    margin-bottom: var(--space-1);
+}
+
+.file-tree-sidebar__empty-hint {
+    font-size: 11px;
+    color: var(--text-tertiary);
+}
+
+/* ============================================
+   Editor Area Adjustment (Responsive)
+   ============================================ */
+
+/* When sidebar is visible, shift the main container */
+body.sidebar-visible #app-container {
+    margin-left: 250px;
+    transition: margin-left var(--duration-slow, 300ms) var(--ease-in-out, ease);
+}
+
+/* When sidebar is hidden, no margin */
+body:not(.sidebar-visible) #app-container {
+    margin-left: 0;
+    transition: margin-left var(--duration-slow, 300ms) var(--ease-in-out, ease);
+}
+
+/* Adjust formatting toolbar when sidebar is visible */
+body.sidebar-visible #formatting-toolbar {
+    margin-left: 250px;
+    transition: margin-left var(--duration-slow, 300ms) var(--ease-in-out, ease);
+}
+
+body:not(.sidebar-visible) #formatting-toolbar {
+    margin-left: 0;
+    transition: margin-left var(--duration-slow, 300ms) var(--ease-in-out, ease);
+}
+
+/* ============================================
+   Performance Optimizations
+   ============================================ */
+
+/* Virtual scrolling container */
+.file-tree-sidebar--virtual-scroll {
+    contain: layout style paint;
+    will-change: scroll-position;
+}
+
+/* Optimize rendering for large trees */
+.file-tree-sidebar__node {
+    contain: layout style;
+}
+
+/* Use GPU acceleration for animations */
+.file-tree-sidebar__children {
+    will-change: max-height;
+    transform: translateZ(0);
+}
+
+/* ============================================
+   Scrollbar Styling
+   ============================================ */
+
+.file-tree-sidebar::-webkit-scrollbar {
+    width: 8px;
+}
+
+.file-tree-sidebar::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+.file-tree-sidebar::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb, var(--border-color));
+    border-radius: var(--radius-sm);
+    transition: background var(--duration-normal, 150ms) var(--ease-out, ease);
+}
+
+.file-tree-sidebar::-webkit-scrollbar-thumb:hover {
+    background: var(--text-tertiary);
+}
+
+/* ============================================
+   Accessibility
+   ============================================ */
+
+.file-tree-sidebar[role="tree"]:focus {
+    outline: none;
+}
+
+.file-tree-sidebar__node[role="treeitem"] {
+    outline: none;
+}
+
+.file-tree-sidebar__node[role="treeitem"][aria-selected="true"] {
+    font-weight: 500;
+}
+
+.file-tree-sidebar__node[role="treeitem"][aria-expanded="true"] .file-tree-sidebar__expand-icon {
+    transform: rotate(90deg);
+}
+
+.file-tree-sidebar__node[role="treeitem"][aria-expanded="false"] .file-tree-sidebar__expand-icon {
+    transform: rotate(0deg);
+}
+
+/* ============================================
+   Animations
+   ============================================ */
+
+/* Fade in animation for tree nodes */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.file-tree-sidebar__node {
+    animation: fadeIn var(--duration-normal, 150ms) var(--ease-out, ease);
+}
+
+/* Expand/collapse animation */
+@keyframes expandCollapse {
+    from {
+        max-height: 0;
+        opacity: 0;
+    }
+
+    to {
+        max-height: 10000px;
+        opacity: 1;
+    }
+}
+
+/* ============================================
+   Reduced Motion Support
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .file-tree-sidebar,
+    .file-tree-sidebar__node,
+    .file-tree-sidebar__expand-icon,
+    .file-tree-sidebar__children,
+    #app-container,
+    #formatting-toolbar {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+/* ============================================
+   High Contrast Support
+   ============================================ */
+
+@media (prefers-contrast: high) {
+    .file-tree-sidebar {
+        border-right-width: 2px;
+    }
+
+    .file-tree-sidebar__node--active {
+        outline: 2px solid var(--accent-color);
+        outline-offset: -2px;
+    }
+
+    .file-tree-sidebar__modified-indicator {
+        font-weight: 900;
+    }
+}
+
+/* ============================================
+   Responsive Adjustments
+   ============================================ */
+
+/* For smaller screens, make sidebar narrower */
+@media (max-width: 768px) {
+    .file-tree-sidebar {
+        width: 200px;
+    }
+
+    body.sidebar-visible #app-container,
+    body.sidebar-visible #formatting-toolbar {
+        margin-left: 200px;
+    }
+}
+
+/* For very small screens, overlay sidebar instead of pushing content */
+@media (max-width: 480px) {
+    .file-tree-sidebar {
+        width: 250px;
+        box-shadow: var(--shadow-lg);
+    }
+
+    body.sidebar-visible #app-container,
+    body.sidebar-visible #formatting-toolbar {
+        margin-left: 0;
+    }
+}

@@ -26,6 +26,7 @@ const AdvancedMarkdownPostProcessor = require('./advanced-markdown/post-processo
 const KeyboardShortcutsUI = require('./keyboard-shortcuts-ui.js');
 const AutoSaveSettingsUI = require('./auto-save-settings-ui.js');
 const TooltipManager = require('./tooltip.js');
+const FileTreeSidebar = require('./file-tree-sidebar.js');
 
 // Application state
 let editor = null;
@@ -47,6 +48,7 @@ let markdownParser = null;
 let keyboardShortcutsUI = null;
 let autoSaveSettingsUI = null;
 let tooltipManager = null;
+let fileTreeSidebar = null;
 
 // Document state
 let currentFilePath = null;
@@ -290,6 +292,27 @@ async function initialize() {
         tooltipManager = new TooltipManager();
         tooltipManager.initialize();
         console.log('TooltipManager initialized');
+
+        // Initialize File Tree Sidebar
+        const sidebarContainer = document.getElementById('file-tree-sidebar');
+        if (sidebarContainer) {
+            fileTreeSidebar = new FileTreeSidebar(sidebarContainer);
+            fileTreeSidebar.initialize();
+
+            // Restore sidebar visibility from config
+            const sidebarVisible = await window.electronAPI.getConfig('workspace.sidebarVisible');
+            if (sidebarVisible !== undefined) {
+                await fileTreeSidebar.setVisibility(sidebarVisible);
+            }
+
+            // Setup sidebar integration with tab system
+            setupSidebarIntegration();
+
+            // Restore workspace on application start (Requirement 1.4)
+            await restoreWorkspace();
+
+            console.log('FileTreeSidebar initialized');
+        }
 
         // Attach tooltips to formatting toolbar buttons
         attachFormattingToolbarTooltips();
@@ -556,6 +579,11 @@ async function handleMenuAction(action, data) {
                     templateUI.showTemplateMenu();
                 }
                 break;
+            case 'toggle-sidebar':
+                if (fileTreeSidebar) {
+                    await fileTreeSidebar.toggleVisibility();
+                }
+                break;
             case 'toggle-statistics':
                 if (statisticsCalculator) {
                     await statisticsCalculator.toggleVisibility();
@@ -586,6 +614,12 @@ async function handleMenuAction(action, data) {
                 if (advancedMarkdownSettingsUI) {
                     await advancedMarkdownSettingsUI.show();
                 }
+                break;
+            case 'open-folder':
+                await handleOpenFolder();
+                break;
+            case 'close-folder':
+                await handleCloseFolder();
                 break;
             case 'about':
                 showAboutDialog();
@@ -658,7 +692,56 @@ async function handleOpenRecentFile(filePath) {
 }
 
 /**
+ * Handle open folder action
+ * Requirements: 1.1, 1.2
+ */
+async function handleOpenFolder() {
+    if (!fileTreeSidebar) {
+        console.warn('File tree sidebar not initialized');
+        return;
+    }
+
+    try {
+        const result = await window.electronAPI.openWorkspace();
+
+        if (result.success && result.tree) {
+            await fileTreeSidebar.loadWorkspace(result.tree);
+            // Show sidebar when workspace is opened
+            await fileTreeSidebar.setVisibility(true);
+            console.log('Workspace opened:', result.workspacePath);
+        }
+    } catch (error) {
+        console.error('Error opening folder:', error);
+        alert('Failed to open folder: ' + error.message);
+    }
+}
+
+/**
+ * Handle close folder action
+ * Requirements: 1.5
+ */
+async function handleCloseFolder() {
+    if (!fileTreeSidebar) {
+        console.warn('File tree sidebar not initialized');
+        return;
+    }
+
+    try {
+        const result = await window.electronAPI.closeWorkspace();
+
+        if (result.success) {
+            fileTreeSidebar.clearWorkspace();
+            console.log('Workspace closed');
+        }
+    } catch (error) {
+        console.error('Error closing folder:', error);
+        alert('Failed to close folder: ' + error.message);
+    }
+}
+
+/**
  * Handle save file action
+ * Requirements: 9.4, 9.5
  */
 async function handleSaveFile() {
     try {
@@ -674,6 +757,11 @@ async function handleSaveFile() {
             if (currentTabId) {
                 await window.electronAPI.markTabModified(currentTabId, false);
                 tabBar.markTabModified(currentTabId, false);
+            }
+
+            // Update file tree sidebar modified indicator (Requirement 9.4)
+            if (fileTreeSidebar && currentFilePath) {
+                fileTreeSidebar.markFileModified(currentFilePath, false);
             }
 
             // Update auto-save manager
@@ -694,6 +782,7 @@ async function handleSaveFile() {
 
 /**
  * Handle save file as action
+ * Requirements: 9.4, 9.5
  */
 async function handleSaveFileAs() {
     try {
@@ -719,6 +808,13 @@ async function handleSaveFileAs() {
                 }
             }
 
+            // Update file tree sidebar modified indicator (Requirement 9.4)
+            if (fileTreeSidebar && currentFilePath) {
+                fileTreeSidebar.markFileModified(currentFilePath, false);
+                // Also set as active file since we just saved it
+                fileTreeSidebar.setActiveFile(currentFilePath);
+            }
+
             // Update auto-save manager
             if (autoSaveManager) {
                 autoSaveManager.setCurrentFilePath(result.filePath);
@@ -735,6 +831,7 @@ async function handleSaveFileAs() {
 
 /**
  * Handle save all files action
+ * Requirements: 9.4, 9.5
  */
 async function handleSaveAll() {
     try {
@@ -759,6 +856,12 @@ async function handleSaveAll() {
                     await window.electronAPI.saveFile(tab.filePath, tab.content);
                     await window.electronAPI.markTabModified(tab.id, false);
                     tabBar.markTabModified(tab.id, false);
+
+                    // Update file tree sidebar modified indicator (Requirement 9.4)
+                    if (fileTreeSidebar && tab.filePath) {
+                        fileTreeSidebar.markFileModified(tab.filePath, false);
+                    }
+
                     savedCount++;
 
                     // Update current tab if it's the one being saved
@@ -833,6 +936,7 @@ async function handleExportPDF() {
 
 /**
  * Update dirty state based on content changes
+ * Requirements: 9.4, 9.5
  * @param {string} content - Current editor content
  */
 function updateDirtyState(content) {
@@ -844,6 +948,11 @@ function updateDirtyState(content) {
             console.error('Error marking tab modified:', err);
         });
         tabBar.markTabModified(currentTabId, isDirty);
+
+        // Update file tree sidebar modified indicator (Requirement 9.4, 9.5)
+        if (fileTreeSidebar && currentFilePath) {
+            fileTreeSidebar.markFileModified(currentFilePath, isDirty);
+        }
     }
 }
 
@@ -928,9 +1037,15 @@ function setupKeyboardShortcuts() {
             }
 
             // Ctrl/Cmd + O: Open
-            if (modifier && e.key === 'o') {
+            if (modifier && e.key === 'o' && !e.shiftKey) {
                 e.preventDefault();
                 await handleOpenFile();
+            }
+
+            // Ctrl/Cmd + Shift + O: Open Folder
+            if (modifier && e.shiftKey && e.key === 'O') {
+                e.preventDefault();
+                await handleOpenFolder();
             }
 
             // Ctrl/Cmd + N: New
@@ -954,6 +1069,12 @@ function setupKeyboardShortcuts() {
                 if (focusMode) {
                     focusMode.toggle();
                 }
+            }
+
+            // Ctrl/Cmd + B (when not in editor): Toggle sidebar
+            if (modifier && e.key === 'b' && e.shiftKey && fileTreeSidebar) {
+                e.preventDefault();
+                await fileTreeSidebar.toggleVisibility();
             }
         } catch (error) {
             console.error('Keyboard shortcut error:', error);
@@ -1036,6 +1157,102 @@ function setupTabBarHandlers() {
 }
 
 /**
+ * Setup sidebar integration with tab system
+ * Requirements: 9.1, 9.2, 9.3, 9.4, 9.5
+ */
+function setupSidebarIntegration() {
+    if (!fileTreeSidebar) {
+        return;
+    }
+
+    // Handle file clicks from sidebar - open or switch to tab
+    // Requirements: 9.1, 9.2
+    fileTreeSidebar.onFileClick(async (filePath) => {
+        try {
+            // Check if file is already open in a tab
+            const allTabsResult = await window.electronAPI.getAllTabs();
+
+            if (allTabsResult.success && allTabsResult.tabs) {
+                const existingTab = allTabsResult.tabs.find(tab => tab.filePath === filePath);
+
+                if (existingTab) {
+                    // Tab already exists, switch to it (Requirement 9.2)
+                    await switchToTab(existingTab.id);
+                    return;
+                }
+            }
+
+            // Tab doesn't exist, open the file and create a new tab (Requirement 9.1)
+            const result = await window.electronAPI.readFile(filePath);
+
+            if (result && result.success) {
+                await createNewTab(filePath, result.content);
+            } else {
+                throw new Error('Failed to read file');
+            }
+        } catch (error) {
+            console.error('Error opening file from sidebar:', error);
+            alert('Failed to open file: ' + error.message);
+        }
+    });
+
+    // Handle folder toggle - persist expansion state
+    fileTreeSidebar.onFolderToggle(async (folderPath, isExpanded) => {
+        try {
+            // Get current expanded folders
+            const expandedFolders = await window.electronAPI.getConfig('workspace.expandedFolders') || [];
+
+            if (isExpanded) {
+                // Add to expanded folders if not already present
+                if (!expandedFolders.includes(folderPath)) {
+                    expandedFolders.push(folderPath);
+                }
+            } else {
+                // Remove from expanded folders
+                const index = expandedFolders.indexOf(folderPath);
+                if (index !== -1) {
+                    expandedFolders.splice(index, 1);
+                }
+            }
+
+            // Persist the updated list
+            await window.electronAPI.setConfig('workspace.expandedFolders', expandedFolders);
+        } catch (error) {
+            console.error('Error persisting folder expansion state:', error);
+        }
+    });
+}
+
+/**
+ * Restore workspace from previous session
+ * Requirements: 1.4
+ */
+async function restoreWorkspace() {
+    if (!fileTreeSidebar) {
+        return;
+    }
+
+    try {
+        const result = await window.electronAPI.restoreWorkspace();
+
+        if (result.success && result.tree && result.tree.length > 0) {
+            await fileTreeSidebar.loadWorkspace(result.tree);
+
+            // Check if sidebar should be visible (default to true if workspace exists)
+            const sidebarVisible = await window.electronAPI.getConfig('workspace.sidebarVisible');
+            if (sidebarVisible !== false) {
+                await fileTreeSidebar.setVisibility(true);
+            }
+
+            console.log('Workspace restored:', result.workspacePath);
+        }
+    } catch (error) {
+        console.error('Error restoring workspace:', error);
+        // Don't show alert - workspace restoration is optional
+    }
+}
+
+/**
  * Restore tabs from previous session
  */
 async function restoreTabsFromSession() {
@@ -1076,6 +1293,7 @@ async function restoreTabsFromSession() {
 
 /**
  * Create a new tab
+ * Requirements: 9.1, 9.5
  * @param {string|null} filePath - File path or null for new document
  * @param {string} content - Document content
  */
@@ -1103,6 +1321,11 @@ async function createNewTab(filePath = null, content = '') {
                 autoSaveManager.setLastSavedContent(content);
             }
 
+            // Update file tree sidebar active file highlight (Requirement 9.5)
+            if (fileTreeSidebar && filePath) {
+                fileTreeSidebar.setActiveFile(filePath);
+            }
+
             preview.render(content);
             document.body.classList.add('has-tabs');
         }
@@ -1114,6 +1337,7 @@ async function createNewTab(filePath = null, content = '') {
 
 /**
  * Switch to a different tab
+ * Requirements: 9.3, 9.5
  * @param {string} tabId - Tab ID to switch to
  */
 async function switchToTab(tabId) {
@@ -1145,6 +1369,11 @@ async function switchToTab(tabId) {
                 autoSaveManager.setLastSavedContent(tab.isModified ? '' : tab.content);
             }
 
+            // Update file tree sidebar active file highlight (Requirement 9.5)
+            if (fileTreeSidebar && tab.filePath) {
+                fileTreeSidebar.setActiveFile(tab.filePath);
+            }
+
             // Restore scroll position
             if (tab.scrollPosition) {
                 editor.setScrollPosition(tab.scrollPosition);
@@ -1160,6 +1389,7 @@ async function switchToTab(tabId) {
 
 /**
  * Close a tab
+ * Requirements: 9.3, 9.5
  * @param {string} tabId - Tab ID to close
  */
 async function closeTab(tabId) {
@@ -1175,11 +1405,23 @@ async function closeTab(tabId) {
             }
         }
 
+        // Store the file path before closing for sidebar cleanup
+        const closedFilePath = tabResult.success && tabResult.tab ? tabResult.tab.filePath : null;
+
         // Close the tab
         const result = await window.electronAPI.closeTab(tabId);
 
         if (result.success) {
             tabBar.removeTab(tabId);
+
+            // Clear file tree sidebar indicators for the closed file (Requirement 9.3)
+            if (fileTreeSidebar && closedFilePath) {
+                // Remove modified indicator
+                fileTreeSidebar.markFileModified(closedFilePath, false);
+
+                // If this was the active file and we're switching to another tab,
+                // the active highlight will be updated in switchToTab
+            }
 
             // If this was the current tab, switch to another
             if (currentTabId === tabId) {
@@ -1422,6 +1664,9 @@ function cleanup() {
     }
     if (snippetManager) {
         // SnippetManager doesn't need cleanup
+    }
+    if (fileTreeSidebar) {
+        fileTreeSidebar.destroy();
     }
 }
 

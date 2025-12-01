@@ -49,7 +49,13 @@ class ConfigStore {
                     activeTabId: null
                 },
                 // Recent files
-                recentFiles: []
+                recentFiles: [],
+                // Workspace settings
+                workspace: {
+                    currentPath: null,
+                    expandedFolders: [],
+                    sidebarVisible: true
+                }
             }
         });
     }
@@ -575,6 +581,65 @@ class ConfigStore {
         const recentFiles = this.getRecentFiles();
         const filtered = recentFiles.filter(f => f.path !== filePath);
         this.store.set('recentFiles', filtered);
+    }
+
+    // ========== Workspace Methods ==========
+
+    /**
+     * Get workspace sidebar visibility
+     * @returns {boolean} Whether sidebar is visible
+     */
+    getWorkspaceSidebarVisible() {
+        return this.store.get('workspace.sidebarVisible');
+    }
+
+    /**
+     * Set workspace sidebar visibility
+     * @param {boolean} visible - Whether sidebar should be visible
+     */
+    setWorkspaceSidebarVisible(visible) {
+        if (typeof visible !== 'boolean') {
+            throw new Error(`Invalid sidebar visible value: ${visible}. Must be a boolean`);
+        }
+        this.store.set('workspace.sidebarVisible', visible);
+    }
+
+    /**
+     * Get workspace current path
+     * @returns {string|null} Current workspace path
+     */
+    getWorkspacePath() {
+        return this.store.get('workspace.currentPath');
+    }
+
+    /**
+     * Set workspace current path
+     * @param {string|null} path - Workspace path
+     */
+    setWorkspacePath(path) {
+        if (path !== null && typeof path !== 'string') {
+            throw new Error(`Invalid workspace path: ${path}. Must be a string or null`);
+        }
+        this.store.set('workspace.currentPath', path);
+    }
+
+    /**
+     * Get expanded folders
+     * @returns {Array<string>} Array of expanded folder paths
+     */
+    getExpandedFolders() {
+        return this.store.get('workspace.expandedFolders');
+    }
+
+    /**
+     * Set expanded folders
+     * @param {Array<string>} folders - Array of expanded folder paths
+     */
+    setExpandedFolders(folders) {
+        if (!Array.isArray(folders)) {
+            throw new Error(`Invalid expanded folders: ${folders}. Must be an array`);
+        }
+        this.store.set('workspace.expandedFolders', folders);
     }
 }
 

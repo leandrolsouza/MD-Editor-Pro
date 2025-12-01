@@ -12,6 +12,7 @@ const TabManager = require('./tab-manager');
 const KeyboardShortcutManager = require('./keyboard-shortcut-manager');
 const TemplateManager = require('./template-manager');
 const AdvancedMarkdownManager = require('./advanced-markdown-manager');
+const WorkspaceManager = require('./workspace-manager');
 const { createApplicationMenu } = require('./menu');
 
 // Sandbox disabled to allow nodeIntegration in renderer
@@ -41,6 +42,9 @@ const keyboardShortcutManager = new KeyboardShortcutManager(configStore);
 
 // Create template manager instance
 const templateManager = new TemplateManager(configStore);
+
+// Create workspace manager instance
+const workspaceManager = new WorkspaceManager(configStore);
 
 /**
  * Register IPC handlers for all main process operations
@@ -78,6 +82,17 @@ function registerIPCHandlers() {
             return result;
         } catch (error) {
             console.error('Error opening recent file:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('file:read', async (event, filePath) => {
+        try {
+            const result = await fileManager.readFile(filePath);
+
+            return result;
+        } catch (error) {
+            console.error('Error reading file:', error);
             throw error;
         }
     });
@@ -582,6 +597,73 @@ function registerIPCHandlers() {
             return { success: true };
         } catch (error) {
             console.error('Error toggling advanced markdown feature:', error);
+            throw error;
+        }
+    });
+
+    // Workspace operations
+    ipcMain.handle('workspace:open', async () => {
+        try {
+            const result = await workspaceManager.openWorkspace();
+
+            return result;
+        } catch (error) {
+            console.error('Error opening workspace:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('workspace:close', async () => {
+        try {
+            const result = workspaceManager.closeWorkspace();
+
+            return result;
+        } catch (error) {
+            console.error('Error closing workspace:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('workspace:get-path', async () => {
+        try {
+            const workspacePath = workspaceManager.getWorkspacePath();
+
+            return { success: true, workspacePath };
+        } catch (error) {
+            console.error('Error getting workspace path:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('workspace:get-tree', async () => {
+        try {
+            const tree = await workspaceManager.getWorkspaceTree();
+
+            return { success: true, tree };
+        } catch (error) {
+            console.error('Error getting workspace tree:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('workspace:restore', async () => {
+        try {
+            const result = await workspaceManager.restoreWorkspace();
+
+            return result;
+        } catch (error) {
+            console.error('Error restoring workspace:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('workspace:toggle-folder', async (event, folderPath, isExpanded) => {
+        try {
+            const result = await workspaceManager.toggleFolder(folderPath, isExpanded);
+
+            return result;
+        } catch (error) {
+            console.error('Error toggling folder:', error);
             throw error;
         }
     });

@@ -66,6 +66,32 @@ function createApplicationMenu(windowManager, fileManager, exporter, configStore
                     }
                 },
                 {
+                    label: 'Open Folder...',
+                    accelerator: isMac ? 'Cmd+Shift+O' : 'Ctrl+Shift+O',
+                    click: () => {
+                        console.log('Open Folder menu clicked');
+                        const mainWindow = windowManager.getMainWindow();
+
+                        if (mainWindow) {
+                            console.log('Sending menu:action open-folder');
+                            mainWindow.webContents.send('menu:action', 'open-folder');
+                        }
+                    }
+                },
+                {
+                    label: 'Close Folder',
+                    click: () => {
+                        console.log('Close Folder menu clicked');
+                        const mainWindow = windowManager.getMainWindow();
+
+                        if (mainWindow) {
+                            console.log('Sending menu:action close-folder');
+                            mainWindow.webContents.send('menu:action', 'close-folder');
+                        }
+                    }
+                },
+                { type: 'separator' },
+                {
                     label: 'Open Recent',
                     submenu: recentFiles.length > 0 ? [
                         ...recentFiles.map(file => ({
@@ -281,6 +307,18 @@ function createApplicationMenu(windowManager, fileManager, exporter, configStore
                             }
                         }
                     ]
+                },
+                { type: 'separator' },
+                {
+                    label: 'Toggle Sidebar',
+                    accelerator: isMac ? 'Cmd+Shift+B' : 'Ctrl+Shift+B',
+                    click: () => {
+                        const mainWindow = windowManager.getMainWindow();
+
+                        if (mainWindow) {
+                            mainWindow.webContents.send('menu:action', 'toggle-sidebar');
+                        }
+                    }
                 },
                 { type: 'separator' },
                 {

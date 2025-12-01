@@ -108,6 +108,41 @@ class FileManager {
     }
 
     /**
+     * Reads a file from the specified path
+     * @param {string} filePath - The path of the file to read
+     * @returns {Promise<{success: boolean, content: string, filePath: string}>} The file content
+     * @throws {Error} If file reading fails
+     */
+    async readFile(filePath) {
+        // Validate the file path
+        const safePath = this._validateFilePath(filePath);
+
+        try {
+            // Read file content
+            const content = await fs.readFile(safePath, 'utf-8');
+
+            // Add to recent files
+            if (this.configStore) {
+                this.configStore.addRecentFile(safePath);
+            }
+
+            return {
+                success: true,
+                content: content,
+                filePath: safePath
+            };
+        } catch (error) {
+            if (error.code === 'ENOENT') {
+                throw new Error(`File not found: ${safePath}`);
+            } else if (error.code === 'EACCES' || error.code === 'EPERM') {
+                throw new Error(`Permission denied: Cannot read file ${safePath}`);
+            } else {
+                throw new Error(`Failed to read file: ${error.message}`);
+            }
+        }
+    }
+
+    /**
      * Saves content to the specified file path
      * @param {string} filePath - The path where to save the file
      * @param {string} content - The content to save
