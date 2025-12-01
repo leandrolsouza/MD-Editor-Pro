@@ -283,6 +283,43 @@ async function handleMenuAction(action) {
                     templateUI.showTemplateMenu();
                 }
                 break;
+            case 'toggle-statistics':
+                if (statisticsCalculator) {
+                    await statisticsCalculator.toggleVisibility();
+                }
+                break;
+            case 'toggle-auto-save':
+                if (autoSaveManager) {
+                    if (autoSaveManager.isEnabled()) {
+                        await autoSaveManager.disable();
+                        console.log('Auto-save disabled');
+                    } else {
+                        await autoSaveManager.enable();
+                        console.log('Auto-save enabled');
+                    }
+                }
+                break;
+            case 'auto-save-settings':
+                // Show a simple prompt for auto-save delay
+                if (autoSaveManager) {
+                    const currentDelay = autoSaveManager.getDelay();
+                    const newDelay = prompt(`Enter auto-save delay in seconds (1-60):`, currentDelay);
+                    if (newDelay !== null) {
+                        const delay = parseInt(newDelay, 10);
+                        if (!isNaN(delay) && delay >= 1 && delay <= 60) {
+                            await autoSaveManager.setDelay(delay);
+                            alert(`Auto-save delay set to ${delay} seconds`);
+                        } else {
+                            alert('Invalid delay. Please enter a number between 1 and 60.');
+                        }
+                    }
+                }
+                break;
+            case 'open-keyboard-shortcuts':
+                // This would open a keyboard shortcuts settings dialog
+                // For now, just log a message
+                alert('Keyboard shortcuts settings dialog would open here.\nThis feature requires a dedicated UI component.');
+                break;
             default:
                 console.warn('Unknown menu action:', action);
         }

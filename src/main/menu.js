@@ -235,6 +235,16 @@ function createApplicationMenu(windowManager, fileManager, exporter) {
                     }
                 },
                 { type: 'separator' },
+                {
+                    label: 'Toggle Statistics',
+                    click: () => {
+                        const mainWindow = windowManager.getMainWindow();
+                        if (mainWindow) {
+                            mainWindow.webContents.send('menu:action', 'toggle-statistics');
+                        }
+                    }
+                },
+                { type: 'separator' },
                 { role: 'reload' },
                 { role: 'forceReload' },
                 { role: 'toggleDevTools' },
@@ -244,6 +254,49 @@ function createApplicationMenu(windowManager, fileManager, exporter) {
                 { role: 'zoomOut' },
                 { type: 'separator' },
                 { role: 'togglefullscreen' }
+            ]
+        },
+
+        // Settings menu
+        {
+            label: 'Settings',
+            submenu: [
+                {
+                    label: 'Keyboard Shortcuts...',
+                    accelerator: isMac ? 'Cmd+K Cmd+S' : 'Ctrl+K Ctrl+S',
+                    click: () => {
+                        const mainWindow = windowManager.getMainWindow();
+                        if (mainWindow) {
+                            mainWindow.webContents.send('menu:action', 'open-keyboard-shortcuts');
+                        }
+                    }
+                },
+                { type: 'separator' },
+                {
+                    label: 'Auto-Save',
+                    submenu: [
+                        {
+                            label: 'Enable Auto-Save',
+                            type: 'checkbox',
+                            checked: true,
+                            click: (menuItem) => {
+                                const mainWindow = windowManager.getMainWindow();
+                                if (mainWindow) {
+                                    mainWindow.webContents.send('menu:action', 'toggle-auto-save');
+                                }
+                            }
+                        },
+                        {
+                            label: 'Auto-Save Settings...',
+                            click: () => {
+                                const mainWindow = windowManager.getMainWindow();
+                                if (mainWindow) {
+                                    mainWindow.webContents.send('menu:action', 'auto-save-settings');
+                                }
+                            }
+                        }
+                    ]
+                }
             ]
         },
 
