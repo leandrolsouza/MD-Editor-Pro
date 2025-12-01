@@ -61,8 +61,62 @@ class MarkdownParser {
             labelAfter: true
         });
 
+        // Add custom image renderer to handle local file paths
+        this.setupImageRenderer();
+
         // Initialize advanced plugins if manager is available
         this.initializeAdvancedPlugins();
+    }
+
+    /**
+     * Setup custom image renderer to convert relative paths to absolute file:// URLs
+     */
+    setupImageRenderer() {
+        const path = require('path');
+
+        // Store the default image renderer
+        const defaultRender = this.md.renderer.rules.image || function (tokens, idx, options, env, self) {
+            return self.renderToken(tokens, idx, options);
+        };
+
+        // Override the image renderer
+        this.md.renderer.rules.image = (tokens, idx, options, env, self) => {
+            const token = tokens[idx];
+            const srcIndex = token.attrIndex('src');
+
+            if (srcIndex >= 0) {
+                const src = token.attrs[srcIndex][1];
+
+                // Check if it's a relative path (starts with ./ or ../ or just a folder name)
+                if (src && !src.startsWith('http://') && !src.startsWith('https://') && !src.startsWith('data:') && !src.startsWith('file://')) {
+                    // Get the base directory from current file path or use process.cwd()
+                    let baseDir;
+                    if (env && env.currentFilePath) {
+                        baseDir = path.dirname(env.currentFilePath);
+                    } else {
+                        baseDir = process.cwd();
+                    }
+
+                    // Resolve the absolute path
+                    let absolutePath;
+                    if (src.startsWith('./') || src.startsWith('../')) {
+                        absolutePath = path.resolve(baseDir, src);
+                    } else if (src.startsWith('/')) {
+                        absolutePath = src;
+                    } else {
+                        // Relative path without ./
+                        absolutePath = path.resolve(baseDir, src);
+                    }
+
+                    // Convert to file:// URL (Windows needs three slashes)
+                    const fileUrl = 'file:///' + absolutePath.replace(/\\/g, '/');
+                    token.attrs[srcIndex][1] = fileUrl;
+                }
+            }
+
+            // Call the default renderer
+            return defaultRender(tokens, idx, options, env, self);
+        };
     }
 
     /**
@@ -106,6 +160,14 @@ class MarkdownParser {
     }
 
     /**
+     * Set the current file path for resolving relative image paths
+     * @param {string} filePath - The path of the current markdown file
+     */
+    setCurrentFilePath(filePath) {
+        this.currentFilePath = filePath;
+    }
+
+    /**
      * Parse markdown to HTML
      * @param {string} markdown - The markdown content to render
      * @returns {string} Rendered HTML
@@ -117,7 +179,12 @@ class MarkdownParser {
         }
 
         try {
-            const html = this.md.render(markdown);
+            // Pass current file path in environment for image renderer
+            const env = {
+                currentFilePath: this.currentFilePath
+            };
+
+            const html = this.md.render(markdown, env);
 
             return html;
         } catch (error) {

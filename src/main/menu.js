@@ -450,6 +450,16 @@ function createApplicationMenu(windowManager, fileManager, exporter, configStore
                             }
                         }
                     ]
+                },
+                {
+                    label: 'Image Paste Settings...',
+                    click: () => {
+                        const mainWindow = windowManager.getMainWindow();
+
+                        if (mainWindow) {
+                            mainWindow.webContents.send('menu:action', 'image-paste-settings');
+                        }
+                    }
                 }
             ]
         },

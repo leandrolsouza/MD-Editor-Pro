@@ -248,4 +248,89 @@ describe('FileManager - File save-load round trip', () => {
             { numRuns: 100 }
         );
     });
+
+    // Tests for saveImageFromClipboard
+    describe('saveImageFromClipboard', () => {
+        it('should save image buffer to assets folder', async () => {
+            const imageBuffer = Buffer.from('fake-image-data');
+            const currentFilePath = path.join(testDir, 'document.md');
+
+            const result = await fileManager.saveImageFromClipboard(imageBuffer, currentFilePath);
+
+            expect(result.success).toBe(true);
+            expect(result.imagePath).toBeDefined();
+            expect(result.relativePath).toBeDefined();
+            expect(result.relativePath).toMatch(/assets[\/\\]image-\d+\.png$/);
+
+            // Verify file was created
+            const fileExists = await fs.access(result.imagePath).then(() => true).catch(() => false);
+            expect(fileExists).toBe(true);
+        });
+
+        it('should create assets folder if it does not exist', async () => {
+            const imageBuffer = Buffer.from('fake-image-data');
+            const currentFilePath = path.join(testDir, 'document.md');
+
+            const result = await fileManager.saveImageFromClipboard(imageBuffer, currentFilePath);
+
+            expect(result.success).toBe(true);
+
+            // Verify assets folder was created
+            const assetsPath = path.join(testDir, 'assets');
+            const folderExists = await fs.access(assetsPath).then(() => true).catch(() => false);
+            expect(folderExists).toBe(true);
+        });
+
+        it('should generate unique filenames with timestamp', async () => {
+            const imageBuffer = Buffer.from('fake-image-data');
+            const currentFilePath = path.join(testDir, 'document.md');
+
+            const result1 = await fileManager.saveImageFromClipboard(imageBuffer, currentFilePath);
+
+            // Wait 1ms to ensure different timestamp
+            await new Promise(resolve => setTimeout(resolve, 1));
+
+            const result2 = await fileManager.saveImageFromClipboard(imageBuffer, currentFilePath);
+
+            expect(result1.imagePath).not.toBe(result2.imagePath);
+            expect(result1.relativePath).not.toBe(result2.relativePath);
+        });
+
+        it('should throw error for invalid buffer', async () => {
+            const currentFilePath = path.join(testDir, 'document.md');
+
+            await expect(
+                fileManager.saveImageFromClipboard('not-a-buffer', currentFilePath)
+            ).rejects.toThrow('Invalid image data: must be a Buffer, Uint8Array, or Array');
+        });
+
+        it('should accept Uint8Array as input', async () => {
+            const uint8Array = new Uint8Array([1, 2, 3, 4]);
+            const currentFilePath = path.join(testDir, 'document.md');
+
+            const result = await fileManager.saveImageFromClipboard(uint8Array, currentFilePath);
+
+            expect(result.success).toBe(true);
+            expect(result.imagePath).toBeDefined();
+        });
+
+        it('should accept Array as input', async () => {
+            const array = [1, 2, 3, 4];
+            const currentFilePath = path.join(testDir, 'document.md');
+
+            const result = await fileManager.saveImageFromClipboard(array, currentFilePath);
+
+            expect(result.success).toBe(true);
+            expect(result.imagePath).toBeDefined();
+        });
+
+        it('should use current working directory when no file path provided', async () => {
+            const imageBuffer = Buffer.from('fake-image-data');
+
+            const result = await fileManager.saveImageFromClipboard(imageBuffer, null);
+
+            expect(result.success).toBe(true);
+            expect(result.relativePath).toMatch(/assets[\/\\]image-\d+\.png$/);
+        });
+    });
 });

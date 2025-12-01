@@ -1,0 +1,173 @@
+/**
+ * Image Paste Settings Modal Styles
+ */
+
+.image-paste-settings-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+}
+
+.image-paste-settings-modal .modal-content {
+    background-color: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    width: 90%;
+    max-width: 550px;
+    display: flex;
+    flex-direction: column;
+}
+
+.image-paste-settings-modal .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-5);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.image-paste-settings-modal .modal-header h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.image-paste-settings-modal .modal-close {
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 0;
+    width: var(--space-8);
+    height: var(--space-8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    transition: background-color var(--duration-slow) var(--ease-out);
+}
+
+.image-paste-settings-modal .modal-close:hover {
+    background-color: var(--hover-bg);
+}
+
+.image-paste-settings-modal .modal-body {
+    padding: var(--space-6);
+    overflow-y: auto;
+    max-height: 60vh;
+}
+
+.image-paste-settings-modal .setting-item {
+    margin-bottom: var(--space-6);
+}
+
+.image-paste-settings-modal .setting-item:last-of-type {
+    margin-bottom: 0;
+}
+
+.image-paste-settings-modal .setting-item label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-primary);
+    cursor: pointer;
+    margin-bottom: var(--space-2);
+}
+
+.image-paste-settings-modal .setting-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--accent-color);
+}
+
+.image-paste-settings-modal .setting-item input[type="text"] {
+    width: 100%;
+    padding: var(--space-3);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 14px;
+    font-family: 'Courier New', monospace;
+    margin-top: var(--space-2);
+}
+
+.image-paste-settings-modal .setting-item input[type="text"]:focus {
+    outline: none;
+    border-color: var(--accent-color);
+}
+
+.image-paste-settings-modal .setting-description {
+    margin: var(--space-2) 0 0 0;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.image-paste-settings-modal .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-5);
+    border-top: 1px solid var(--border-color);
+}
+
+.image-paste-settings-modal .btn {
+    padding: var(--space-2) var(--space-5);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all var(--duration-slow) var(--ease-out);
+}
+
+.image-paste-settings-modal .btn-secondary {
+    border: 1px solid var(--border-color);
+    background-color: transparent;
+    color: var(--text-primary);
+}
+
+.image-paste-settings-modal .btn-secondary:hover {
+    background-color: var(--hover-bg);
+}
+
+.image-paste-settings-modal .btn-primary {
+    border: none;
+    background-color: var(--link-color, #0969da);
+    color: white;
+    font-weight: 500;
+}
+
+.image-paste-settings-modal .btn-primary:hover {
+    opacity: 0.9;
+}
+
+/* Scrollbar styles */
+.image-paste-settings-modal .modal-body::-webkit-scrollbar {
+    width: var(--space-2);
+}
+
+.image-paste-settings-modal .modal-body::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+.image-paste-settings-modal .modal-body::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: var(--radius-sm);
+}
+
+.image-paste-settings-modal .modal-body::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}

@@ -63,6 +63,12 @@ class ConfigStore {
                 // Typewriter scrolling settings
                 typewriter: {
                     enabled: false
+                },
+                // Image paste settings
+                imagePaste: {
+                    enabled: true,
+                    saveToAssets: true,
+                    assetsFolder: './assets'
                 }
             }
         });
@@ -690,6 +696,73 @@ class ConfigStore {
             throw new Error(`Invalid typewriter enabled value: ${enabled}. Must be a boolean`);
         }
         this.store.set('typewriter.enabled', enabled);
+    }
+
+    // ========== Image Paste Methods ==========
+
+    /**
+     * Get image paste configuration
+     * @returns {{enabled: boolean, saveToAssets: boolean, assetsFolder: string}} Image paste configuration
+     */
+    getImagePasteConfig() {
+        return this.store.get('imagePaste');
+    }
+
+    /**
+     * Get image paste enabled status
+     * @returns {boolean} Whether image paste is enabled
+     */
+    getImagePasteEnabled() {
+        return this.store.get('imagePaste.enabled');
+    }
+
+    /**
+     * Set image paste enabled status
+     * @param {boolean} enabled - Whether image paste should be enabled
+     */
+    setImagePasteEnabled(enabled) {
+        if (typeof enabled !== 'boolean') {
+            throw new Error(`Invalid image paste enabled value: ${enabled}. Must be a boolean`);
+        }
+        this.store.set('imagePaste.enabled', enabled);
+    }
+
+    /**
+     * Get save to assets folder status
+     * @returns {boolean} Whether to save images to assets folder
+     */
+    getSaveToAssets() {
+        return this.store.get('imagePaste.saveToAssets');
+    }
+
+    /**
+     * Set save to assets folder status
+     * @param {boolean} saveToAssets - Whether to save images to assets folder
+     */
+    setSaveToAssets(saveToAssets) {
+        if (typeof saveToAssets !== 'boolean') {
+            throw new Error(`Invalid save to assets value: ${saveToAssets}. Must be a boolean`);
+        }
+        this.store.set('imagePaste.saveToAssets', saveToAssets);
+    }
+
+    /**
+     * Get assets folder path
+     * @returns {string} Assets folder path
+     */
+    getAssetsFolder() {
+        return this.store.get('imagePaste.assetsFolder');
+    }
+
+    /**
+     * Set assets folder path
+     * @param {string} folder - Assets folder path
+     */
+    setAssetsFolder(folder) {
+        if (typeof folder !== 'string' || folder.trim() === '') {
+            throw new Error(`Invalid assets folder: ${folder}. Must be a non-empty string`);
+        }
+        this.store.set('imagePaste.assetsFolder', folder);
     }
 }
 

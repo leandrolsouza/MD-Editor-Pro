@@ -32,6 +32,8 @@ const TypewriterScrolling = require('./typewriter-scrolling.js');
 const notificationManager = require('./notification.js');
 const GlobalSearchUI = require('./global-search-ui.js');
 const ActivityBar = require('./activity-bar.js');
+const ImagePaste = require('./image-paste.js');
+const ImagePasteSettingsUI = require('./image-paste-settings-ui.js');
 
 // Application state
 let editor = null;
@@ -58,6 +60,8 @@ let outlinePanel = null;
 let typewriterScrolling = null;
 let globalSearchUI = null;
 let activityBar = null;
+let imagePaste = null;
+let imagePasteSettingsUI = null;
 
 // Document state
 let currentFilePath = null;
@@ -263,6 +267,21 @@ async function initialize() {
         editor.enableSnippetExtensions(snippetExtensions);
         console.log('SnippetManager initialized');
 
+        // Initialize ImagePaste
+        imagePaste = new ImagePaste(editor);
+        await imagePaste.initialize();
+        console.log('ImagePaste initialized');
+
+        // Initialize ImagePaste Settings UI
+        imagePasteSettingsUI = new ImagePasteSettingsUI();
+        imagePasteSettingsUI.onChange(async (enabled, assetsFolder) => {
+            if (imagePaste) {
+                await imagePaste.setEnabled(enabled);
+                console.log(`Image paste ${enabled ? 'enabled' : 'disabled'}, assets folder: ${assetsFolder}`);
+            }
+        });
+        console.log('ImagePasteSettingsUI initialized');
+
         // Initialize Advanced Markdown Settings UI
         advancedMarkdownSettingsUI = new AdvancedMarkdownSettingsUI();
         advancedMarkdownSettingsUI.onChange(async (featureName, enabled) => {
@@ -467,6 +486,11 @@ async function initialize() {
 
         // Connect editor changes to preview updates
         editor.onContentChange((content) => {
+            // Update markdown parser with current file path for image resolution
+            if (markdownParser && currentFilePath) {
+                markdownParser.setCurrentFilePath(currentFilePath);
+            }
+
             preview.render(content);
             updateDirtyState(content);
 
@@ -757,6 +781,11 @@ async function handleMenuAction(action, data) {
             case 'advanced-markdown-settings':
                 if (advancedMarkdownSettingsUI) {
                     await advancedMarkdownSettingsUI.show();
+                }
+                break;
+            case 'image-paste-settings':
+                if (imagePasteSettingsUI) {
+                    await imagePasteSettingsUI.show();
                 }
                 break;
             case 'open-folder':
@@ -1564,6 +1593,11 @@ async function createNewTab(filePath = null, content = '') {
                 fileTreeSidebar.setActiveFile(filePath);
             }
 
+            // Update markdown parser with current file path for image resolution
+            if (markdownParser && filePath) {
+                markdownParser.setCurrentFilePath(filePath);
+            }
+
             preview.render(content);
             document.body.classList.add('has-tabs');
         }
@@ -1610,6 +1644,11 @@ async function switchToTab(tabId) {
             // Update file tree sidebar active file highlight (Requirement 9.5)
             if (fileTreeSidebar && tab.filePath) {
                 fileTreeSidebar.setActiveFile(tab.filePath);
+            }
+
+            // Update markdown parser with current file path for image resolution
+            if (markdownParser && tab.filePath) {
+                markdownParser.setCurrentFilePath(tab.filePath);
             }
 
             // Restore scroll position
@@ -1911,6 +1950,12 @@ function cleanup() {
     }
     if (typewriterScrolling) {
         typewriterScrolling.disable();
+    }
+    if (imagePaste) {
+        imagePaste.cleanup();
+    }
+    if (imagePasteSettingsUI) {
+        imagePasteSettingsUI.destroy();
     }
 }
 

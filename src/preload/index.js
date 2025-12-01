@@ -111,6 +111,9 @@ const electronAPI = {
     // Global search operations
     globalSearch: (searchText, options) => ipcRenderer.invoke('global-search:search', searchText, options),
 
+    // Image paste operations
+    saveImageFromClipboard: (imageBuffer, currentFilePath) => ipcRenderer.invoke('image:save-from-clipboard', imageBuffer, currentFilePath),
+
     // System information
     getVersions: () => ({
         electron: process.versions.electron || 'N/A',

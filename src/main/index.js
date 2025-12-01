@@ -732,6 +732,18 @@ function registerIPCHandlers() {
             throw error;
         }
     });
+
+    // Image paste operations
+    ipcMain.handle('image:save-from-clipboard', async (event, imageBuffer, currentFilePath) => {
+        try {
+            const result = await fileManager.saveImageFromClipboard(imageBuffer, currentFilePath);
+
+            return result;
+        } catch (error) {
+            console.error('Error saving image from clipboard:', error);
+            throw error;
+        }
+    });
 }
 
 /**

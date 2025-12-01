@@ -123,7 +123,12 @@ Este documento serve como um registro de ideias, sugestões de funcionalidades e
 *Features essenciais para evoluir de "editor de texto" para "gerenciador de projetos".*
 
 ### Gestão de Projetos & Arquivos
-- [ ] **Gerenciamento de Imagens (Paste):** Interceptar Ctrl+V de imagens, salvar automaticamente na pasta `./assets` e inserir o link Markdown
+- [x] **Gerenciamento de Imagens (Paste):** Interceptar Ctrl+V de imagens, salvar automaticamente na pasta `./assets` e inserir o link Markdown
+  - Detecção automática de imagens no clipboard
+  - Salvamento automático com timestamp único
+  - Inserção de link markdown relativo
+  - Configurável via menu Settings > Image Paste Settings
+  - Opções: habilitar/desabilitar, customizar pasta de destino
 - [x] **Busca Global:** Pesquisar texto em todos os arquivos da pasta aberta
   - Painel lateral de busca com resultados organizados por arquivo
   - Opções de busca: case sensitive, palavra inteira, regex

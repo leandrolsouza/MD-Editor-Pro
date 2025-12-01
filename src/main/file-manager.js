@@ -307,6 +307,81 @@ class FileManager {
     }
 
     /**
+     * Saves an image from clipboard to the assets folder
+     * @param {Buffer|Uint8Array|Array} imageBuffer - The image data as a buffer
+     * @param {string} currentFilePath - The current markdown file path (to determine relative path)
+     * @returns {Promise<{success: boolean, imagePath: string, relativePath: string}>} The saved image path
+     * @throws {Error} If image saving fails
+     */
+    async saveImageFromClipboard(imageBuffer, currentFilePath) {
+        // Convert to Buffer if needed
+        if (!Buffer.isBuffer(imageBuffer)) {
+            if (imageBuffer instanceof Uint8Array || Array.isArray(imageBuffer)) {
+                imageBuffer = Buffer.from(imageBuffer);
+            } else {
+                throw new Error('Invalid image data: must be a Buffer, Uint8Array, or Array');
+            }
+        }
+
+        try {
+            // Get assets folder configuration
+            const assetsFolder = this.configStore ? this.configStore.getAssetsFolder() : './assets';
+
+            // Determine the base directory (where the markdown file is, or current working directory)
+            let baseDir;
+            if (currentFilePath) {
+                baseDir = path.dirname(currentFilePath);
+            } else {
+                baseDir = process.cwd();
+            }
+
+            // Create full assets path
+            const assetsPath = path.join(baseDir, assetsFolder);
+
+            // Ensure assets directory exists
+            await fs.mkdir(assetsPath, { recursive: true });
+
+            // Generate unique filename with timestamp
+            const timestamp = Date.now();
+            const filename = `image-${timestamp}.png`;
+            const fullPath = path.join(assetsPath, filename);
+
+            // Save the image
+            await fs.writeFile(fullPath, imageBuffer);
+
+            // Calculate relative path from markdown file to image
+            let relativePath;
+            if (currentFilePath) {
+                relativePath = path.relative(path.dirname(currentFilePath), fullPath);
+            } else {
+                relativePath = path.join(assetsFolder, filename);
+            }
+
+            // Normalize path separators for markdown (use forward slashes)
+            relativePath = relativePath.replace(/\\/g, '/');
+
+            // Ensure path starts with ./ for relative paths
+            if (!relativePath.startsWith('./') && !relativePath.startsWith('../') && !path.isAbsolute(relativePath)) {
+                relativePath = './' + relativePath;
+            }
+
+            return {
+                success: true,
+                imagePath: fullPath,
+                relativePath: relativePath
+            };
+        } catch (error) {
+            if (error.code === 'EACCES' || error.code === 'EPERM') {
+                throw new Error(`Permission denied: Cannot write to assets folder`);
+            } else if (error.code === 'ENOSPC') {
+                throw new Error(`Disk full: Cannot save image`);
+            } else {
+                throw new Error(`Failed to save image: ${error.message}`);
+            }
+        }
+    }
+
+    /**
      * Cleanup method to release resources
      * FileManager doesn't hold persistent resources, but this method
      * is provided for consistency with the component pattern
