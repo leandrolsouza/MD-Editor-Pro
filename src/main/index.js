@@ -214,6 +214,17 @@ function registerIPCHandlers() {
         }
     });
 
+    ipcMain.handle('tab:get-modified', async () => {
+        try {
+            const tabs = tabManager.getModifiedTabs();
+
+            return { success: true, tabs };
+        } catch (error) {
+            console.error('Error getting modified tabs:', error);
+            throw error;
+        }
+    });
+
     ipcMain.handle('tab:get-active', async () => {
         try {
             const tab = tabManager.getActiveTab();

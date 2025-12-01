@@ -118,6 +118,17 @@ function createApplicationMenu(windowManager, fileManager, exporter, configStore
                         }
                     }
                 },
+                {
+                    label: 'Save All',
+                    accelerator: isMac ? 'Cmd+Alt+S' : 'Ctrl+Alt+S',
+                    click: () => {
+                        const mainWindow = windowManager.getMainWindow();
+
+                        if (mainWindow) {
+                            mainWindow.webContents.send('menu:action', 'save-all');
+                        }
+                    }
+                },
                 { type: 'separator' },
                 {
                     label: 'Export',

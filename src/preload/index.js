@@ -44,6 +44,7 @@ const electronAPI = {
     switchTab: (tabId) => ipcRenderer.invoke('tab:switch', tabId),
     getTab: (tabId) => ipcRenderer.invoke('tab:get', tabId),
     getAllTabs: () => ipcRenderer.invoke('tab:get-all'),
+    getModifiedTabs: () => ipcRenderer.invoke('tab:get-modified'),
     getActiveTab: () => ipcRenderer.invoke('tab:get-active'),
     markTabModified: (tabId, isModified) => ipcRenderer.invoke('tab:mark-modified', tabId, isModified),
     updateTabContent: (tabId, content) => ipcRenderer.invoke('tab:update-content', tabId, content),

@@ -102,6 +102,14 @@ class TabManager {
     }
 
     /**
+     * Get all modified tabs
+     * @returns {Array} Array of modified tab data
+     */
+    getModifiedTabs() {
+        return Array.from(this.tabs.values()).filter(tab => tab.isModified);
+    }
+
+    /**
      * Get the active tab
      * @returns {Object|null} The active tab data or null
      */

@@ -24,6 +24,7 @@ const AdvancedMarkdownManagerClient = require('./advanced-markdown-manager-clien
 const { MarkdownParser } = require('./markdown-parser.js');
 const AdvancedMarkdownPostProcessor = require('./advanced-markdown/post-processor.js');
 const KeyboardShortcutsUI = require('./keyboard-shortcuts-ui.js');
+const AutoSaveSettingsUI = require('./auto-save-settings-ui.js');
 
 // Application state
 let editor = null;
@@ -43,6 +44,7 @@ let advancedMarkdownManager = null;
 let advancedMarkdownPostProcessor = null;
 let markdownParser = null;
 let keyboardShortcutsUI = null;
+let autoSaveSettingsUI = null;
 
 // Document state
 let currentFilePath = null;
@@ -266,6 +268,22 @@ async function initialize() {
         });
         console.log('KeyboardShortcutsUI initialized');
 
+        // Initialize Auto-Save Settings UI
+        autoSaveSettingsUI = new AutoSaveSettingsUI();
+        autoSaveSettingsUI.onChange(async (enabled, delay) => {
+            if (autoSaveManager) {
+                if (enabled) {
+                    await autoSaveManager.enable();
+                    await autoSaveManager.setDelay(delay);
+                    console.log(`Auto-save enabled with ${delay}s delay`);
+                } else {
+                    await autoSaveManager.disable();
+                    console.log('Auto-save disabled');
+                }
+            }
+        });
+        console.log('AutoSaveSettingsUI initialized');
+
         // Listen for settings changes from main process
         window.electronAPI.onAdvancedMarkdownSettingsChanged((featureName, enabled) => {
             // Update local manager
@@ -388,6 +406,9 @@ async function handleMenuAction(action, data) {
             case 'save-as':
                 await handleSaveFileAs();
                 break;
+            case 'save-all':
+                await handleSaveAll();
+                break;
             case 'export-html':
                 await handleExportHTML();
                 break;
@@ -442,21 +463,8 @@ async function handleMenuAction(action, data) {
                 }
                 break;
             case 'auto-save-settings':
-                // Show a simple prompt for auto-save delay
-                if (autoSaveManager) {
-                    const currentDelay = autoSaveManager.getDelay();
-                    const newDelay = prompt(`Enter auto-save delay in seconds (1-60):`, currentDelay);
-
-                    if (newDelay !== null) {
-                        const delay = parseInt(newDelay, 10);
-
-                        if (!isNaN(delay) && delay >= 1 && delay <= 60) {
-                            await autoSaveManager.setDelay(delay);
-                            alert(`Auto-save delay set to ${delay} seconds`);
-                        } else {
-                            alert('Invalid delay. Please enter a number between 1 and 60.');
-                        }
-                    }
+                if (autoSaveSettingsUI) {
+                    await autoSaveSettingsUI.show();
                 }
                 break;
             case 'open-keyboard-shortcuts':
@@ -612,6 +620,70 @@ async function handleSaveFileAs() {
     } catch (error) {
         console.error('Error saving file as:', error);
         alert('Failed to save file: ' + error.message);
+    }
+}
+
+/**
+ * Handle save all files action
+ */
+async function handleSaveAll() {
+    try {
+        // Get all modified tabs
+        const result = await window.electronAPI.getModifiedTabs();
+
+        if (!result.success || !result.tabs || result.tabs.length === 0) {
+            alert('No modified files to save.');
+            return;
+        }
+
+        const modifiedTabs = result.tabs;
+        let savedCount = 0;
+        let errorCount = 0;
+        const errors = [];
+
+        // Save each modified tab
+        for (const tab of modifiedTabs) {
+            try {
+                if (tab.filePath) {
+                    // Save to existing file
+                    await window.electronAPI.saveFile(tab.filePath, tab.content);
+                    await window.electronAPI.markTabModified(tab.id, false);
+                    tabBar.markTabModified(tab.id, false);
+                    savedCount++;
+
+                    // Update current tab if it's the one being saved
+                    if (tab.id === currentTabId) {
+                        lastSavedContent = tab.content;
+                        isDirty = false;
+                        if (autoSaveManager) {
+                            autoSaveManager.setLastSavedContent(tab.content);
+                        }
+                    }
+                } else {
+                    // Skip unsaved files (they need Save As)
+                    errors.push(`"${tab.title}" has not been saved yet. Use Save As first.`);
+                    errorCount++;
+                }
+            } catch (error) {
+                console.error(`Error saving tab ${tab.id}:`, error);
+                errors.push(`Failed to save "${tab.title}": ${error.message}`);
+                errorCount++;
+            }
+        }
+
+        // Show result message
+        if (savedCount > 0 && errorCount === 0) {
+            alert(`Successfully saved ${savedCount} file${savedCount > 1 ? 's' : ''}.`);
+        } else if (savedCount > 0 && errorCount > 0) {
+            alert(`Saved ${savedCount} file${savedCount > 1 ? 's' : ''}.\n\nErrors:\n${errors.join('\n')}`);
+        } else {
+            alert(`Failed to save files:\n${errors.join('\n')}`);
+        }
+
+        console.log(`Save All completed: ${savedCount} saved, ${errorCount} errors`);
+    } catch (error) {
+        console.error('Error in save all:', error);
+        alert('Failed to save files: ' + error.message);
     }
 }
 
