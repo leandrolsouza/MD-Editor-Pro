@@ -93,6 +93,9 @@
       "provider": "github",
       "releaseType": "release"
     },
+    "releaseInfo": {
+      "releaseNotesFile": "CHANGELOG.md"
+    },
     "win": {
       "target": [
         {
