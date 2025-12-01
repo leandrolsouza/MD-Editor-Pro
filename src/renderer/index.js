@@ -23,6 +23,7 @@ const AdvancedMarkdownSettingsUI = require('./advanced-markdown-settings-ui.js')
 const AdvancedMarkdownManagerClient = require('./advanced-markdown-manager-client.js');
 const { MarkdownParser } = require('./markdown-parser.js');
 const AdvancedMarkdownPostProcessor = require('./advanced-markdown/post-processor.js');
+const KeyboardShortcutsUI = require('./keyboard-shortcuts-ui.js');
 
 // Application state
 let editor = null;
@@ -41,6 +42,7 @@ let advancedMarkdownSettingsUI = null;
 let advancedMarkdownManager = null;
 let advancedMarkdownPostProcessor = null;
 let markdownParser = null;
+let keyboardShortcutsUI = null;
 
 // Document state
 let currentFilePath = null;
@@ -257,6 +259,13 @@ async function initialize() {
         });
         console.log('AdvancedMarkdownSettingsUI initialized');
 
+        // Initialize Keyboard Shortcuts UI
+        keyboardShortcutsUI = new KeyboardShortcutsUI();
+        keyboardShortcutsUI.onChange((actionId, keyBinding) => {
+            console.log(`Keyboard shortcut changed: ${actionId} -> ${keyBinding}`);
+        });
+        console.log('KeyboardShortcutsUI initialized');
+
         // Listen for settings changes from main process
         window.electronAPI.onAdvancedMarkdownSettingsChanged((featureName, enabled) => {
             // Update local manager
@@ -451,9 +460,9 @@ async function handleMenuAction(action, data) {
                 }
                 break;
             case 'open-keyboard-shortcuts':
-                // This would open a keyboard shortcuts settings dialog
-                // For now, just log a message
-                alert('Keyboard shortcuts settings dialog would open here.\nThis feature requires a dedicated UI component.');
+                if (keyboardShortcutsUI) {
+                    await keyboardShortcutsUI.show();
+                }
                 break;
             case 'advanced-markdown-settings':
                 if (advancedMarkdownSettingsUI) {
