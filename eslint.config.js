@@ -95,6 +95,12 @@ module.exports = [
             'custom/renderer-node-api': 'error',
             'custom/electronapi-interface': 'error',
 
+            // Resource leak detection rules (Requirements 6.1, 6.2, 6.3, 6.4, 6.5)
+            'custom/event-listener-cleanup': 'warn',
+            'custom/component-resource-cleanup': 'error',
+            'custom/timer-cleanup': 'warn',
+            'custom/file-handle-cleanup': 'error',
+
             // Code formatting rules (Requirements 2.1, 2.2, 2.3, 2.4, 2.5)
             // Indentation (Requirement 2.1)
             'indent': ['error', 4, {
