@@ -10,9 +10,13 @@ const { Menu, app } = require('electron');
  * @param {WindowManager} windowManager - Window manager instance
  * @param {FileManager} fileManager - File manager instance
  * @param {Exporter} exporter - Exporter instance
+ * @param {ConfigStore} configStore - Config store instance
  */
-function createApplicationMenu(windowManager, fileManager, exporter) {
+function createApplicationMenu(windowManager, fileManager, exporter, configStore) {
     const isMac = process.platform === 'darwin';
+
+    // Get recent files for menu
+    const recentFiles = configStore ? configStore.getRecentFiles() : [];
 
     // Define menu template
     const template = [
@@ -60,6 +64,36 @@ function createApplicationMenu(windowManager, fileManager, exporter) {
                             mainWindow.webContents.send('menu:action', 'open');
                         }
                     }
+                },
+                {
+                    label: 'Open Recent',
+                    submenu: recentFiles.length > 0 ? [
+                        ...recentFiles.map(file => ({
+                            label: file.name,
+                            click: () => {
+                                const mainWindow = windowManager.getMainWindow();
+                                if (mainWindow) {
+                                    mainWindow.webContents.send('menu:action', 'open-recent', file.path);
+                                }
+                            }
+                        })),
+                        { type: 'separator' },
+                        {
+                            label: 'Clear Recent Files',
+                            click: () => {
+                                if (configStore) {
+                                    configStore.clearRecentFiles();
+                                    // Rebuild menu to reflect changes
+                                    createApplicationMenu(windowManager, fileManager, exporter, configStore);
+                                }
+                            }
+                        }
+                    ] : [
+                        {
+                            label: 'No Recent Files',
+                            enabled: false
+                        }
+                    ]
                 },
                 { type: 'separator' },
                 {

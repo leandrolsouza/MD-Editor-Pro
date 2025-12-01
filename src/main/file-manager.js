@@ -7,8 +7,9 @@ const path = require('path');
  * Implements secure file handling with path validation
  */
 class FileManager {
-    constructor(windowManager) {
+    constructor(windowManager, configStore = null) {
         this.windowManager = windowManager;
+        this.configStore = configStore;
         this.currentFilePath = null;
     }
 
@@ -86,6 +87,11 @@ class FileManager {
 
             this.currentFilePath = safePath;
 
+            // Add to recent files
+            if (this.configStore) {
+                this.configStore.addRecentFile(safePath);
+            }
+
             return {
                 filePath: safePath,
                 content: content
@@ -120,6 +126,11 @@ class FileManager {
             // Write file content
             await fs.writeFile(safePath, content, 'utf-8');
             this.currentFilePath = safePath;
+
+            // Add to recent files
+            if (this.configStore) {
+                this.configStore.addRecentFile(safePath);
+            }
         } catch (error) {
             if (error.code === 'EACCES' || error.code === 'EPERM') {
                 throw new Error(`Permission denied: Cannot write to file ${safePath}`);
@@ -218,6 +229,46 @@ class FileManager {
      */
     setCurrentFilePath(filePath) {
         this.currentFilePath = filePath;
+    }
+
+    /**
+     * Opens a specific file by path (used for recent files)
+     * @param {string} filePath - The path of the file to open
+     * @returns {Promise<{filePath: string, content: string}>} The file path and content
+     * @throws {Error} If file reading fails
+     */
+    async openRecentFile(filePath) {
+        // Validate the file path
+        const safePath = this._validateFilePath(filePath);
+
+        try {
+            // Read file content
+            const content = await fs.readFile(safePath, 'utf-8');
+
+            this.currentFilePath = safePath;
+
+            // Add to recent files (updates timestamp)
+            if (this.configStore) {
+                this.configStore.addRecentFile(safePath);
+            }
+
+            return {
+                filePath: safePath,
+                content: content
+            };
+        } catch (error) {
+            if (error.code === 'ENOENT') {
+                // File no longer exists, remove from recent files
+                if (this.configStore) {
+                    this.configStore.removeRecentFile(filePath);
+                }
+                throw new Error(`File not found: ${safePath}`);
+            } else if (error.code === 'EACCES' || error.code === 'EPERM') {
+                throw new Error(`Permission denied: Cannot read file ${safePath}`);
+            } else {
+                throw new Error(`Failed to read file: ${error.message}`);
+            }
+        }
     }
 
     /**

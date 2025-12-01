@@ -21,11 +21,11 @@ const { createApplicationMenu } = require('./menu');
 // Create window manager instance
 const windowManager = new WindowManager();
 
-// Create file manager instance
-const fileManager = new FileManager(windowManager);
-
 // Create config store instance (moved up to be available for other managers)
 const configStore = new ConfigStore();
+
+// Create file manager instance
+const fileManager = new FileManager(windowManager, configStore);
 
 // Create advanced markdown manager instance (moved up to be available for exporter)
 const advancedMarkdownManager = new AdvancedMarkdownManager(configStore);
@@ -55,9 +55,29 @@ function registerIPCHandlers() {
             const result = await fileManager.openFile();
 
             console.log('fileManager.openFile result:', result);
+
+            // Update menu to reflect new recent files
+            if (result) {
+                createApplicationMenu(windowManager, fileManager, exporter, configStore);
+            }
+
             return result;
         } catch (error) {
             console.error('Error opening file:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('file:open-recent', async (event, filePath) => {
+        try {
+            const result = await fileManager.openRecentFile(filePath);
+
+            // Update menu to reflect updated recent files
+            createApplicationMenu(windowManager, fileManager, exporter, configStore);
+
+            return result;
+        } catch (error) {
+            console.error('Error opening recent file:', error);
             throw error;
         }
     });
@@ -578,7 +598,7 @@ app.whenReady().then(() => {
     registerIPCHandlers();
 
     // Create application menu
-    createApplicationMenu(windowManager, fileManager, exporter);
+    createApplicationMenu(windowManager, fileManager, exporter, configStore);
 
     windowManager.createMainWindow();
 

@@ -47,7 +47,9 @@ class ConfigStore {
                 tabs: {
                     lastOpenTabs: [],
                     activeTabId: null
-                }
+                },
+                // Recent files
+                recentFiles: []
             }
         });
     }
@@ -136,6 +138,7 @@ class ConfigStore {
             lastOpenTabs: [],
             activeTabId: null
         });
+        this.store.set('recentFiles', []);
     }
 
     // ========== Auto-Save Methods (Requirements: 1.6, 1.7) ==========
@@ -517,6 +520,61 @@ class ConfigStore {
             throw new Error(`Invalid tab ID: ${tabId}. Must be a string or null`);
         }
         this.store.set('tabs.activeTabId', tabId);
+    }
+
+    // ========== Recent Files Methods ==========
+
+    /**
+     * Get recent files list
+     * @returns {Array<{path: string, name: string, lastOpened: number}>} Array of recent files
+     */
+    getRecentFiles() {
+        return this.store.get('recentFiles') || [];
+    }
+
+    /**
+     * Add a file to recent files list
+     * @param {string} filePath - File path to add
+     */
+    addRecentFile(filePath) {
+        if (!filePath || typeof filePath !== 'string') {
+            throw new Error('Invalid file path: Must be a non-empty string');
+        }
+
+        const path = require('path');
+        const recentFiles = this.getRecentFiles();
+
+        // Remove if already exists
+        const filtered = recentFiles.filter(f => f.path !== filePath);
+
+        // Add to beginning with current timestamp
+        filtered.unshift({
+            path: filePath,
+            name: path.basename(filePath),
+            lastOpened: Date.now()
+        });
+
+        // Keep only last 10 files
+        const limited = filtered.slice(0, 10);
+
+        this.store.set('recentFiles', limited);
+    }
+
+    /**
+     * Clear recent files list
+     */
+    clearRecentFiles() {
+        this.store.set('recentFiles', []);
+    }
+
+    /**
+     * Remove a specific file from recent files
+     * @param {string} filePath - File path to remove
+     */
+    removeRecentFile(filePath) {
+        const recentFiles = this.getRecentFiles();
+        const filtered = recentFiles.filter(f => f.path !== filePath);
+        this.store.set('recentFiles', filtered);
     }
 }
 

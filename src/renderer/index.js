@@ -346,9 +346,9 @@ function setupIPCListeners() {
     });
 
     // Listen for menu action events
-    removeMenuActionListener = window.electronAPI.onMenuAction(async (action) => {
-        console.log('Menu action received:', action);
-        await handleMenuAction(action);
+    removeMenuActionListener = window.electronAPI.onMenuAction(async (action, data) => {
+        console.log('Menu action received:', action, data);
+        await handleMenuAction(action, data);
     });
 
     console.log('IPC listeners setup complete');
@@ -357,8 +357,9 @@ function setupIPCListeners() {
 /**
  * Handle menu actions from the main process
  * @param {string} action - The menu action to handle
+ * @param {any} data - Optional data for the action
  */
-async function handleMenuAction(action) {
+async function handleMenuAction(action, data) {
     try {
         switch (action) {
             case 'new':
@@ -366,6 +367,11 @@ async function handleMenuAction(action) {
                 break;
             case 'open':
                 await handleOpenFile();
+                break;
+            case 'open-recent':
+                if (data) {
+                    await handleOpenRecentFile(data);
+                }
                 break;
             case 'save':
                 await handleSaveFile();
@@ -501,6 +507,28 @@ async function handleOpenFile() {
     }
 }
 
+
+/**
+ * Handle open recent file action
+ * @param {string} filePath - Path of the recent file to open
+ */
+async function handleOpenRecentFile(filePath) {
+    try {
+        console.log('handleOpenRecentFile called with:', filePath);
+
+        const result = await window.electronAPI.openRecentFile(filePath);
+
+        console.log('openRecentFile result:', result);
+
+        if (result && result.filePath && result.content !== undefined) {
+            // Create a new tab for the opened file
+            await createNewTab(result.filePath, result.content);
+        }
+    } catch (error) {
+        console.error('Error opening recent file:', error);
+        alert('Failed to open recent file: ' + error.message);
+    }
+}
 
 /**
  * Handle save file action

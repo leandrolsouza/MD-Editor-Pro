@@ -8,6 +8,7 @@ const { ipcRenderer } = require('electron');
 const electronAPI = {
     // File operations - using invoke for async request-response
     openFile: () => ipcRenderer.invoke('file:open'),
+    openRecentFile: (filePath) => ipcRenderer.invoke('file:open-recent', filePath),
     saveFile: (filePath, content) => ipcRenderer.invoke('file:save', filePath, content),
     saveFileAs: (content) => ipcRenderer.invoke('file:save-as', content),
 
@@ -30,7 +31,7 @@ const electronAPI = {
     },
 
     onMenuAction: (callback) => {
-        const subscription = (event, action) => callback(action);
+        const subscription = (event, action, data) => callback(action, data);
 
         ipcRenderer.on('menu:action', subscription);
         // Return cleanup function
