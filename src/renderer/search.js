@@ -97,6 +97,50 @@ class SearchManager {
         document.getElementById('toggle-replace').addEventListener('click', () => {
             this._toggleReplaceControls();
         });
+
+        // Focus trap for keyboard navigation
+        this.searchPanel.addEventListener('keydown', (e) => {
+            this._handleFocusTrap(e);
+        });
+    }
+
+    /**
+     * Handle focus trap to keep keyboard navigation within search panel
+     * @param {KeyboardEvent} e - The keyboard event
+     * @private
+     */
+    _handleFocusTrap(e) {
+        if (e.key !== 'Tab') {
+            return;
+        }
+
+        // Get all focusable elements within the search panel
+        const focusableElements = this.searchPanel.querySelectorAll(
+            'input:not([disabled]), button:not([disabled])'
+        );
+
+        // Filter out hidden elements (like replace controls when hidden)
+        const visibleFocusableElements = Array.from(focusableElements).filter(el => {
+            return el.offsetParent !== null && !el.closest('.hidden');
+        });
+
+        if (visibleFocusableElements.length === 0) {
+            return;
+        }
+
+        const firstElement = visibleFocusableElements[0];
+        const lastElement = visibleFocusableElements[visibleFocusableElements.length - 1];
+
+        // If shift+tab on first element, focus last element
+        if (e.shiftKey && document.activeElement === firstElement) {
+            e.preventDefault();
+            lastElement.focus();
+        }
+        // If tab on last element, focus first element
+        else if (!e.shiftKey && document.activeElement === lastElement) {
+            e.preventDefault();
+            firstElement.focus();
+        }
     }
 
     /**
@@ -156,9 +200,11 @@ class SearchManager {
         if (isHidden) {
             this.replaceControls.classList.remove('hidden');
             toggleButton.textContent = '▲';
+            toggleButton.setAttribute('aria-expanded', 'true');
         } else {
             this.replaceControls.classList.add('hidden');
             toggleButton.textContent = '▼';
+            toggleButton.setAttribute('aria-expanded', 'false');
         }
     }
 

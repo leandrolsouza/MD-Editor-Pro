@@ -17,116 +17,13 @@ body {
 #app-container {
     display: flex;
     width: 100%;
-    height: calc(100% - 24px - 36px - 44px);
-    /* Account for status bar (24px), tab bar (36px), and formatting toolbar (44px) */
-    position: relative;
-}
-
-/* Tab Bar */
-.tab-bar {
+    height: calc(100vh - 80px - 24px);
+    /* 100vh - (tab bar + toolbar) - status bar */
     position: fixed;
-    top: 0;
+    top: 80px;
+    /* 36px tab bar + 44px formatting toolbar */
     left: 0;
     right: 0;
-    height: 36px;
-    background-color: var(--tab-bar-bg, #f5f5f5);
-    border-bottom: 1px solid var(--tab-bar-border, #ddd);
-    display: flex;
-    align-items: stretch;
-    overflow-x: auto;
-    overflow-y: hidden;
-    z-index: 100;
-    scrollbar-width: thin;
-}
-
-.tab-bar::-webkit-scrollbar {
-    height: 4px;
-}
-
-.tab-bar::-webkit-scrollbar-thumb {
-    background-color: var(--scrollbar-thumb, #ccc);
-    border-radius: 2px;
-}
-
-.tab {
-    display: flex;
-    align-items: center;
-    padding: 0 12px;
-    min-width: 120px;
-    max-width: 200px;
-    background-color: var(--tab-bg, #e0e0e0);
-    border-right: 1px solid var(--tab-border, #ccc);
-    cursor: pointer;
-    user-select: none;
-    transition: background-color 0.15s ease;
-    position: relative;
-}
-
-.tab:hover {
-    background-color: var(--tab-hover-bg, #d0d0d0);
-}
-
-.tab.active {
-    background-color: var(--tab-active-bg, #fff);
-    border-bottom: 2px solid var(--tab-active-border, #4a90e2);
-}
-
-.tab-title {
-    flex: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: 13px;
-    color: var(--text-primary, #333);
-    margin-right: 8px;
-}
-
-.tab.active .tab-title {
-    font-weight: 500;
-}
-
-.tab-modified-indicator {
-    display: none;
-    font-size: 16px;
-    color: var(--modified-indicator-color, #f39c12);
-    margin-right: 4px;
-    line-height: 1;
-}
-
-.tab-modified-indicator.visible {
-    display: inline-block;
-}
-
-.tab-close-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 20px;
-    height: 20px;
-    border: none;
-    background: transparent;
-    color: var(--text-secondary, #666);
-    font-size: 18px;
-    line-height: 1;
-    cursor: pointer;
-    border-radius: 3px;
-    padding: 0;
-    transition: all 0.15s ease;
-}
-
-.tab-close-button:hover {
-    background-color: var(--close-button-hover-bg, rgba(0, 0, 0, 0.1));
-    color: var(--text-primary, #333);
-}
-
-.tab-close-button:active {
-    background-color: var(--close-button-active-bg, rgba(0, 0, 0, 0.2));
-}
-
-/* Adjust app container to account for tab bar and formatting toolbar */
-body.has-tabs #app-container {
-    margin-top: 80px;
-    /* 36px tab bar + 44px formatting toolbar */
 }
 
 /* Pane Styles */
@@ -134,41 +31,72 @@ body.has-tabs #app-container {
     flex: 1;
     overflow: auto;
     position: relative;
+    height: 100%;
 }
 
 #editor-pane {
     min-width: 200px;
+    display: flex;
+    flex-direction: column;
 }
 
 #preview-pane {
     min-width: 200px;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Editor Container */
 #editor-container {
     width: 100%;
     height: 100%;
+    flex: 1;
+    overflow: auto;
 }
 
 /* Preview Container */
 #preview-container {
     width: 100%;
     height: 100%;
-    padding: 20px;
+    flex: 1;
+    padding: var(--space-5);
     overflow-y: auto;
 }
 
 /* Resizable Divider */
 .divider {
-    width: 4px;
+    width: 6px;
     cursor: col-resize;
     background-color: var(--divider-color, #ddd);
     flex-shrink: 0;
-    transition: background-color 0.2s;
+    position: relative;
+    transition: background-color var(--duration-normal, 150ms) var(--ease-out, cubic-bezier(0.33, 1, 0.68, 1));
+}
+
+/* Grip indicator using pseudo-element */
+.divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 3px;
+    height: 40px;
+    background: repeating-linear-gradient(to bottom,
+            var(--divider-hover-color, #999) 0px,
+            var(--divider-hover-color, #999) 2px,
+            transparent 2px,
+            transparent 6px);
+    opacity: 0.5;
+    transition: opacity var(--duration-normal, 150ms) var(--ease-out, cubic-bezier(0.33, 1, 0.68, 1));
 }
 
 .divider:hover {
     background-color: var(--divider-hover-color, #999);
+}
+
+.divider:hover::before {
+    opacity: 1;
 }
 
 .divider:active {
@@ -192,95 +120,13 @@ body.has-tabs #app-container {
     display: flex;
 }
 
-/* Search Panel */
-.search-panel {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    background-color: var(--search-bg, #fff);
-    border: 1px solid var(--search-border, #ccc);
-    border-radius: 4px;
-    padding: 10px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    z-index: 1000;
-    min-width: 300px;
-}
-
-.search-panel.hidden {
-    display: none;
-}
-
-.search-controls,
-.replace-controls {
-    display: flex;
-    gap: 5px;
-    align-items: center;
-    margin-bottom: 5px;
-}
-
-.replace-controls.hidden {
-    display: none;
-}
-
-.search-input {
-    flex: 1;
-    padding: 5px 8px;
-    border: 1px solid var(--input-border, #ccc);
-    border-radius: 3px;
-    font-size: 13px;
-    background-color: var(--input-bg, #fff);
-    color: var(--input-text, #000);
-}
-
-.search-input:focus {
-    outline: none;
-    border-color: var(--input-focus-border, #4a90e2);
-}
-
-.search-button {
-    padding: 5px 10px;
-    border: 1px solid var(--button-border, #ccc);
-    border-radius: 3px;
-    background-color: var(--button-bg, #f5f5f5);
-    color: var(--button-text, #333);
-    cursor: pointer;
-    font-size: 12px;
-}
-
-.search-button:hover {
-    background-color: var(--button-hover-bg, #e0e0e0);
-}
-
-.search-button:active {
-    background-color: var(--button-active-bg, #d0d0d0);
-}
-
-.search-results {
-    font-size: 12px;
-    color: var(--text-secondary, #666);
-    white-space: nowrap;
-}
-
-.toggle-replace-button {
-    width: 100%;
-    padding: 3px;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    font-size: 10px;
-    color: var(--text-secondary, #666);
-}
-
-.toggle-replace-button:hover {
-    background-color: var(--button-hover-bg, #e0e0e0);
-}
+/* Search Panel - Styles moved to search.css */
 
 /* Accessibility - Focus Indicators */
 button:focus-visible,
-input:focus-visible,
-.search-button:focus-visible {
-    outline: 2px solid var(--input-focus-border, #4a90e2);
-    outline-offset: 2px;
+input:focus-visible {
+    outline: 2px solid var(--accent-color, #4a90e2);
+    outline-offset: var(--space-1);
 }
 
 /* Status Bar */
@@ -289,13 +135,13 @@ input:focus-visible,
     bottom: 0;
     left: 0;
     right: 0;
-    height: 24px;
+    height: var(--space-6);
     background-color: var(--status-bar-bg, #f5f5f5);
     border-top: 1px solid var(--status-bar-border, #ddd);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 10px;
+    padding: 0 var(--space-3);
     font-size: 12px;
     color: var(--text-secondary, #666);
     z-index: 100;
@@ -303,10 +149,10 @@ input:focus-visible,
 
 .status-indicator {
     display: inline-block;
-    padding: 2px 8px;
-    border-radius: 3px;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
     font-size: 11px;
-    transition: all 0.2s ease;
+    transition: all var(--duration-slow) var(--ease-out);
 }
 
 .status-indicator.saving {
@@ -341,7 +187,7 @@ input:focus-visible,
 
 .statistics-content {
     display: flex;
-    gap: 15px;
+    gap: var(--space-4);
     align-items: center;
 }
 
@@ -354,7 +200,7 @@ input:focus-visible,
 
 .stat-label {
     font-weight: 500;
-    margin-right: 3px;
+    margin-right: var(--space-1);
 }
 
 .stat-value {

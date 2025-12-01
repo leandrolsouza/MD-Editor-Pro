@@ -277,26 +277,33 @@ class AutoSaveManager {
         // Add new status class
         this.statusIndicator.classList.add(status);
 
-        // Update text content
+        // Update text content and ARIA attributes
         switch (status) {
             case 'saving':
                 this.statusIndicator.textContent = 'Saving...';
                 this.statusIndicator.title = 'Auto-saving document';
+                this.statusIndicator.setAttribute('aria-label', 'Auto-saving document');
+                this.statusIndicator.setAttribute('role', 'status');
                 break;
             case 'saved':
                 this.statusIndicator.textContent = 'Saved';
                 this.statusIndicator.title = 'Document saved successfully';
+                this.statusIndicator.setAttribute('aria-label', 'Document saved successfully');
+                this.statusIndicator.setAttribute('role', 'status');
                 // Auto-hide after 2 seconds
                 setTimeout(() => {
                     if (this.statusIndicator && this.statusIndicator.classList.contains('saved')) {
                         this.statusIndicator.textContent = '';
                         this.statusIndicator.classList.remove('saved');
+                        this.statusIndicator.removeAttribute('aria-label');
                     }
                 }, 2000);
                 break;
             case 'error':
                 this.statusIndicator.textContent = 'Save Error';
                 this.statusIndicator.title = errorMessage || 'Failed to save document';
+                this.statusIndicator.setAttribute('aria-label', errorMessage || 'Failed to save document');
+                this.statusIndicator.setAttribute('role', 'alert');
                 break;
         }
     }

@@ -1,0 +1,96 @@
+/* Tooltips - Modern tooltip system with smart positioning */
+
+/* Tooltip Container */
+.tooltip {
+    position: fixed;
+    z-index: 10000;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--duration-normal) var(--ease-out);
+}
+
+.tooltip.visible {
+    opacity: 1;
+    animation: fade-in var(--duration-normal) var(--ease-out);
+}
+
+/* Tooltip Content */
+.tooltip-content {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    font-size: 12px;
+    line-height: 1.4;
+    white-space: nowrap;
+    max-width: 300px;
+    border: 1px solid var(--border-color);
+}
+
+/* Tooltip Arrow */
+.tooltip-arrow {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    transform: rotate(45deg);
+}
+
+/* Arrow positioning for different tooltip placements */
+.tooltip[data-placement="top"] .tooltip-arrow {
+    bottom: -4px;
+    left: 50%;
+    margin-left: -4px;
+    border-top: none;
+    border-left: none;
+}
+
+.tooltip[data-placement="bottom"] .tooltip-arrow {
+    top: -4px;
+    left: 50%;
+    margin-left: -4px;
+    border-bottom: none;
+    border-right: none;
+}
+
+.tooltip[data-placement="left"] .tooltip-arrow {
+    right: -4px;
+    top: 50%;
+    margin-top: -4px;
+    border-left: none;
+    border-bottom: none;
+}
+
+.tooltip[data-placement="right"] .tooltip-arrow {
+    left: -4px;
+    top: 50%;
+    margin-top: -4px;
+    border-right: none;
+    border-top: none;
+}
+
+/* Keyboard shortcut styling within tooltips */
+.tooltip-shortcut {
+    display: inline-block;
+    margin-left: var(--space-2);
+    padding: 2px var(--space-2);
+    background-color: var(--code-bg);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .tooltip {
+        transition: none;
+        animation: none;
+    }
+
+    .tooltip.visible {
+        animation: none;
+    }
+}

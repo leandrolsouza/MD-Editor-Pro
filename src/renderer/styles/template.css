@@ -22,8 +22,8 @@
 
 .template-dialog-content {
     background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
     max-width: 700px;
     width: 90%;
     max-height: 80vh;
@@ -35,7 +35,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px;
+    padding: var(--space-5);
     border-bottom: 1px solid var(--border-color);
 }
 
@@ -57,7 +57,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
 }
 
 .template-dialog-close:hover {
@@ -65,7 +65,7 @@
 }
 
 .template-dialog-body {
-    padding: 20px;
+    padding: var(--space-5);
     overflow-y: auto;
     flex: 1;
 }
@@ -73,21 +73,21 @@
 /* Template Actions */
 .template-actions {
     display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
+    gap: var(--space-3);
+    margin-bottom: var(--space-5);
     flex-wrap: wrap;
 }
 
 .template-mode-button,
 .template-create-button {
-    padding: 8px 16px;
+    padding: var(--space-2) var(--space-4);
     border: 1px solid var(--border-color);
     background-color: var(--bg-color);
     color: var(--text-color);
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
     font-size: 0.9rem;
-    transition: all 0.2s;
+    transition: all var(--duration-slow) var(--ease-out);
 }
 
 .template-mode-button:hover,
@@ -111,20 +111,20 @@
 /* Template Categories */
 .template-categories {
     display: flex;
-    gap: 8px;
-    margin-bottom: 20px;
+    gap: var(--space-2);
+    margin-bottom: var(--space-5);
     flex-wrap: wrap;
 }
 
 .category-button {
-    padding: 6px 12px;
+    padding: var(--space-2) var(--space-3);
     border: 1px solid var(--border-color);
     background-color: var(--bg-color);
     color: var(--text-color);
-    border-radius: 20px;
+    border-radius: var(--space-5);
     cursor: pointer;
     font-size: 0.85rem;
-    transition: all 0.2s;
+    transition: all var(--duration-slow) var(--ease-out);
 }
 
 .category-button:hover {
@@ -140,28 +140,28 @@
 /* Template List */
 .template-list {
     display: grid;
-    gap: 12px;
+    gap: var(--space-3);
 }
 
 .template-item {
-    padding: 16px;
+    padding: var(--space-4);
     border: 1px solid var(--border-color);
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all var(--duration-slow) var(--ease-out);
     background-color: var(--bg-color);
 }
 
 .template-item:hover {
     border-color: var(--primary-color);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-md);
 }
 
 .template-item-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 8px;
+    margin-bottom: var(--space-2);
 }
 
 .template-item-header h3 {
@@ -175,9 +175,9 @@
     border: none;
     cursor: pointer;
     font-size: 1.2rem;
-    padding: 4px;
+    padding: var(--space-1);
     opacity: 0.6;
-    transition: opacity 0.2s;
+    transition: opacity var(--duration-slow) var(--ease-out);
 }
 
 .template-delete-button:hover {
@@ -185,21 +185,21 @@
 }
 
 .template-description {
-    margin: 0 0 8px 0;
+    margin: 0 0 var(--space-2) 0;
     color: var(--text-muted);
     font-size: 0.9rem;
 }
 
 .template-meta {
     display: flex;
-    gap: 12px;
+    gap: var(--space-3);
     font-size: 0.85rem;
 }
 
 .template-category {
-    padding: 2px 8px;
+    padding: var(--space-1) var(--space-2);
     background-color: var(--hover-bg);
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     color: var(--text-muted);
 }
 
@@ -215,12 +215,12 @@
 
 /* Custom Template Form */
 .form-group {
-    margin-bottom: 16px;
+    margin-bottom: var(--space-4);
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 6px;
+    margin-bottom: var(--space-2);
     color: var(--text-color);
     font-weight: 500;
 }
@@ -228,9 +228,9 @@
 .form-group input,
 .form-group textarea {
     width: 100%;
-    padding: 8px 12px;
+    padding: var(--space-2) var(--space-3);
     border: 1px solid var(--border-color);
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     background-color: var(--bg-color);
     color: var(--text-color);
     font-family: inherit;
@@ -250,19 +250,19 @@
 
 .form-actions {
     display: flex;
-    gap: 10px;
+    gap: var(--space-3);
     justify-content: flex-end;
-    margin-top: 20px;
+    margin-top: var(--space-5);
 }
 
 .button-primary,
 .button-secondary {
-    padding: 10px 20px;
+    padding: var(--space-3) var(--space-5);
     border: none;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
     font-size: 0.95rem;
-    transition: all 0.2s;
+    transition: all var(--duration-slow) var(--ease-out);
 }
 
 .button-primary {
@@ -292,8 +292,8 @@
     right: 0;
     height: 44px;
     display: flex;
-    gap: 8px;
-    padding: 8px 12px;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
     background-color: var(--toolbar-bg, #fafafa);
     border-bottom: 1px solid var(--border-color, #ddd);
     align-items: center;
@@ -302,14 +302,14 @@
 
 /* Toolbar Button */
 .toolbar-button {
-    padding: 8px 16px;
+    padding: var(--space-2) var(--space-4);
     border: 1px solid var(--border-color);
     background-color: var(--bg-color);
     color: var(--text-color);
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
     font-size: 0.9rem;
-    transition: all 0.2s;
+    transition: all var(--duration-slow) var(--ease-out);
 }
 
 .toolbar-button:hover {

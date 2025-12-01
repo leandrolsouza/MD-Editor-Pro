@@ -25,6 +25,7 @@ const { MarkdownParser } = require('./markdown-parser.js');
 const AdvancedMarkdownPostProcessor = require('./advanced-markdown/post-processor.js');
 const KeyboardShortcutsUI = require('./keyboard-shortcuts-ui.js');
 const AutoSaveSettingsUI = require('./auto-save-settings-ui.js');
+const TooltipManager = require('./tooltip.js');
 
 // Application state
 let editor = null;
@@ -45,6 +46,7 @@ let advancedMarkdownPostProcessor = null;
 let markdownParser = null;
 let keyboardShortcutsUI = null;
 let autoSaveSettingsUI = null;
+let tooltipManager = null;
 
 // Document state
 let currentFilePath = null;
@@ -284,6 +286,20 @@ async function initialize() {
         });
         console.log('AutoSaveSettingsUI initialized');
 
+        // Initialize Tooltip Manager
+        tooltipManager = new TooltipManager();
+        tooltipManager.initialize();
+        console.log('TooltipManager initialized');
+
+        // Attach tooltips to formatting toolbar buttons
+        attachFormattingToolbarTooltips();
+
+        // Attach tooltips to search panel buttons
+        attachSearchPanelTooltips();
+
+        // Attach tooltips to status indicators
+        attachStatusIndicatorTooltips();
+
         // Listen for settings changes from main process
         window.electronAPI.onAdvancedMarkdownSettingsChanged((featureName, enabled) => {
             // Update local manager
@@ -350,6 +366,100 @@ function setupScrollSynchronization() {
 
         preview.syncScroll(scrollPercent);
     });
+}
+
+/**
+ * Attach tooltips to formatting toolbar buttons
+ */
+function attachFormattingToolbarTooltips() {
+    if (!tooltipManager || !formattingToolbar) {
+        return;
+    }
+
+    // Get all toolbar buttons
+    const toolbarButtons = document.querySelectorAll('.toolbar-button');
+
+    toolbarButtons.forEach(button => {
+        const title = button.getAttribute('title');
+        if (title) {
+            tooltipManager.attach(button, title);
+        }
+    });
+}
+
+/**
+ * Attach tooltips to search panel buttons
+ */
+function attachSearchPanelTooltips() {
+    if (!tooltipManager) {
+        return;
+    }
+
+    const searchButtons = [
+        { id: 'search-prev', text: 'Previous match' },
+        { id: 'search-next', text: 'Next match' },
+        { id: 'search-close', text: 'Close search panel' },
+        { id: 'replace-current', text: 'Replace current match' },
+        { id: 'replace-all', text: 'Replace all matches' },
+        { id: 'toggle-replace', text: 'Toggle replace controls' }
+    ];
+
+    searchButtons.forEach(({ id, text }) => {
+        const button = document.getElementById(id);
+        if (button) {
+            tooltipManager.attach(button, text);
+        }
+    });
+}
+
+/**
+ * Attach tooltips to status indicators
+ */
+function attachStatusIndicatorTooltips() {
+    if (!tooltipManager) {
+        return;
+    }
+
+    const statusIndicator = document.getElementById('auto-save-status');
+    if (statusIndicator) {
+        // Dynamic tooltip based on status
+        tooltipManager.attach(statusIndicator, () => {
+            const text = statusIndicator.textContent;
+            if (text.includes('Saving')) {
+                return 'Auto-save in progress...';
+            } else if (text.includes('Saved')) {
+                return 'All changes saved';
+            } else if (text.includes('Error')) {
+                return 'Error saving file';
+            }
+            return 'Auto-save status';
+        });
+    }
+}
+
+/**
+ * Attach tooltip to a tab's close button
+ * @param {string} tabId - The tab ID
+ * @param {string} tabTitle - The tab title
+ */
+function attachTooltipToTabCloseButton(tabId, tabTitle) {
+    if (!tooltipManager) {
+        return;
+    }
+
+    // Find the tab element and its close button
+    const tabElement = document.querySelector(`[data-tab-id="${tabId}"]`);
+    if (!tabElement) {
+        return;
+    }
+
+    const closeButton = tabElement.querySelector('.tab-close-button');
+    if (!closeButton) {
+        return;
+    }
+
+    const tooltipText = `Close ${tabTitle} <span class="tooltip-shortcut">Ctrl+W</span>`;
+    tooltipManager.attach(closeButton, tooltipText);
 }
 
 /**
@@ -939,6 +1049,8 @@ async function restoreTabsFromSession() {
                 // Add tabs to UI
                 for (const tab of tabsResult.tabs) {
                     tabBar.addTab(tab.id, tab.title, false, tab.isModified);
+                    // Attach tooltip to each tab's close button
+                    attachTooltipToTabCloseButton(tab.id, tab.title);
                 }
 
                 // Switch to active tab
@@ -976,6 +1088,9 @@ async function createNewTab(filePath = null, content = '') {
 
             tabBar.addTab(tab.id, tab.title, true, tab.isModified);
             currentTabId = tab.id;
+
+            // Attach tooltip to the tab's close button
+            attachTooltipToTabCloseButton(tab.id, tab.title);
 
             // Load content into editor
             editor.setValue(content);
@@ -1298,6 +1413,9 @@ function cleanup() {
     }
     if (focusMode) {
         focusMode.destroy();
+    }
+    if (tooltipManager) {
+        tooltipManager.cleanup();
     }
     if (templateUI) {
         // TemplateUI doesn't have a destroy method, but we could add one if needed

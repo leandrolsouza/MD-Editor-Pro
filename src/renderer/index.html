@@ -5,8 +5,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'">
+        content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self'">
     <title>Markdown Editor</title>
+
+    <!-- Design System Stylesheets -->
+    <link rel="stylesheet" href="styles/design-tokens.css">
+    <link rel="stylesheet" href="styles/typography.css">
+    <link rel="stylesheet" href="styles/animations.css">
+    <link rel="stylesheet" href="styles/icons.css">
+    <link rel="stylesheet" href="styles/tooltips.css">
+
+    <!-- Component Stylesheets -->
+    <link rel="stylesheet" href="styles/tabs.css">
+    <link rel="stylesheet" href="styles/buttons.css">
+    <link rel="stylesheet" href="styles/toolbar.css">
+    <link rel="stylesheet" href="styles/inputs.css">
+    <link rel="stylesheet" href="styles/search.css">
 
     <!-- Theme Stylesheets -->
     <link rel="stylesheet" href="styles/main.css">
@@ -54,20 +68,22 @@
     </div>
 
     <!-- Search UI (Hidden by default) -->
-    <div id="search-panel" class="search-panel hidden">
+    <div id="search-panel" class="search-panel hidden" role="dialog" aria-label="Search and Replace">
         <div class="search-controls">
-            <input type="text" id="search-input" placeholder="Find..." class="search-input">
-            <button id="search-prev" class="search-button" title="Previous">↑</button>
-            <button id="search-next" class="search-button" title="Next">↓</button>
-            <span id="search-results" class="search-results"></span>
-            <button id="search-close" class="search-button" title="Close">✕</button>
+            <input type="text" id="search-input" placeholder="Find..." class="search-input" aria-label="Search text">
+            <button id="search-prev" class="search-button" title="Previous" aria-label="Previous match">↑</button>
+            <button id="search-next" class="search-button" title="Next" aria-label="Next match">↓</button>
+            <span id="search-results" class="search-results" aria-live="polite"></span>
+            <button id="search-close" class="search-button" title="Close" aria-label="Close search panel">✕</button>
         </div>
         <div class="replace-controls hidden">
-            <input type="text" id="replace-input" placeholder="Replace..." class="search-input">
-            <button id="replace-current" class="search-button">Replace</button>
-            <button id="replace-all" class="search-button">Replace All</button>
+            <input type="text" id="replace-input" placeholder="Replace..." class="search-input"
+                aria-label="Replace text">
+            <button id="replace-current" class="search-button" aria-label="Replace current match">Replace</button>
+            <button id="replace-all" class="search-button" aria-label="Replace all matches">Replace All</button>
         </div>
-        <button id="toggle-replace" class="toggle-replace-button">▼</button>
+        <button id="toggle-replace" class="toggle-replace-button" aria-label="Toggle replace controls"
+            aria-expanded="false">▼</button>
     </div>
 
     <!-- Renderer Script -->

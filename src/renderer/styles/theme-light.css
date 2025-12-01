@@ -9,6 +9,31 @@
     /* Contrast ratio: 7.0:1 with white (enhanced from #586069) */
     --border-color: #e1e4e8;
 
+    /* Accent Colors */
+    --accent-color: #2563eb;
+    /* blue-600 */
+    --accent-hover: #1d4ed8;
+    /* blue-700 */
+    --accent-active: #1e40af;
+    /* blue-800 */
+
+    /* Semantic Colors */
+    --success-color: #10b981;
+    /* green-500 */
+    --warning-color: #f59e0b;
+    /* amber-500 */
+    --error-color: #ef4444;
+    /* red-500 */
+
+    /* Shadow Colors */
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --shadow-color-sm: rgba(0, 0, 0, 0.05);
+    --shadow-color-md: rgba(0, 0, 0, 0.1);
+    --shadow-color-lg: rgba(0, 0, 0, 0.1);
+
+    /* Backdrop Blur */
+    --backdrop-blur-color: rgba(255, 255, 255, 0.8);
+
     /* Divider */
     --divider-color: #e1e4e8;
     --divider-hover-color: #d1d5da;
@@ -22,7 +47,15 @@
     --input-bg: #ffffff;
     --input-text: #24292e;
     --input-border: #d1d5da;
-    --input-focus-border: #0366d6;
+    --input-hover-border: #959da5;
+    --input-focus-border: var(--accent-color);
+    --input-disabled-bg: #f6f8fa;
+    --accent-color-alpha: rgba(37, 99, 235, 0.1);
+    --error-color-alpha: rgba(239, 68, 68, 0.1);
+    --success-color-alpha: rgba(16, 185, 129, 0.1);
+    --text-tertiary: #959da5;
+    --badge-bg: rgba(0, 0, 0, 0.05);
+    --error-bg-light: rgba(239, 68, 68, 0.1);
 
     /* Buttons */
     --button-bg: #fafbfc;
@@ -36,8 +69,8 @@
     --code-block-bg: #f6f8fa;
 
     /* Markdown Elements - WCAG AA Compliant */
-    --link-color: #0969da;
-    /* Contrast ratio: 7.0:1 with white (enhanced from #0366d6) */
+    --link-color: var(--accent-color);
+    /* Using accent color for links */
     --quote-color: #57606a;
     /* Contrast ratio: 7.0:1 with white (enhanced from #6a737d) */
     --quote-border: #dfe2e5;
@@ -68,9 +101,9 @@
     --tab-bg: #e0e0e0;
     --tab-hover-bg: #d0d0d0;
     --tab-active-bg: #ffffff;
-    --tab-active-border: #0969da;
+    --tab-active-border: var(--accent-color);
     --tab-border: #d1d5da;
-    --modified-indicator-color: #f39c12;
+    --modified-indicator-color: var(--warning-color);
     --close-button-hover-bg: rgba(0, 0, 0, 0.1);
     --close-button-active-bg: rgba(0, 0, 0, 0.2);
     --scrollbar-thumb: #d1d5da;
@@ -82,11 +115,11 @@
     --toolbar-button-hover-bg: #f3f4f6;
     --toolbar-button-hover-border: #d1d5da;
     --toolbar-button-active-bg: #e1e4e8;
-    --toolbar-button-active-border: #0969da;
-    --toolbar-button-active-text: #0969da;
+    --toolbar-button-active-border: var(--accent-color);
+    --toolbar-button-active-text: var(--accent-color);
     --toolbar-button-active-hover-bg: #d1d5da;
     --toolbar-button-pressed-bg: #d1d5da;
-    --toolbar-button-focus-outline: #0969da;
+    --toolbar-button-focus-outline: var(--accent-color);
     --toolbar-separator: #d1d5da;
 }
 

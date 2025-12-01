@@ -118,6 +118,9 @@ class FormattingToolbar {
         button.setAttribute('title', config.title);
         button.setAttribute('type', 'button');
 
+        // Add ARIA label for accessibility
+        button.setAttribute('aria-label', config.title);
+
         // Add group class for styling
         if (config.group) {
             button.classList.add(`toolbar-button-${config.group}`);

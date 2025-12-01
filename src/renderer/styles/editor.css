@@ -18,7 +18,7 @@
 /* Accessibility - Focus Indicators for Editor */
 .cm-editor.cm-focused {
     outline: 2px solid var(--input-focus-border, #4a90e2);
-    outline-offset: -2px;
+    outline-offset: calc(-1 * var(--space-1));
 }
 
 /* High Contrast Mode for Editor */

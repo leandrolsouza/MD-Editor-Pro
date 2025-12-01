@@ -21,7 +21,15 @@ class TabBar {
      */
     initialize() {
         this.container.className = 'tab-bar';
+        this.container.setAttribute('role', 'tablist');
+        this.container.setAttribute('aria-label', 'Document tabs');
         this.container.innerHTML = '';
+
+        // Add scroll listener for fade indicators
+        this.container.addEventListener('scroll', () => this._updateScrollIndicators());
+
+        // Update indicators on resize
+        window.addEventListener('resize', () => this._updateScrollIndicators());
     }
 
     /**
@@ -41,6 +49,10 @@ class TabBar {
 
         tabElement.className = 'tab';
         tabElement.dataset.tabId = tabId;
+        tabElement.setAttribute('role', 'tab');
+        tabElement.setAttribute('aria-label', title);
+        tabElement.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        tabElement.setAttribute('tabindex', isActive ? '0' : '-1');
 
         if (isActive) {
             tabElement.classList.add('active');
@@ -58,7 +70,7 @@ class TabBar {
         const modifiedIndicator = document.createElement('span');
 
         modifiedIndicator.className = 'tab-modified-indicator';
-        modifiedIndicator.textContent = '●';
+        modifiedIndicator.setAttribute('aria-label', 'Modified');
         if (isModified) {
             modifiedIndicator.classList.add('visible');
         }
@@ -70,6 +82,8 @@ class TabBar {
         closeButton.className = 'tab-close-button';
         closeButton.textContent = '×';
         closeButton.title = 'Close tab';
+        closeButton.setAttribute('aria-label', `Close ${title}`);
+        closeButton.setAttribute('type', 'button');
         tabElement.appendChild(closeButton);
 
         // Event listeners
@@ -88,6 +102,9 @@ class TabBar {
 
         this.tabs.set(tabId, tabElement);
         this.container.appendChild(tabElement);
+
+        // Update scroll indicators after adding tab
+        setTimeout(() => this._updateScrollIndicators(), 0);
     }
 
     /**
@@ -107,6 +124,9 @@ class TabBar {
         if (this.activeTabId === tabId) {
             this.activeTabId = null;
         }
+
+        // Update scroll indicators after removing tab
+        setTimeout(() => this._updateScrollIndicators(), 0);
     }
 
     /**
@@ -118,8 +138,12 @@ class TabBar {
         for (const [id, element] of this.tabs.entries()) {
             if (id === tabId) {
                 element.classList.add('active');
+                element.setAttribute('aria-selected', 'true');
+                element.setAttribute('tabindex', '0');
             } else {
                 element.classList.remove('active');
+                element.setAttribute('aria-selected', 'false');
+                element.setAttribute('tabindex', '-1');
             }
         }
 
@@ -270,6 +294,36 @@ class TabBar {
 
             resolve(result);
         });
+    }
+
+    /**
+     * Update scroll indicators based on scroll position
+     * @private
+     */
+    _updateScrollIndicators() {
+        const { scrollLeft, scrollWidth, clientWidth } = this.container;
+
+        // Check if content is scrollable
+        const isScrollable = scrollWidth > clientWidth;
+
+        if (!isScrollable) {
+            this.container.classList.remove('scrollable-left', 'scrollable-right');
+            return;
+        }
+
+        // Check if scrolled from left edge
+        if (scrollLeft > 0) {
+            this.container.classList.add('scrollable-left');
+        } else {
+            this.container.classList.remove('scrollable-left');
+        }
+
+        // Check if scrolled from right edge
+        if (scrollLeft + clientWidth < scrollWidth - 1) {
+            this.container.classList.add('scrollable-right');
+        } else {
+            this.container.classList.remove('scrollable-right');
+        }
     }
 
     /**

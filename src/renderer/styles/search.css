@@ -1,0 +1,249 @@
+/* Search Panel Styles - Enhanced search and replace UI */
+
+/* Search Panel Container */
+.search-panel {
+    position: fixed;
+    top: 60px;
+    right: 20px;
+    background-color: var(--search-bg, rgba(255, 255, 255, 0.95));
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--search-border, rgba(0, 0, 0, 0.1));
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    box-shadow: var(--shadow-lg);
+    z-index: 1000;
+    min-width: 320px;
+    max-width: 400px;
+    animation: slideInFromRight var(--duration-slow) var(--ease-out);
+}
+
+.search-panel.hidden {
+    display: none;
+}
+
+/* Slide in animation */
+@keyframes slideInFromRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Search Controls Row */
+.search-controls {
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
+    margin-bottom: var(--space-3);
+}
+
+/* Search Input - inherits from inputs.css but with specific overrides */
+.search-panel .search-input {
+    flex: 1;
+    min-width: 0;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--input-border, #ccc);
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    background-color: var(--input-bg, #fff);
+    color: var(--input-text, #000);
+    transition: all var(--duration-normal) var(--ease-out);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.search-panel .search-input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px var(--accent-color-alpha, rgba(37, 99, 235, 0.1)),
+        0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.search-panel .search-input:hover:not(:focus) {
+    border-color: var(--input-hover-border, #999);
+}
+
+/* Search Navigation Buttons */
+.search-button {
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--button-border, rgba(0, 0, 0, 0.1));
+    border-radius: var(--radius-md);
+    background-color: var(--button-bg, #f5f5f5);
+    color: var(--button-text, #333);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all var(--duration-fast) var(--ease-out);
+    white-space: nowrap;
+    min-width: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.search-button:hover {
+    background-color: var(--button-hover-bg, #e0e0e0);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+.search-button:active {
+    background-color: var(--button-active-bg, #d0d0d0);
+    transform: translateY(0);
+}
+
+.search-button:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+/* Search Results Badge */
+.search-results {
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-md);
+    background-color: var(--badge-bg, rgba(0, 0, 0, 0.05));
+    color: var(--text-secondary, #666);
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    min-width: 60px;
+    text-align: center;
+}
+
+/* Replace Controls */
+.replace-controls {
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
+    margin-bottom: var(--space-2);
+    overflow: hidden;
+    max-height: 500px;
+    opacity: 1;
+    transition: all var(--duration-slow) var(--ease-in-out);
+}
+
+.replace-controls.hidden {
+    max-height: 0;
+    opacity: 0;
+    margin-bottom: 0;
+    pointer-events: none;
+}
+
+/* Toggle Replace Button */
+.toggle-replace-button {
+    width: 100%;
+    padding: var(--space-2);
+    border: none;
+    border-top: 1px solid var(--divider-color, rgba(0, 0, 0, 0.1));
+    background: transparent;
+    cursor: pointer;
+    font-size: 11px;
+    color: var(--text-secondary, #666);
+    transition: all var(--duration-fast) var(--ease-out);
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    margin: var(--space-2) calc(var(--space-4) * -1) calc(var(--space-4) * -1);
+    padding-top: var(--space-3);
+}
+
+.toggle-replace-button:hover {
+    background-color: var(--button-hover-bg, rgba(0, 0, 0, 0.03));
+    color: var(--text-primary, #333);
+}
+
+.toggle-replace-button:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: -2px;
+}
+
+/* Focus Trap - Ensure keyboard navigation stays within panel */
+.search-panel:focus-within {
+    /* Visual indicator that panel has focus */
+    box-shadow: var(--shadow-lg), 0 0 0 2px var(--accent-color-alpha, rgba(37, 99, 235, 0.2));
+}
+
+/* Close button specific styling */
+#search-close {
+    color: var(--text-secondary, #666);
+    font-weight: 600;
+}
+
+#search-close:hover {
+    color: var(--error-color, #ef4444);
+    background-color: var(--error-bg-light, rgba(239, 68, 68, 0.1));
+}
+
+/* Navigation button icons */
+#search-prev,
+#search-next {
+    font-size: 16px;
+    line-height: 1;
+}
+
+/* Replace buttons */
+#replace-current,
+#replace-all {
+    font-size: 12px;
+}
+
+/* Dark theme adjustments */
+.theme-dark .search-panel {
+    background-color: var(--search-bg, rgba(30, 30, 30, 0.95));
+    border-color: var(--search-border, rgba(255, 255, 255, 0.1));
+}
+
+.theme-dark .search-results {
+    background-color: var(--badge-bg, rgba(255, 255, 255, 0.1));
+}
+
+.theme-dark .toggle-replace-button {
+    border-top-color: var(--divider-color, rgba(255, 255, 255, 0.1));
+}
+
+/* Accessibility - High Contrast Mode */
+@media (prefers-contrast: high) {
+    .search-panel {
+        border-width: 2px;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        background-color: var(--search-bg, #fff);
+    }
+
+    .search-input,
+    .search-button {
+        border-width: 2px;
+    }
+
+    .search-results {
+        border: 1px solid currentColor;
+    }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    .search-panel {
+        animation: none;
+    }
+
+    .replace-controls {
+        transition: none;
+    }
+
+    .search-button:hover {
+        transform: none;
+    }
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+    .search-panel {
+        right: 10px;
+        left: 10px;
+        min-width: auto;
+        max-width: none;
+    }
+}

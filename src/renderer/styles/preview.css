@@ -1,10 +1,11 @@
 /* Preview/Markdown Rendering Styles */
 
 .markdown-preview {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    font-family: var(--font-preview);
     font-size: 16px;
     line-height: 1.6;
     word-wrap: break-word;
+    padding: var(--space-8);
 }
 
 .markdown-preview h1,
@@ -13,8 +14,8 @@
 .markdown-preview h4,
 .markdown-preview h5,
 .markdown-preview h6 {
-    margin-top: 24px;
-    margin-bottom: 16px;
+    margin-top: var(--space-6);
+    margin-bottom: var(--space-4);
     font-weight: 600;
     line-height: 1.25;
 }
@@ -49,13 +50,13 @@
 
 .markdown-preview p {
     margin-top: 0;
-    margin-bottom: 16px;
+    margin-bottom: var(--space-4);
 }
 
 .markdown-preview ul,
 .markdown-preview ol {
     margin-top: 0;
-    margin-bottom: 16px;
+    margin-bottom: var(--space-4);
     padding-left: 2em;
 }
 
@@ -68,18 +69,19 @@
     margin: 0;
     font-size: 85%;
     background-color: var(--code-bg, rgba(27, 31, 35, 0.05));
-    border-radius: 3px;
+    border-radius: var(--radius-sm);
     font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
 }
 
 .markdown-preview pre {
-    padding: 16px;
+    padding: var(--space-4);
     overflow: auto;
     font-size: 85%;
     line-height: 1.45;
     background-color: var(--code-block-bg, #f6f8fa);
-    border-radius: 3px;
-    margin-bottom: 16px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color, #e1e4e8);
+    margin-bottom: var(--space-4);
 }
 
 .markdown-preview pre code {
@@ -93,22 +95,23 @@
 }
 
 .markdown-preview blockquote {
-    margin: 0 0 16px 0;
+    margin: 0 0 var(--space-4) 0;
     padding: 0 1em;
     color: var(--quote-color, #6a737d);
-    border-left: 0.25em solid var(--quote-border, #dfe2e5);
+    border-left: 0.25em solid var(--accent-color);
+    font-style: italic;
 }
 
 .markdown-preview table {
     border-spacing: 0;
     border-collapse: collapse;
-    margin-bottom: 16px;
+    margin-bottom: var(--space-4);
     width: 100%;
 }
 
 .markdown-preview table th,
 .markdown-preview table td {
-    padding: 6px 13px;
+    padding: var(--space-2) var(--space-3);
     border: 1px solid var(--table-border, #dfe2e5);
 }
 
@@ -120,6 +123,11 @@
 .markdown-preview table tr {
     background-color: var(--table-row-bg, #fff);
     border-top: 1px solid var(--table-border, #c6cbd1);
+    transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+.markdown-preview table tr:hover {
+    background-color: var(--table-row-alt-bg, #f6f8fa);
 }
 
 .markdown-preview table tr:nth-child(2n) {
@@ -134,6 +142,7 @@
 .markdown-preview a {
     color: var(--link-color, #0366d6);
     text-decoration: none;
+    transition: text-decoration-color var(--duration-normal) var(--ease-out);
 }
 
 .markdown-preview a:hover {
@@ -143,7 +152,7 @@
 .markdown-preview hr {
     height: 0.25em;
     padding: 0;
-    margin: 24px 0;
+    margin: var(--space-6) 0;
     background-color: var(--hr-color, #e1e4e8);
     border: 0;
 }
@@ -166,7 +175,7 @@
 /* Accessibility - Focus Indicators for Links */
 .markdown-preview a:focus-visible {
     outline: 2px solid var(--input-focus-border, #4a90e2);
-    outline-offset: 2px;
+    outline-offset: var(--space-1);
 }
 
 /* High Contrast Mode for Preview */

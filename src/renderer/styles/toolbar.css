@@ -1,7 +1,7 @@
-/* Formatting Toolbar Styles */
-/* Requirements: 9.1, 9.4, 10.5 */
+/* Enhanced Toolbar Styles */
+/* Requirements: 1.2, 3.1 */
 
-/* Toolbar Container */
+/* Formatting Toolbar Container */
 .formatting-toolbar {
     position: fixed;
     top: 36px;
@@ -11,68 +11,91 @@
     height: 44px;
     background-color: var(--toolbar-bg, #f6f8fa);
     border-bottom: 1px solid var(--toolbar-border, #e1e4e8);
+    box-shadow: var(--shadow-sm);
+    /* Requirement 1.2 - Subtle shadow */
     display: flex;
     align-items: center;
     z-index: 99;
     padding: 0 var(--space-3);
+    /* Using design tokens */
 }
 
 .formatting-toolbar-wrapper {
     display: flex;
     align-items: center;
     gap: var(--space-1);
+    /* Using design tokens */
     height: 100%;
 }
 
-/* Toolbar Buttons */
+/* Enhanced Toolbar Buttons */
 .toolbar-button {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: var(--space-8);
-    height: var(--space-8);
+    gap: var(--space-2);
+    min-width: 32px;
+    height: 32px;
     padding: var(--space-2) var(--space-2);
     border: 1px solid transparent;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-md);
+    /* Rounded corners */
     background-color: transparent;
     color: var(--toolbar-button-text, #24292e);
     font-size: 14px;
-    font-weight: 600;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    font-weight: 500;
+    font-family: var(--font-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
     cursor: pointer;
-    transition: all var(--duration-normal) var(--ease-out);
+    transition: all var(--duration-fast) var(--ease-out);
+    /* Smooth transitions */
     user-select: none;
     white-space: nowrap;
+    position: relative;
+}
+
+/* Icon support in toolbar buttons - Requirement 3.1 */
+.toolbar-button .icon,
+.toolbar-button::before {
+    width: 20px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Button Hover State */
 .toolbar-button:hover {
     background-color: var(--toolbar-button-hover-bg, #f3f4f6);
     border-color: var(--toolbar-button-hover-border, #d1d5da);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
+    /* Subtle lift effect */
 }
 
 /* Button Active State (when formatting is applied) */
 .toolbar-button.active {
     background-color: var(--toolbar-button-active-bg, #e1e4e8);
-    border-color: var(--toolbar-button-active-border, #0969da);
-    color: var(--toolbar-button-active-text, #0969da);
+    border-color: var(--accent-color, #2563eb);
+    color: var(--accent-color, #2563eb);
 }
 
 /* Button Active + Hover State */
 .toolbar-button.active:hover {
     background-color: var(--toolbar-button-active-hover-bg, #d1d5da);
+    box-shadow: var(--shadow-sm);
 }
 
 /* Button Pressed State */
 .toolbar-button:active {
     background-color: var(--toolbar-button-pressed-bg, #d1d5da);
-    transform: translateY(1px);
+    transform: translateY(0);
+    box-shadow: none;
 }
 
 /* Button Focus State - Accessibility */
 .toolbar-button:focus-visible {
-    outline: 2px solid var(--toolbar-button-focus-outline, #0969da);
-    outline-offset: var(--space-1);
+    outline: 2px solid var(--accent-color, #2563eb);
+    outline-offset: 2px;
     border-color: transparent;
 }
 
@@ -81,19 +104,24 @@
     opacity: 0.5;
     cursor: not-allowed;
     background-color: transparent;
+    transform: none;
+    box-shadow: none;
 }
 
 .toolbar-button:disabled:hover {
     background-color: transparent;
     border-color: transparent;
+    transform: none;
+    box-shadow: none;
 }
 
-/* Separator Styles */
+/* Toolbar Separator */
 .toolbar-separator {
     width: 1px;
-    height: var(--space-6);
+    height: 24px;
     background-color: var(--toolbar-separator, #d1d5da);
     margin: 0 var(--space-2);
+    /* Using design tokens */
     flex-shrink: 0;
 }
 
@@ -107,7 +135,7 @@
 }
 
 .toolbar-button-code {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: var(--font-code, 'JetBrains Mono', 'Courier New', monospace);
     font-size: 12px;
 }
 
@@ -119,9 +147,21 @@
     font-size: 14px;
 }
 
+/* Icon-only toolbar buttons */
+.toolbar-button-icon {
+    min-width: 32px;
+    width: 32px;
+    padding: var(--space-2);
+}
+
+/* Toolbar button with text and icon */
+.toolbar-button-with-icon {
+    padding: var(--space-2) var(--space-3);
+}
+
 /* Ensure proper sizing for accessibility */
 .toolbar-button {
-    min-height: var(--space-8);
+    min-height: 32px;
     /* WCAG 2.1 Level AA: minimum 24x24px, we use 32x32px for better usability */
 }
 
@@ -132,7 +172,7 @@
     }
 
     .toolbar-button.active {
-        border: 2px solid var(--toolbar-button-active-border, #0969da);
+        border: 2px solid var(--accent-color, #2563eb);
         background-color: var(--toolbar-button-active-bg, #e1e4e8);
     }
 
@@ -146,14 +186,39 @@
 @media (prefers-reduced-motion: reduce) {
     .toolbar-button {
         transition: none;
+        transform: none !important;
     }
 
+    .toolbar-button:hover,
     .toolbar-button:active {
-        transform: none;
+        transform: none !important;
     }
 }
 
 /* Hide toolbar when not needed */
 .formatting-toolbar.hidden {
     display: none;
+}
+
+/* Toolbar in different view modes - visible in all modes by default */
+
+/* Responsive toolbar for smaller screens */
+@media (max-width: 768px) {
+    .formatting-toolbar {
+        padding: 0 var(--space-2);
+    }
+
+    .formatting-toolbar-wrapper {
+        gap: var(--space-1);
+    }
+
+    .toolbar-button {
+        min-width: 28px;
+        height: 28px;
+        padding: var(--space-1);
+    }
+
+    .toolbar-separator {
+        margin: 0 var(--space-1);
+    }
 }
