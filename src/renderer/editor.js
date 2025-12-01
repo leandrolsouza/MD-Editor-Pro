@@ -1501,6 +1501,26 @@ class Editor {
             });
         }
     }
+
+    /**
+     * Go to a specific line number
+     * @param {number} lineNumber - Line number (1-based)
+     */
+    goToLine(lineNumber) {
+        if (!this.view) {
+            throw new Error('Editor not initialized');
+        }
+
+        const line = this.view.state.doc.line(Math.max(1, Math.min(lineNumber, this.view.state.doc.lines)));
+        const pos = line.from;
+
+        this.view.dispatch({
+            selection: { anchor: pos, head: pos },
+            scrollIntoView: true
+        });
+
+        this.view.focus();
+    }
 }
 
 module.exports = Editor;

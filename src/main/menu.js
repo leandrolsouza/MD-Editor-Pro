@@ -253,6 +253,17 @@ function createApplicationMenu(windowManager, fileManager, exporter, configStore
                             mainWindow.webContents.send('menu:action', 'find');
                         }
                     }
+                },
+                {
+                    label: 'Find in Files...',
+                    accelerator: isMac ? 'Cmd+Shift+F' : 'Ctrl+Shift+F',
+                    click: () => {
+                        const mainWindow = windowManager.getMainWindow();
+
+                        if (mainWindow) {
+                            mainWindow.webContents.send('menu:action', 'find-in-files');
+                        }
+                    }
                 }
             ]
         },

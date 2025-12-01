@@ -58,6 +58,15 @@ Este documento serve como um registro de ideias, sugestões de funcionalidades e
 - [x] Indicadores visuais (arquivo ativo, arquivos modificados)
 - [x] Persistência de estado da sidebar (visibilidade, pastas expandidas)
 - [x] Toggle da sidebar (Ctrl+Shift+B ou menu View)
+- [x] **Activity Bar (VS Code Style):** Barra lateral unificada com ícones para alternar entre views
+  - Explorer (File Tree) - Ctrl+Shift+E
+  - Search (Busca Global) - Ctrl+Shift+F
+  - Outline (Estrutura do Documento) - Ctrl+Shift+O
+  - Templates (em desenvolvimento)
+  - Snippets (em desenvolvimento)
+  - Settings (em desenvolvimento)
+  - Interface consistente e familiar para usuários de VS Code
+  - Melhor aproveitamento do espaço da tela
 
 ### Exportação
 - [x] Exportar para HTML (com features avançadas preservadas)
@@ -115,7 +124,11 @@ Este documento serve como um registro de ideias, sugestões de funcionalidades e
 
 ### Gestão de Projetos & Arquivos
 - [ ] **Gerenciamento de Imagens (Paste):** Interceptar Ctrl+V de imagens, salvar automaticamente na pasta `./assets` e inserir o link Markdown
-- [ ] **Busca Global:** Pesquisar texto em todos os arquivos da pasta aberta
+- [x] **Busca Global:** Pesquisar texto em todos os arquivos da pasta aberta
+  - Painel lateral de busca com resultados organizados por arquivo
+  - Opções de busca: case sensitive, palavra inteira, regex
+  - Navegação rápida para resultados (clique abre arquivo e vai para linha)
+  - Atalho: Ctrl+Shift+F (Cmd+Shift+F no macOS)
 - [ ] **Conversão Inteligente ao Colar:** Converter HTML (ex: de sites) para Markdown automaticamente ao colar
 
 ---

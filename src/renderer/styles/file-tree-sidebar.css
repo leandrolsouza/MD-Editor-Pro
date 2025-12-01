@@ -5,86 +5,28 @@
    ============================================ */
 
 .file-tree-sidebar {
-    position: fixed;
-    left: 0;
-    top: 80px;
-    /* tab bar (36px) + formatting toolbar (44px) */
-    bottom: var(--space-6, 24px);
-    /* status bar height */
-    width: 250px;
-    background: var(--bg-secondary);
-    border-right: 1px solid var(--border-color);
+    width: 100%;
+    height: 100%;
+    background: transparent;
     overflow-y: auto;
     overflow-x: hidden;
-    transition: transform var(--duration-slow, 300ms) var(--ease-in-out, ease),
-        opacity var(--duration-slow, 300ms) var(--ease-in-out, ease);
-    z-index: 100;
-    box-shadow: var(--shadow-sm);
 }
 
-/* Modifier: Hidden state */
+/* Legacy modifiers - no longer needed with activity bar */
 .file-tree-sidebar--hidden {
-    transform: translateX(-100%);
-    opacity: 0;
-    pointer-events: none;
+    display: block;
 }
 
-/* Modifier: Visible state */
 .file-tree-sidebar--visible {
-    transform: translateX(0);
-    opacity: 1;
-    pointer-events: auto;
+    display: block;
 }
 
 /* ============================================
-   Element: Header
+   Element: Header (now handled by activity bar)
    ============================================ */
 
 .file-tree-sidebar__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: var(--space-2) var(--space-3);
-    background: var(--bg-primary);
-    border-bottom: 1px solid var(--border-color);
-    position: sticky;
-    top: 0;
-    z-index: 10;
-}
-
-.file-tree-sidebar__title {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text-primary);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.file-tree-sidebar__toggle-btn {
-    background: transparent;
-    border: none;
-    color: var(--text-secondary);
-    cursor: pointer;
-    padding: var(--space-1) var(--space-2);
-    border-radius: var(--radius-sm);
-    font-size: 16px;
-    line-height: 1;
-    transition: background-color var(--duration-normal, 150ms) var(--ease-out, ease),
-        color var(--duration-normal, 150ms) var(--ease-out, ease);
-}
-
-.file-tree-sidebar__toggle-btn:hover {
-    background: var(--button-hover-bg);
-    color: var(--text-primary);
-}
-
-.file-tree-sidebar__toggle-btn:active {
-    background: var(--button-active-bg);
-}
-
-.file-tree-sidebar__toggle-btn:focus-visible {
-    outline: 2px solid var(--accent-color);
-    outline-offset: 2px;
+    display: none;
 }
 
 /* ============================================
@@ -330,31 +272,8 @@
 }
 
 /* ============================================
-   Editor Area Adjustment (Responsive)
+   Editor Area Adjustment (now handled by activity bar)
    ============================================ */
-
-/* When sidebar is visible, shift the main container */
-body.sidebar-visible #app-container {
-    margin-left: 250px;
-    transition: margin-left var(--duration-slow, 300ms) var(--ease-in-out, ease);
-}
-
-/* When sidebar is hidden, no margin */
-body:not(.sidebar-visible) #app-container {
-    margin-left: 0;
-    transition: margin-left var(--duration-slow, 300ms) var(--ease-in-out, ease);
-}
-
-/* Adjust formatting toolbar when sidebar is visible */
-body.sidebar-visible #formatting-toolbar {
-    margin-left: 250px;
-    transition: margin-left var(--duration-slow, 300ms) var(--ease-in-out, ease);
-}
-
-body:not(.sidebar-visible) #formatting-toolbar {
-    margin-left: 0;
-    transition: margin-left var(--duration-slow, 300ms) var(--ease-in-out, ease);
-}
 
 /* ============================================
    Performance Optimizations

@@ -6,7 +6,8 @@
     position: fixed;
     top: 36px;
     /* Below tab bar */
-    left: 0;
+    left: 48px;
+    /* Activity bar width */
     right: 0;
     height: 44px;
     background-color: var(--toolbar-bg, #f6f8fa);

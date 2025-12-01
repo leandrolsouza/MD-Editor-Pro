@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self'">
+        content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-eval'">
     <title>Markdown Editor</title>
 
     <!-- Design System Stylesheets -->
@@ -46,6 +46,12 @@
 
     <!-- Notification System Stylesheet -->
     <link rel="stylesheet" href="styles/notification.css">
+
+    <!-- Global Search Stylesheet -->
+    <link rel="stylesheet" href="styles/global-search.css">
+
+    <!-- Activity Bar Stylesheet -->
+    <link rel="stylesheet" href="styles/activity-bar.css">
 </head>
 
 <body class="theme-light">
@@ -54,30 +60,6 @@
 
     <!-- Formatting Toolbar -->
     <div id="formatting-toolbar" class="formatting-toolbar"></div>
-
-    <!-- File Tree Sidebar -->
-    <div id="file-tree-sidebar" class="file-tree-sidebar file-tree-sidebar--hidden">
-        <div class="file-tree-sidebar__header">
-            <span class="file-tree-sidebar__title">Files</span>
-            <button class="file-tree-sidebar__toggle-btn" id="sidebar-toggle-btn" aria-label="Toggle sidebar visibility"
-                title="Toggle sidebar">
-                ✕
-            </button>
-        </div>
-        <div class="file-tree-sidebar__tree" id="file-tree-container"></div>
-    </div>
-
-    <!-- Outline Panel -->
-    <div id="outline-panel" class="outline-panel outline-panel--hidden">
-        <div class="outline-panel__header">
-            <span class="outline-panel__title">Outline</span>
-            <button class="outline-panel__toggle-btn" id="outline-toggle-btn" aria-label="Toggle outline panel"
-                title="Toggle outline">
-                ✕
-            </button>
-        </div>
-        <div class="outline-panel__tree" id="outline-tree-container" role="tree"></div>
-    </div>
 
     <!-- Main Container -->
     <div id="app-container">

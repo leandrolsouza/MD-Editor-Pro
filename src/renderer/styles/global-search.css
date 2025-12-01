@@ -1,0 +1,237 @@
+/**
+ * Global Search Panel Styles
+ */
+
+.global-search-panel {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+}
+
+.global-search-panel.hidden {
+    display: flex;
+}
+
+.global-search-header {
+    display: none;
+}
+
+.global-search-controls {
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.search-input-group {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.search-input-group input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.search-input-group input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+}
+
+.search-input-group .primary-button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.search-input-group .primary-button:hover {
+    background: var(--accent-color-hover);
+}
+
+.search-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.search-options label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+.search-options input[type="checkbox"] {
+    cursor: pointer;
+}
+
+.global-search-status {
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 13px;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+}
+
+.global-search-status .status-info {
+    color: var(--text-secondary);
+}
+
+.global-search-status .status-success {
+    color: var(--success-color, #28a745);
+}
+
+.global-search-status .status-warning {
+    color: var(--warning-color, #ffc107);
+}
+
+.global-search-status .status-error {
+    color: var(--error-color, #dc3545);
+}
+
+.global-search-results {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+}
+
+.no-results,
+.searching,
+.error-message {
+    text-align: center;
+    padding: 32px 16px;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.error-message {
+    color: var(--error-color, #dc3545);
+}
+
+.search-result-file {
+    margin-bottom: 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.file-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.file-header svg {
+    flex-shrink: 0;
+    color: var(--text-secondary);
+}
+
+.file-name {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.match-count {
+    font-size: 12px;
+    color: var(--text-secondary);
+    background: var(--bg-primary);
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+.file-matches {
+    background: var(--bg-primary);
+}
+
+.match-line {
+    display: flex;
+    gap: 12px;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.match-line:last-child {
+    border-bottom: none;
+}
+
+.match-line:hover {
+    background: var(--bg-hover);
+}
+
+.line-number {
+    flex-shrink: 0;
+    width: 40px;
+    text-align: right;
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-family: 'Courier New', monospace;
+}
+
+.line-content {
+    flex: 1;
+    font-size: 13px;
+    color: var(--text-primary);
+    font-family: 'Courier New', monospace;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.line-content mark {
+    background: var(--highlight-color, #ffeb3b);
+    color: var(--text-primary);
+    padding: 2px 0;
+    border-radius: 2px;
+}
+
+/* Dark theme adjustments */
+body.dark-theme .line-content mark {
+    background: var(--highlight-color-dark, #ffc107);
+    color: #000;
+}
+
+/* Scrollbar styling */
+.global-search-results::-webkit-scrollbar {
+    width: 8px;
+}
+
+.global-search-results::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+.global-search-results::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+.global-search-results::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}

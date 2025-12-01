@@ -30,6 +30,8 @@ const FileTreeSidebar = require('./file-tree-sidebar.js');
 const OutlinePanel = require('./outline-panel.js');
 const TypewriterScrolling = require('./typewriter-scrolling.js');
 const notificationManager = require('./notification.js');
+const GlobalSearchUI = require('./global-search-ui.js');
+const ActivityBar = require('./activity-bar.js');
 
 // Application state
 let editor = null;
@@ -54,6 +56,8 @@ let tooltipManager = null;
 let fileTreeSidebar = null;
 let outlinePanel = null;
 let typewriterScrolling = null;
+let globalSearchUI = null;
+let activityBar = null;
 
 // Document state
 let currentFilePath = null;
@@ -305,49 +309,38 @@ async function initialize() {
         tooltipManager.initialize();
         console.log('TooltipManager initialized');
 
-        // Initialize File Tree Sidebar
-        const sidebarContainer = document.getElementById('file-tree-sidebar');
-        if (sidebarContainer) {
-            fileTreeSidebar = new FileTreeSidebar(sidebarContainer);
-            fileTreeSidebar.initialize();
+        // Initialize File Tree Sidebar (will be integrated into Activity Bar)
+        const fileTreeContainer = document.createElement('div');
+        fileTreeContainer.className = 'file-tree-sidebar';
+        const fileTreeContent = document.createElement('div');
+        fileTreeContent.className = 'file-tree-sidebar__tree';
+        fileTreeContent.id = 'file-tree-container';
+        fileTreeContainer.appendChild(fileTreeContent);
 
-            // Restore sidebar visibility from config
-            const sidebarVisibleResult = await window.electronAPI.getConfig('workspace.sidebarVisible');
-            if (sidebarVisibleResult?.value !== undefined) {
-                await fileTreeSidebar.setVisibility(sidebarVisibleResult.value);
-            }
+        fileTreeSidebar = new FileTreeSidebar(fileTreeContainer);
+        fileTreeSidebar.initialize();
 
-            // Setup sidebar integration with tab system
-            setupSidebarIntegration();
+        // Setup sidebar integration with tab system
+        setupSidebarIntegration();
 
-            // Restore workspace on application start (Requirement 1.4)
-            await restoreWorkspace();
+        // Restore workspace on application start (Requirement 1.4)
+        await restoreWorkspace();
 
-            console.log('FileTreeSidebar initialized');
-        }
+        console.log('FileTreeSidebar initialized');
 
-        // Initialize Outline Panel (Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7)
-        const outlinePanelContainer = document.getElementById('outline-panel');
-        if (outlinePanelContainer) {
-            outlinePanel = new OutlinePanel(editor);
-            outlinePanel.initialize(outlinePanelContainer);
+        // Initialize Outline Panel (will be integrated into Activity Bar)
+        const outlinePanelContainer = document.createElement('div');
+        outlinePanelContainer.className = 'outline-panel';
+        const outlineTreeContainer = document.createElement('div');
+        outlineTreeContainer.className = 'outline-panel__tree';
+        outlineTreeContainer.id = 'outline-tree-container';
+        outlineTreeContainer.setAttribute('role', 'tree');
+        outlinePanelContainer.appendChild(outlineTreeContainer);
 
-            // Restore outline panel visibility from config (Requirement: 1.7, 5.6)
-            const outlineVisibleResult = await window.electronAPI.getConfig('outline.visible');
-            if (outlineVisibleResult?.value) {
-                outlinePanel.show();
-            }
+        outlinePanel = new OutlinePanel(editor);
+        outlinePanel.initialize(outlinePanelContainer);
 
-            // Setup toggle button handler
-            const outlineToggleBtn = document.getElementById('outline-toggle-btn');
-            if (outlineToggleBtn) {
-                outlineToggleBtn.addEventListener('click', async () => {
-                    await toggleOutlinePanel();
-                });
-            }
-
-            console.log('OutlinePanel initialized');
-        }
+        console.log('OutlinePanel initialized');
 
         // Initialize Typewriter Scrolling (Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7)
         typewriterScrolling = new TypewriterScrolling(editor);
@@ -360,6 +353,91 @@ async function initialize() {
         }
 
         console.log('TypewriterScrolling initialized');
+
+        // Initialize Global Search UI
+        globalSearchUI = new GlobalSearchUI();
+        globalSearchUI.initialize();
+
+        // Setup global search file click handler
+        globalSearchUI.onFileClick(async (filePath, line) => {
+            try {
+                // Check if file is already open in a tab
+                const allTabsResult = await window.electronAPI.getAllTabs();
+
+                if (allTabsResult.success && allTabsResult.tabs) {
+                    const existingTab = allTabsResult.tabs.find(tab => tab.filePath === filePath);
+
+                    if (existingTab) {
+                        // Switch to existing tab
+                        await switchToTab(existingTab.id);
+                    } else {
+                        // Open file in new tab
+                        const result = await window.electronAPI.readFile(filePath);
+
+                        if (result && result.success) {
+                            await createNewTab(filePath, result.content);
+                        }
+                    }
+                }
+
+                // Jump to line
+                if (editor && line) {
+                    setTimeout(() => {
+                        editor.goToLine(line);
+                    }, 100);
+                }
+            } catch (error) {
+                console.error('Error opening file from global search:', error);
+                notificationManager.error('Failed to open file: ' + error.message);
+            }
+        });
+
+        console.log('GlobalSearchUI initialized');
+
+        // Initialize Activity Bar (VS Code style sidebar)
+        activityBar = new ActivityBar();
+        activityBar.initialize();
+
+        // Register views with activity bar
+        if (fileTreeSidebar) {
+            activityBar.registerView('files', 'EXPLORER', fileTreeContainer);
+        }
+
+        if (globalSearchUI) {
+            // Register global search panel with Activity Bar
+            // Use the container reference directly from globalSearchUI
+            const searchPanel = globalSearchUI.container;
+            if (searchPanel) {
+                searchPanel.classList.remove('hidden');
+                activityBar.registerView('search', 'SEARCH', searchPanel);
+            }
+        }
+
+        if (outlinePanel) {
+            activityBar.registerView('outline', 'OUTLINE', outlinePanelContainer);
+        }
+
+        if (templateUI) {
+            const templateContent = document.createElement('div');
+            templateContent.id = 'template-container';
+            templateContent.innerHTML = '<div style="padding: var(--space-3); color: var(--text-secondary);">Template panel coming soon...</div>';
+            activityBar.registerView('templates', 'TEMPLATES', templateContent);
+        }
+
+        if (snippetManager) {
+            const snippetContent = document.createElement('div');
+            snippetContent.id = 'snippet-container';
+            snippetContent.innerHTML = '<div style="padding: var(--space-3); color: var(--text-secondary);">Snippet panel coming soon...</div>';
+            activityBar.registerView('snippets', 'SNIPPETS', snippetContent);
+        }
+
+        // Settings view
+        const settingsContent = document.createElement('div');
+        settingsContent.id = 'settings-container';
+        settingsContent.innerHTML = '<div style="padding: var(--space-3); color: var(--text-secondary);">Settings panel coming soon...</div>';
+        activityBar.registerView('settings', 'SETTINGS', settingsContent);
+
+        console.log('ActivityBar initialized');
 
         // Attach tooltips to formatting toolbar buttons
         attachFormattingToolbarTooltips();
@@ -434,7 +512,10 @@ function setupScrollSynchronization() {
     editorScrollDOM.addEventListener('scroll', () => {
         const scrollPercent = editor.getScrollPosition();
 
-        preview.syncScroll(scrollPercent);
+        // Validate scroll percent before syncing
+        if (!isNaN(scrollPercent) && scrollPercent >= 0 && scrollPercent <= 1) {
+            preview.syncScroll(scrollPercent);
+        }
     });
 }
 
@@ -604,6 +685,11 @@ async function handleMenuAction(action, data) {
             case 'find':
                 searchManager.show();
                 break;
+            case 'find-in-files':
+                if (globalSearchUI) {
+                    globalSearchUI.show();
+                }
+                break;
             case 'toggle-theme':
                 await themeManager.toggleTheme();
                 break;
@@ -627,12 +713,14 @@ async function handleMenuAction(action, data) {
                 }
                 break;
             case 'toggle-sidebar':
-                if (fileTreeSidebar) {
-                    await fileTreeSidebar.toggleVisibility();
+                if (activityBar) {
+                    activityBar.toggleView('files');
                 }
                 break;
             case 'toggle-outline':
-                await toggleOutlinePanel();
+                if (activityBar) {
+                    activityBar.toggleView('outline');
+                }
                 break;
             case 'toggle-typewriter':
                 await toggleTypewriterScrolling();
@@ -1132,9 +1220,33 @@ function setupKeyboardShortcuts() {
             }
 
             // Ctrl/Cmd + F: Find
-            if (modifier && e.key === 'f') {
+            if (modifier && e.key === 'f' && !e.shiftKey) {
                 e.preventDefault();
                 searchManager.show();
+            }
+
+            // Ctrl/Cmd + Shift + F: Find in Files (Global Search)
+            if (modifier && e.shiftKey && e.key === 'F') {
+                e.preventDefault();
+                if (activityBar) {
+                    activityBar.toggleView('search');
+                }
+            }
+
+            // Ctrl/Cmd + Shift + E: Toggle Explorer
+            if (modifier && e.shiftKey && e.key === 'E') {
+                e.preventDefault();
+                if (activityBar) {
+                    activityBar.toggleView('files');
+                }
+            }
+
+            // Ctrl/Cmd + Shift + O: Toggle Outline
+            if (modifier && e.shiftKey && e.key === 'O') {
+                e.preventDefault();
+                if (activityBar) {
+                    activityBar.toggleView('outline');
+                }
             }
 
             // Ctrl/Cmd + Z: Undo
@@ -1159,12 +1271,6 @@ function setupKeyboardShortcuts() {
             if (modifier && e.key === 'o' && !e.shiftKey) {
                 e.preventDefault();
                 await handleOpenFile();
-            }
-
-            // Ctrl/Cmd + Shift + O: Open Folder
-            if (modifier && e.shiftKey && e.key === 'O') {
-                e.preventDefault();
-                await handleOpenFolder();
             }
 
             // Ctrl/Cmd + N: New

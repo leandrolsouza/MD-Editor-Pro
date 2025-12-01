@@ -108,6 +108,9 @@ const electronAPI = {
     getLineNumbers: () => ipcRenderer.invoke('config:get-line-numbers'),
     toggleLineNumbers: () => ipcRenderer.invoke('config:toggle-line-numbers'),
 
+    // Global search operations
+    globalSearch: (searchText, options) => ipcRenderer.invoke('global-search:search', searchText, options),
+
     // System information
     getVersions: () => ({
         electron: process.versions.electron || 'N/A',

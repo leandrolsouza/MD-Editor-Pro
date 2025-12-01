@@ -13,6 +13,7 @@ const KeyboardShortcutManager = require('./keyboard-shortcut-manager');
 const TemplateManager = require('./template-manager');
 const AdvancedMarkdownManager = require('./advanced-markdown-manager');
 const WorkspaceManager = require('./workspace-manager');
+const GlobalSearchManager = require('./global-search-manager');
 const { createApplicationMenu, updateMenuItemChecked } = require('./menu');
 
 // Sandbox disabled to allow nodeIntegration in renderer
@@ -45,6 +46,9 @@ const templateManager = new TemplateManager(configStore);
 
 // Create workspace manager instance
 const workspaceManager = new WorkspaceManager(configStore);
+
+// Create global search manager instance
+const globalSearchManager = new GlobalSearchManager(workspaceManager);
 
 /**
  * Register IPC handlers for all main process operations
@@ -713,6 +717,18 @@ function registerIPCHandlers() {
             return { success: true };
         } catch (error) {
             console.error('Error opening external URL:', error);
+            throw error;
+        }
+    });
+
+    // Global search operations
+    ipcMain.handle('global-search:search', async (event, searchText, options) => {
+        try {
+            const result = await globalSearchManager.searchInWorkspace(searchText, options);
+
+            return result;
+        } catch (error) {
+            console.error('Error performing global search:', error);
             throw error;
         }
     });

@@ -1,0 +1,192 @@
+/* Activity Bar - VS Code Style Sidebar */
+
+.activity-bar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 48px;
+    background-color: var(--activity-bar-bg, #2c2c2c);
+    border-right: 1px solid var(--activity-bar-border, #1e1e1e);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--space-2) 0;
+    z-index: 200;
+    transition: background-color var(--duration-normal) var(--ease-out);
+}
+
+.activity-bar__item {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    color: var(--activity-bar-fg, #858585);
+    transition: color var(--duration-fast) var(--ease-out);
+    border: none;
+    background: none;
+    padding: 0;
+}
+
+.activity-bar__item:hover {
+    color: var(--activity-bar-fg-hover, #ffffff);
+}
+
+.activity-bar__item.active {
+    color: var(--activity-bar-fg-active, #ffffff);
+}
+
+.activity-bar__item.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 2px;
+    height: 24px;
+    background-color: var(--accent-color, #007acc);
+}
+
+.activity-bar__icon {
+    font-size: 24px;
+    line-height: 1;
+}
+
+.activity-bar__spacer {
+    flex: 1;
+}
+
+/* Sidebar Panel */
+.sidebar-panel {
+    position: fixed;
+    left: 48px;
+    top: 0;
+    bottom: 0;
+    width: 300px;
+    background-color: var(--sidebar-bg, #252526);
+    border-right: 1px solid var(--sidebar-border, #1e1e1e);
+    display: none;
+    flex-direction: column;
+    z-index: 199;
+    transition: transform var(--duration-slow) var(--ease-in-out);
+}
+
+.sidebar-panel.visible {
+    display: flex;
+}
+
+.sidebar-panel__header {
+    height: 35px;
+    padding: 0 var(--space-3);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--sidebar-border, #1e1e1e);
+    background-color: var(--sidebar-header-bg, #2d2d30);
+}
+
+.sidebar-panel__title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--sidebar-title-fg, #cccccc);
+}
+
+.sidebar-panel__actions {
+    display: flex;
+    gap: var(--space-1);
+}
+
+.sidebar-panel__action-btn {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: var(--sidebar-title-fg, #cccccc);
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    font-size: 16px;
+    padding: 0;
+    transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+.sidebar-panel__action-btn:hover {
+    background-color: var(--sidebar-action-hover, rgba(255, 255, 255, 0.1));
+}
+
+.sidebar-panel__content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Adjust main container when sidebar is visible */
+#app-container.sidebar-visible {
+    margin-left: 300px;
+    /* Sidebar width (activity bar already accounted for in left: 48px) */
+}
+
+/* Adjust tab bar when sidebar is visible */
+body:has(.sidebar-panel.visible) .tab-bar {
+    left: 348px;
+    /* Activity bar (48px) + Sidebar (300px) */
+}
+
+/* Adjust formatting toolbar when sidebar is visible */
+body:has(.sidebar-panel.visible) .formatting-toolbar {
+    left: 348px;
+    /* Activity bar (48px) + Sidebar (300px) */
+}
+
+/* Adjust status bar when sidebar is visible */
+body:has(.sidebar-panel.visible) .status-bar {
+    left: 348px;
+    /* Activity bar (48px) + Sidebar (300px) */
+}
+
+/* Light theme overrides */
+.theme-light .activity-bar {
+    background-color: var(--activity-bar-bg-light, #2c2c2c);
+    border-right-color: var(--activity-bar-border-light, #e5e5e5);
+}
+
+.theme-light .activity-bar__item {
+    color: var(--activity-bar-fg-light, #6e6e6e);
+}
+
+.theme-light .activity-bar__item:hover {
+    color: var(--activity-bar-fg-hover-light, #2c2c2c);
+}
+
+.theme-light .activity-bar__item.active {
+    color: var(--activity-bar-fg-active-light, #2c2c2c);
+}
+
+.theme-light .sidebar-panel {
+    background-color: var(--sidebar-bg-light, #f3f3f3);
+    border-right-color: var(--sidebar-border-light, #e5e5e5);
+}
+
+.theme-light .sidebar-panel__header {
+    background-color: var(--sidebar-header-bg-light, #f3f3f3);
+    border-bottom-color: var(--sidebar-border-light, #e5e5e5);
+}
+
+.theme-light .sidebar-panel__title {
+    color: var(--sidebar-title-fg-light, #383838);
+}
+
+.theme-light .sidebar-panel__action-btn {
+    color: var(--sidebar-title-fg-light, #383838);
+}
+
+.theme-light .sidebar-panel__action-btn:hover {
+    background-color: var(--sidebar-action-hover-light, rgba(0, 0, 0, 0.05));
+}

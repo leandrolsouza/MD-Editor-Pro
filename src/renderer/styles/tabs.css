@@ -4,7 +4,8 @@
 .tab-bar {
     position: fixed;
     top: 0;
-    left: 0;
+    left: 48px;
+    /* Activity bar width */
     right: 0;
     height: 36px;
     background-color: var(--tab-bar-bg, #f5f5f5);

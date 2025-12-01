@@ -21,7 +21,8 @@ body {
     position: fixed;
     top: 80px;
     /* 36px tab bar + 44px formatting toolbar */
-    left: 0;
+    left: 48px;
+    /* Activity bar width */
     right: 0;
     transition: margin-left var(--duration-slow, 300ms) var(--ease-in-out, ease),
         margin-right var(--duration-slow, 300ms) var(--ease-in-out, ease);
@@ -134,7 +135,8 @@ input:focus-visible {
 .status-bar {
     position: fixed;
     bottom: 0;
-    left: 0;
+    left: 48px;
+    /* Activity bar width */
     right: 0;
     height: var(--space-6);
     background-color: var(--status-bar-bg, #f5f5f5);
