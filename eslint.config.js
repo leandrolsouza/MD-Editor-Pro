@@ -1,4 +1,5 @@
 const js = require('@eslint/js');
+const customRules = require('./eslint-rules');
 
 module.exports = [
     // Ignore patterns
@@ -15,6 +16,9 @@ module.exports = [
     // Base configuration for all files
     {
         files: ['src/**/*.js'],
+        plugins: {
+            'custom': customRules
+        },
         languageOptions: {
             ecmaVersion: 'latest',
             sourceType: 'commonjs',
@@ -78,6 +82,12 @@ module.exports = [
             'no-mixed-requires': 'warn',
             'no-new-require': 'error',
             'no-path-concat': 'error',
+
+            // Custom error handling rules (Requirements 4.1, 4.2, 4.3, 4.4, 4.5)
+            'custom/async-error-handling': 'error',
+            'custom/ipc-error-format': 'error',
+            'custom/error-logging': 'warn',
+            'custom/promise-rejection-handler': 'warn',
 
             // Code formatting rules (Requirements 2.1, 2.2, 2.3, 2.4, 2.5)
             // Indentation (Requirement 2.1)
