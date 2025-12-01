@@ -270,4 +270,255 @@ describe('SearchManager', () => {
             expect(() => sm.hide()).toThrow('SearchManager not initialized');
         });
     });
+
+    describe('Advanced Markdown Search - Requirement 4.3', () => {
+        describe('Mermaid diagram search', () => {
+            it('should find text within Mermaid code blocks', () => {
+                const mermaidContent = `# Document with Mermaid
+
+\`\`\`mermaid
+graph TD
+    A[Start] --> B[Process]
+    B --> C[End]
+\`\`\`
+
+Some other text.`;
+
+                editor.setValue(mermaidContent);
+
+                // Search for text within Mermaid diagram
+                const results = searchManager.search('Process');
+                expect(results.length).toBe(1);
+                expect(results[0].text).toBe('Process');
+            });
+
+            it('should find Mermaid keywords', () => {
+                const mermaidContent = `\`\`\`mermaid
+sequenceDiagram
+    Alice->>Bob: Hello Bob
+    Bob-->>Alice: Hi Alice
+\`\`\``;
+
+                editor.setValue(mermaidContent);
+
+                // "Alice" appears 3 times: twice in the diagram and once in "Hi Alice"
+                const results = searchManager.search('Alice');
+                expect(results.length).toBe(3);
+            });
+
+            it('should find text in multiple Mermaid diagrams', () => {
+                const content = `\`\`\`mermaid
+graph LR
+    A[User] --> B[System]
+\`\`\`
+
+Some text.
+
+\`\`\`mermaid
+graph TD
+    C[User] --> D[Database]
+\`\`\``;
+
+                editor.setValue(content);
+
+                const results = searchManager.search('User');
+                expect(results.length).toBe(2);
+            });
+        });
+
+        describe('LaTeX math search', () => {
+            it('should find text within inline math expressions', () => {
+                const mathContent = `The equation $E = mc^2$ is famous.`;
+
+                editor.setValue(mathContent);
+
+                const results = searchManager.search('mc');
+                expect(results.length).toBe(1);
+            });
+
+            it('should find text within display math expressions', () => {
+                const mathContent = `The quadratic formula is:
+
+$$x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$$
+
+This is useful.`;
+
+                editor.setValue(mathContent);
+
+                const results = searchManager.search('sqrt');
+                expect(results.length).toBe(1);
+            });
+
+            it('should find LaTeX commands', () => {
+                const mathContent = `Inline: $\\alpha + \\beta = \\gamma$
+Display: $$\\int_0^\\infty e^{-x} dx = 1$$`;
+
+                editor.setValue(mathContent);
+
+                const results = searchManager.search('alpha');
+                expect(results.length).toBe(1);
+            });
+
+            it('should find text in multiple math expressions', () => {
+                const content = `First: $x^2 + y^2 = r^2$
+Second: $x^2 - y^2 = z^2$`;
+
+                editor.setValue(content);
+
+                const results = searchManager.search('x^2');
+                expect(results.length).toBe(2);
+            });
+        });
+
+        describe('Callout block search', () => {
+            it('should find text within NOTE callouts', () => {
+                const calloutContent = `> [!NOTE]
+> This is an important note about the system.`;
+
+                editor.setValue(calloutContent);
+
+                const results = searchManager.search('important');
+                expect(results.length).toBe(1);
+            });
+
+            it('should find text within WARNING callouts', () => {
+                const calloutContent = `> [!WARNING]
+> Be careful with this operation.`;
+
+                editor.setValue(calloutContent);
+
+                const results = searchManager.search('careful');
+                expect(results.length).toBe(1);
+            });
+
+            it('should find text in multiple callout types', () => {
+                const content = `> [!NOTE]
+> First message here.
+
+> [!WARNING]
+> Second message here.
+
+> [!TIP]
+> Third message here.`;
+
+                editor.setValue(content);
+
+                const results = searchManager.search('message');
+                expect(results.length).toBe(3);
+            });
+
+            it('should find callout type identifiers', () => {
+                const content = `> [!NOTE]
+> Content
+
+> [!WARNING]
+> Content`;
+
+                editor.setValue(content);
+
+                const results = searchManager.search('NOTE');
+                expect(results.length).toBe(1);
+            });
+        });
+
+        describe('Mixed advanced markdown search', () => {
+            it('should find text across different advanced markdown types', () => {
+                const mixedContent = `# Document
+
+\`\`\`mermaid
+graph TD
+    A[User] --> B[System]
+\`\`\`
+
+The formula $E = mc^2$ shows energy.
+
+> [!NOTE]
+> The User should be aware of this.`;
+
+                editor.setValue(mixedContent);
+
+                const results = searchManager.search('User');
+                expect(results.length).toBe(2);
+            });
+
+            it('should find text in combination of basic and advanced markdown', () => {
+                const content = `# Testing Search
+
+Regular paragraph with testing.
+
+\`\`\`mermaid
+graph LR
+    A[Testing] --> B[Results]
+\`\`\`
+
+Math: $testing = true$
+
+> [!TIP]
+> Keep testing your code.`;
+
+                editor.setValue(content);
+
+                // "testing" appears 5 times: in title, paragraph, mermaid, math, and callout
+                const results = searchManager.search('testing');
+                expect(results.length).toBe(5);
+            });
+        });
+
+        describe('Replace in advanced markdown', () => {
+            it('should replace text within Mermaid diagrams', async () => {
+                const content = `\`\`\`mermaid
+graph TD
+    A[OldName] --> B[Process]
+\`\`\``;
+
+                editor.setValue(content);
+
+                const searchInput = document.getElementById('search-input');
+                searchInput.value = 'OldName';
+                searchManager.search('OldName');
+                searchManager.replaceAll('NewName');
+
+                await new Promise(resolve => setTimeout(resolve, 20));
+
+                const newContent = editor.getValue();
+                expect(newContent).toContain('NewName');
+                expect(newContent).not.toContain('OldName');
+            });
+
+            it('should replace text within math expressions', async () => {
+                const content = `The equation $oldvar = 5$ is simple.`;
+
+                editor.setValue(content);
+
+                const searchInput = document.getElementById('search-input');
+                searchInput.value = 'oldvar';
+                searchManager.search('oldvar');
+                searchManager.replaceAll('newvar');
+
+                await new Promise(resolve => setTimeout(resolve, 20));
+
+                const newContent = editor.getValue();
+                expect(newContent).toContain('newvar');
+                expect(newContent).not.toContain('oldvar');
+            });
+
+            it('should replace text within callout blocks', async () => {
+                const content = `> [!NOTE]
+> This is oldtext that needs updating.`;
+
+                editor.setValue(content);
+
+                const searchInput = document.getElementById('search-input');
+                searchInput.value = 'oldtext';
+                searchManager.search('oldtext');
+                searchManager.replaceAll('newtext');
+
+                await new Promise(resolve => setTimeout(resolve, 20));
+
+                const newContent = editor.getValue();
+                expect(newContent).toContain('newtext');
+                expect(newContent).not.toContain('oldtext');
+            });
+        });
+    });
 });

@@ -116,6 +116,19 @@ class ThemeManager {
             previewPane.classList.remove('theme-light', 'theme-dark')
             previewPane.classList.add(`theme-${theme}`)
         }
+
+        // Notify theme change callback if registered
+        if (this.onThemeChangeCallback) {
+            this.onThemeChangeCallback(theme);
+        }
+    }
+
+    /**
+     * Register a callback for theme changes
+     * @param {Function} callback - Callback function(theme)
+     */
+    onThemeChange(callback) {
+        this.onThemeChangeCallback = callback;
     }
 }
 

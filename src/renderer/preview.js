@@ -3,11 +3,11 @@
  * Provides methods for rendering markdown and scroll synchronization
  */
 
-const { renderMarkdown } = require('./markdown-parser.js');
-
 class Preview {
-    constructor() {
+    constructor(postProcessor = null, markdownParser = null) {
         this.container = null;
+        this.postProcessor = postProcessor;
+        this.markdownParser = markdownParser;
         this.debounceTimer = null;
         this.debounceDelay = 300; // 300ms as specified in requirements
         this.lastRenderedContent = '';
@@ -56,7 +56,7 @@ class Preview {
      * @param {string} markdown - The markdown content to render
      * @private
      */
-    _renderImmediate(markdown) {
+    async _renderImmediate(markdown) {
         if (!this.container) {
             throw new Error('Preview not initialized');
         }
@@ -68,9 +68,31 @@ class Preview {
 
         this.lastRenderedContent = markdown;
 
-        // Render the markdown to HTML
-        const html = renderMarkdown(markdown);
-        this.container.innerHTML = html;
+        try {
+            // Render the markdown to HTML
+            let html;
+            if (this.markdownParser) {
+                html = this.markdownParser.parse(markdown);
+            } else {
+                // Fallback to basic rendering if no parser provided
+                const { renderMarkdown } = require('./markdown-parser.js');
+                html = renderMarkdown(markdown);
+            }
+
+            this.container.innerHTML = html;
+
+            // Post-process for advanced markdown features (Mermaid, KaTeX)
+            if (this.postProcessor) {
+                await this.postProcessor.processHTML(this.container);
+            }
+        } catch (error) {
+            console.error('Error rendering preview:', error);
+            // Display error message in preview
+            this.container.innerHTML = `<div class="preview-error">
+                <strong>Preview Error:</strong>
+                <pre>${error.message || 'Unknown error occurred'}</pre>
+            </div>`;
+        }
     }
 
     /**
@@ -123,6 +145,20 @@ class Preview {
         }
 
         this.setScrollPosition(editorScrollPercent);
+    }
+
+    /**
+     * Update theme for advanced markdown features
+     * @param {string} theme - Theme name ('light' or 'dark')
+     */
+    updateTheme(theme) {
+        if (this.postProcessor) {
+            try {
+                this.postProcessor.updateTheme(theme);
+            } catch (error) {
+                console.error('Error updating theme:', error);
+            }
+        }
     }
 
     /**

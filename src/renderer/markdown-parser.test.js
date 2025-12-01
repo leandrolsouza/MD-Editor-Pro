@@ -2,8 +2,8 @@
  * Tests for markdown parser configuration
  */
 
-import { describe, test, expect } from 'vitest';
-import { createMarkdownParser, getMarkdownParser, renderMarkdown } from './markdown-parser.js';
+import { describe, test, expect, beforeEach } from 'vitest';
+import { MarkdownParser, createMarkdownParser, getMarkdownParser, renderMarkdown } from './markdown-parser.js';
 
 describe('Markdown Parser Configuration', () => {
     test('creates markdown parser instance', () => {
@@ -142,5 +142,253 @@ describe('Markdown Parser Configuration', () => {
         const html = renderMarkdown(markdown);
         expect(html).toContain('<pre>');
         expect(html).toContain('code');
+    });
+});
+
+describe('MarkdownParser Class', () => {
+    test('creates parser without advanced features', () => {
+        const parser = new MarkdownParser();
+        expect(parser).toBeDefined();
+        expect(parser.md).toBeDefined();
+        expect(typeof parser.parse).toBe('function');
+    });
+
+    test('parses basic markdown', () => {
+        const parser = new MarkdownParser();
+        const html = parser.parse('# Hello World');
+        expect(html).toContain('<h1>');
+        expect(html).toContain('Hello World');
+    });
+
+    test('handles empty markdown', () => {
+        const parser = new MarkdownParser();
+        const html = parser.parse('');
+        expect(html).toBe('');
+    });
+
+    test('handles null markdown', () => {
+        const parser = new MarkdownParser();
+        const html = parser.parse(null);
+        expect(html).toBe('');
+    });
+
+    test('reinitialize recreates parser instance', () => {
+        const parser = new MarkdownParser();
+        const oldMd = parser.md;
+        parser.reinitialize();
+        expect(parser.md).toBeDefined();
+        expect(parser.md).not.toBe(oldMd);
+    });
+});
+
+describe('MarkdownParser with Advanced Features', () => {
+    let mockManager;
+
+    beforeEach(() => {
+        // Create a mock AdvancedMarkdownManager
+        mockManager = {
+            isFeatureEnabled: (feature) => {
+                // All features enabled by default
+                return true;
+            }
+        };
+    });
+
+    test('creates parser with advanced markdown manager', () => {
+        const parser = new MarkdownParser(mockManager);
+        expect(parser).toBeDefined();
+        expect(parser.advancedMarkdownManager).toBe(mockManager);
+    });
+
+    test('loads Mermaid plugin when enabled', () => {
+        mockManager.isFeatureEnabled = (feature) => feature === 'mermaid';
+        const parser = new MarkdownParser(mockManager);
+
+        const markdown = '```mermaid\ngraph TD\nA-->B\n```';
+        const html = parser.parse(markdown);
+
+        // Should contain mermaid-diagram class
+        expect(html).toContain('mermaid-diagram');
+        expect(html).toContain('data-mermaid-id');
+    });
+
+    test('does not load Mermaid plugin when disabled', () => {
+        mockManager.isFeatureEnabled = (feature) => feature !== 'mermaid';
+        const parser = new MarkdownParser(mockManager);
+
+        const markdown = '```mermaid\ngraph TD\nA-->B\n```';
+        const html = parser.parse(markdown);
+
+        // Should be treated as regular code block
+        expect(html).not.toContain('mermaid-diagram');
+        expect(html).toContain('<pre>');
+        expect(html).toContain('<code');
+    });
+
+    test('loads KaTeX plugin when enabled', () => {
+        mockManager.isFeatureEnabled = (feature) => feature === 'katex';
+        const parser = new MarkdownParser(mockManager);
+
+        const markdown = 'Inline math: $x^2$';
+        const html = parser.parse(markdown);
+
+        // Should contain katex-inline class
+        expect(html).toContain('katex-inline');
+        expect(html).toContain('data-katex');
+    });
+
+    test('does not load KaTeX plugin when disabled', () => {
+        mockManager.isFeatureEnabled = (feature) => feature !== 'katex';
+        const parser = new MarkdownParser(mockManager);
+
+        const markdown = 'Inline math: $x^2$';
+        const html = parser.parse(markdown);
+
+        // Should be treated as regular text
+        expect(html).not.toContain('katex-inline');
+        expect(html).toContain('$x^2$');
+    });
+
+    test('loads Callouts plugin when enabled', () => {
+        mockManager.isFeatureEnabled = (feature) => feature === 'callouts';
+        const parser = new MarkdownParser(mockManager);
+
+        const markdown = '> [!NOTE]\n> This is a note';
+        const html = parser.parse(markdown);
+
+        // Should contain callout classes
+        expect(html).toContain('callout');
+        expect(html).toContain('callout-note');
+    });
+
+    test('does not load Callouts plugin when disabled', () => {
+        mockManager.isFeatureEnabled = (feature) => feature !== 'callouts';
+        const parser = new MarkdownParser(mockManager);
+
+        const markdown = '> [!NOTE]\n> This is a note';
+        const html = parser.parse(markdown);
+
+        // Should be treated as regular blockquote
+        expect(html).not.toContain('callout-note');
+        expect(html).toContain('<blockquote>');
+    });
+
+    test('loads all plugins when all features enabled', () => {
+        mockManager.isFeatureEnabled = () => true;
+        const parser = new MarkdownParser(mockManager);
+
+        const markdown = `
+# Test Document
+
+\`\`\`mermaid
+graph TD
+A-->B
+\`\`\`
+
+Inline math: $x^2$
+
+> [!NOTE]
+> This is a note
+`;
+        const html = parser.parse(markdown);
+
+        // Should contain all advanced features
+        expect(html).toContain('mermaid-diagram');
+        expect(html).toContain('katex-inline');
+        expect(html).toContain('callout');
+    });
+
+    test('reinitialize updates plugins based on new configuration', () => {
+        // Start with all features enabled
+        mockManager.isFeatureEnabled = () => true;
+        const parser = new MarkdownParser(mockManager);
+
+        let html = parser.parse('```mermaid\ngraph TD\nA-->B\n```');
+        expect(html).toContain('mermaid-diagram');
+
+        // Disable mermaid
+        mockManager.isFeatureEnabled = (feature) => feature !== 'mermaid';
+        parser.reinitialize();
+
+        html = parser.parse('```mermaid\ngraph TD\nA-->B\n```');
+        expect(html).not.toContain('mermaid-diagram');
+    });
+
+    test('handles errors in plugin initialization gracefully', () => {
+        // Create a manager that throws errors
+        const errorManager = {
+            isFeatureEnabled: () => {
+                throw new Error('Test error');
+            }
+        };
+
+        // Should not throw, just log error
+        expect(() => {
+            const parser = new MarkdownParser(errorManager);
+        }).not.toThrow();
+    });
+});
+
+describe('MarkdownParser Async Parsing', () => {
+    test('parseAsync returns HTML without post-processor', async () => {
+        const parser = new MarkdownParser();
+        const html = await parser.parseAsync('# Hello');
+        expect(html).toContain('<h1>');
+        expect(html).toContain('Hello');
+    });
+
+    test('parseAsync with post-processor processes HTML', async () => {
+        const mockPostProcessor = {
+            processHTML: async (container) => {
+                // Mock post-processing
+                container.innerHTML = container.innerHTML + '<!-- processed -->';
+            }
+        };
+
+        const parser = new MarkdownParser(null, mockPostProcessor);
+        const container = { innerHTML: '' };
+
+        const html = await parser.parseAsync('# Hello', container);
+        expect(html).toContain('<!-- processed -->');
+    });
+
+    test('parseAsync without container returns HTML', async () => {
+        const mockPostProcessor = {
+            processHTML: async () => { }
+        };
+
+        const parser = new MarkdownParser(null, mockPostProcessor);
+        const html = await parser.parseAsync('# Hello');
+        expect(html).toContain('<h1>');
+    });
+});
+
+describe('Backward Compatibility', () => {
+    test('existing code using legacy functions still works', () => {
+        // Test that old code patterns still work
+        const parser = createMarkdownParser();
+        expect(parser).toBeDefined();
+
+        const singleton = getMarkdownParser();
+        expect(singleton).toBeDefined();
+
+        const html = renderMarkdown('# Test');
+        expect(html).toContain('<h1>');
+    });
+
+    test('legacy functions support all basic markdown', () => {
+        const tests = [
+            { input: '# Heading', expected: '<h1>' },
+            { input: '**bold**', expected: '<strong>' },
+            { input: '*italic*', expected: '<em>' },
+            { input: '[link](url)', expected: '<a href' },
+            { input: '- list', expected: '<ul>' },
+            { input: '```\ncode\n```', expected: '<pre>' }
+        ];
+
+        tests.forEach(({ input, expected }) => {
+            const html = renderMarkdown(input);
+            expect(html).toContain(expected);
+        });
     });
 });

@@ -74,7 +74,18 @@ const electronAPI = {
     getTemplatesByCategory: (category) => ipcRenderer.invoke('template:get-by-category', category),
     markTemplateUsed: (templateId) => ipcRenderer.invoke('template:mark-used', templateId),
     findPlaceholders: (content) => ipcRenderer.invoke('template:find-placeholders', content),
-    getFirstPlaceholderPosition: (content) => ipcRenderer.invoke('template:get-first-placeholder-position', content)
+    getFirstPlaceholderPosition: (content) => ipcRenderer.invoke('template:get-first-placeholder-position', content),
+
+    // Advanced Markdown operations
+    getAdvancedMarkdownSettings: () => ipcRenderer.invoke('advanced-markdown:get-settings'),
+    toggleAdvancedMarkdownFeature: (featureName, enabled) => ipcRenderer.invoke('advanced-markdown:toggle-feature', featureName, enabled),
+
+    onAdvancedMarkdownSettingsChanged: (callback) => {
+        const subscription = (event, featureName, enabled) => callback(featureName, enabled)
+        ipcRenderer.on('advanced-markdown:settings-changed', subscription)
+        // Return cleanup function
+        return () => ipcRenderer.removeListener('advanced-markdown:settings-changed', subscription)
+    }
 }
 
 // Expose API directly to window when contextIsolation is disabled

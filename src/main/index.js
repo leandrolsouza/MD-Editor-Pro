@@ -11,6 +11,7 @@ const ConfigStore = require('./config-store');
 const TabManager = require('./tab-manager');
 const KeyboardShortcutManager = require('./keyboard-shortcut-manager');
 const TemplateManager = require('./template-manager');
+const AdvancedMarkdownManager = require('./advanced-markdown-manager');
 const { createApplicationMenu } = require('./menu');
 
 // Sandbox disabled to allow nodeIntegration in renderer
@@ -23,11 +24,14 @@ const windowManager = new WindowManager();
 // Create file manager instance
 const fileManager = new FileManager(windowManager);
 
-// Create exporter instance
-const exporter = new Exporter(windowManager);
-
-// Create config store instance
+// Create config store instance (moved up to be available for other managers)
 const configStore = new ConfigStore();
+
+// Create advanced markdown manager instance (moved up to be available for exporter)
+const advancedMarkdownManager = new AdvancedMarkdownManager(configStore);
+
+// Create exporter instance
+const exporter = new Exporter(windowManager, advancedMarkdownManager);
 
 // Create tab manager instance
 const tabManager = new TabManager(configStore);
@@ -480,6 +484,36 @@ function registerIPCHandlers() {
             return { success: true, position };
         } catch (error) {
             console.error('Error getting first placeholder position:', error);
+            throw error;
+        }
+    });
+
+    // Advanced Markdown operations
+    // Requirement: 6.1 - Get current settings
+    ipcMain.handle('advanced-markdown:get-settings', async () => {
+        try {
+            const features = advancedMarkdownManager.getAllFeatures();
+            return { success: true, features };
+        } catch (error) {
+            console.error('Error getting advanced markdown settings:', error);
+            throw error;
+        }
+    });
+
+    // Requirements: 6.2, 6.3, 6.4 - Toggle feature and save to ConfigStore
+    ipcMain.handle('advanced-markdown:toggle-feature', async (event, featureName, enabled) => {
+        try {
+            advancedMarkdownManager.toggleFeature(featureName, enabled);
+
+            // Notify renderer of configuration changes
+            const mainWindow = windowManager.getMainWindow();
+            if (mainWindow) {
+                mainWindow.webContents.send('advanced-markdown:settings-changed', featureName, enabled);
+            }
+
+            return { success: true };
+        } catch (error) {
+            console.error('Error toggling advanced markdown feature:', error);
             throw error;
         }
     });

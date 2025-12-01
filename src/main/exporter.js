@@ -1,7 +1,7 @@
 /**
  * Exporter - HTML and PDF Export Manager
  * Handles exporting markdown documents to HTML and PDF formats
- * Requirements: 5.1, 5.2, 5.3
+ * Requirements: 5.1, 5.2, 5.3, 1.5, 1.6, 2.6, 2.7, 3.8, 3.9
  */
 
 const { dialog, BrowserWindow } = require('electron');
@@ -11,13 +11,19 @@ const markdownit = require('markdown-it');
 const markdownitTaskLists = require('markdown-it-task-lists');
 const hljs = require('highlight.js');
 
+// Advanced markdown plugins
+const markdownItMermaid = require('../renderer/advanced-markdown/markdown-it-mermaid-plugin');
+const markdownItKatex = require('../renderer/advanced-markdown/markdown-it-katex-plugin');
+const markdownItCallouts = require('../renderer/advanced-markdown/markdown-it-callout-plugin');
+
 /**
  * Exporter class manages document export operations
  * Provides methods for exporting to HTML and PDF formats
  */
 class Exporter {
-    constructor(windowManager) {
+    constructor(windowManager, advancedMarkdownManager) {
         this.windowManager = windowManager;
+        this.advancedMarkdownManager = advancedMarkdownManager;
 
         // Initialize markdown-it with CommonMark preset and GFM extensions
         this.md = markdownit({
@@ -39,6 +45,189 @@ class Exporter {
         })
             .enable(['table', 'strikethrough'])  // Enable GFM extensions
             .use(markdownitTaskLists);           // Enable task lists
+
+        // Initialize advanced markdown plugins if manager is provided
+        this._initializeAdvancedPlugins();
+    }
+
+    /**
+     * Initialize advanced markdown plugins based on enabled features
+     * @private
+     */
+    _initializeAdvancedPlugins() {
+        if (!this.advancedMarkdownManager) {
+            return;
+        }
+
+        // Load plugins based on enabled features
+        if (this.advancedMarkdownManager.isFeatureEnabled('mermaid')) {
+            this.md.use(markdownItMermaid);
+        }
+
+        if (this.advancedMarkdownManager.isFeatureEnabled('katex')) {
+            this.md.use(markdownItKatex);
+        }
+
+        if (this.advancedMarkdownManager.isFeatureEnabled('callouts')) {
+            this.md.use(markdownItCallouts);
+        }
+    }
+
+    /**
+     * Get KaTeX CSS content
+     * @returns {Promise<string>} KaTeX CSS content
+     * @private
+     */
+    async _getKatexCSS() {
+        try {
+            const katexCssPath = path.join(__dirname, '../../node_modules/katex/dist/katex.min.css');
+            return await fs.readFile(katexCssPath, 'utf-8');
+        } catch (error) {
+            console.error('Failed to load KaTeX CSS:', error);
+            return '';
+        }
+    }
+
+    /**
+     * Generate callout CSS styles
+     * @param {string} theme - Theme to use ('light' or 'dark')
+     * @returns {string} Callout CSS styles
+     * @private
+     */
+    _generateCalloutCSS(theme = 'light') {
+        const isDark = theme === 'dark';
+
+        // Define colors based on theme
+        const colors = isDark ? {
+            note: { border: '#58a6ff', bg: '#1c2d41', title: '#58a6ff' },
+            warning: { border: '#d29922', bg: '#3d3000', title: '#d29922' },
+            tip: { border: '#3fb950', bg: '#0f3d1a', title: '#3fb950' },
+            important: { border: '#a371f7', bg: '#2b1f3d', title: '#a371f7' },
+            caution: { border: '#f85149', bg: '#4a1a1f', title: '#f85149' }
+        } : {
+            note: { border: '#0969da', bg: '#ddf4ff', title: '#0969da' },
+            warning: { border: '#9a6700', bg: '#fff8c5', title: '#9a6700' },
+            tip: { border: '#1a7f37', bg: '#dafbe1', title: '#1a7f37' },
+            important: { border: '#8250df', bg: '#fbefff', title: '#8250df' },
+            caution: { border: '#cf222e', bg: '#ffebe9', title: '#cf222e' }
+        };
+
+        return `
+            /* Callout Blocks Styling */
+            .callout {
+                margin: 16px 0;
+                padding: 16px;
+                border-left: 4px solid;
+                border-radius: 4px;
+            }
+
+            .callout-title {
+                font-weight: 600;
+                font-size: 14px;
+                margin-bottom: 8px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .callout-icon {
+                font-size: 16px;
+            }
+
+            .callout-content {
+                font-size: 14px;
+                line-height: 1.6;
+            }
+
+            .callout-content > *:first-child {
+                margin-top: 0;
+            }
+
+            .callout-content > *:last-child {
+                margin-bottom: 0;
+            }
+
+            /* NOTE callout */
+            .callout-note {
+                border-left-color: ${colors.note.border};
+                background-color: ${colors.note.bg};
+            }
+
+            .callout-note .callout-title {
+                color: ${colors.note.title};
+            }
+
+            /* WARNING callout */
+            .callout-warning {
+                border-left-color: ${colors.warning.border};
+                background-color: ${colors.warning.bg};
+            }
+
+            .callout-warning .callout-title {
+                color: ${colors.warning.title};
+            }
+
+            /* TIP callout */
+            .callout-tip {
+                border-left-color: ${colors.tip.border};
+                background-color: ${colors.tip.bg};
+            }
+
+            .callout-tip .callout-title {
+                color: ${colors.tip.title};
+            }
+
+            /* IMPORTANT callout */
+            .callout-important {
+                border-left-color: ${colors.important.border};
+                background-color: ${colors.important.bg};
+            }
+
+            .callout-important .callout-title {
+                color: ${colors.important.title};
+            }
+
+            /* CAUTION callout */
+            .callout-caution {
+                border-left-color: ${colors.caution.border};
+                background-color: ${colors.caution.bg};
+            }
+
+            .callout-caution .callout-title {
+                color: ${colors.caution.title};
+            }
+
+            /* Mermaid diagram styling */
+            .mermaid-diagram {
+                margin: 16px 0;
+                text-align: center;
+            }
+
+            .mermaid-diagram svg {
+                max-width: 100%;
+                height: auto;
+            }
+
+            .mermaid-error {
+                color: #cf222e;
+                background-color: ${isDark ? '#4a1a1f' : '#ffebe9'};
+                padding: 12px;
+                border-radius: 4px;
+                border-left: 4px solid #cf222e;
+            }
+
+            .mermaid-error strong {
+                display: block;
+                margin-bottom: 8px;
+            }
+
+            .mermaid-error pre {
+                margin: 0;
+                background-color: transparent;
+                padding: 0;
+                font-size: 12px;
+            }
+        `;
     }
 
     /**
@@ -270,6 +459,71 @@ class Exporter {
     }
 
     /**
+     * Process Mermaid diagrams to render SVGs
+     * @param {string} html - HTML content with Mermaid placeholders
+     * @returns {Promise<string>} HTML with rendered Mermaid SVGs
+     * @private
+     */
+    async _processMermaidForExport(html) {
+        // Check if Mermaid is enabled
+        if (!this.advancedMarkdownManager || !this.advancedMarkdownManager.isFeatureEnabled('mermaid')) {
+            return html;
+        }
+
+        try {
+            const mermaid = require('mermaid');
+
+            // Initialize Mermaid
+            mermaid.initialize({
+                startOnLoad: false,
+                theme: 'default',
+                securityLevel: 'strict'
+            });
+
+            // Find all Mermaid diagram placeholders
+            const mermaidRegex = /<div class="mermaid-diagram" data-mermaid-id="([^"]+)">([^<]+)<\/div>/g;
+            let match;
+            let processedHtml = html;
+
+            while ((match = mermaidRegex.exec(html)) !== null) {
+                const id = match[1];
+                const code = match[0].match(/>([^<]+)</)[1];
+
+                // Decode HTML entities
+                const decodedCode = code
+                    .replace(/&amp;/g, '&')
+                    .replace(/&lt;/g, '<')
+                    .replace(/&gt;/g, '>')
+                    .replace(/&quot;/g, '"')
+                    .replace(/&#039;/g, "'");
+
+                try {
+                    // Render the diagram
+                    const { svg } = await mermaid.render(id, decodedCode);
+
+                    // Replace placeholder with rendered SVG
+                    processedHtml = processedHtml.replace(
+                        match[0],
+                        `<div class="mermaid-diagram">${svg}</div>`
+                    );
+                } catch (error) {
+                    console.error('Mermaid rendering error during export:', error);
+                    // Keep the placeholder with error message
+                    processedHtml = processedHtml.replace(
+                        match[0],
+                        `<div class="mermaid-diagram"><div class="mermaid-error"><strong>Mermaid Syntax Error:</strong><pre>${error.message || 'Unknown error'}</pre></div></div>`
+                    );
+                }
+            }
+
+            return processedHtml;
+        } catch (error) {
+            console.error('Failed to process Mermaid diagrams:', error);
+            return html;
+        }
+    }
+
+    /**
      * Exports markdown content to a standalone HTML file
      * @param {string} content - Markdown content to export
      * @param {string} theme - Theme to use ('light' or 'dark')
@@ -285,7 +539,22 @@ class Exporter {
 
         try {
             // Render markdown to HTML
-            const htmlContent = this.md.render(content);
+            let htmlContent = this.md.render(content);
+
+            // Process Mermaid diagrams to render SVGs
+            htmlContent = await this._processMermaidForExport(htmlContent);
+
+            // Get KaTeX CSS if KaTeX is enabled
+            let katexCSS = '';
+            if (this.advancedMarkdownManager && this.advancedMarkdownManager.isFeatureEnabled('katex')) {
+                katexCSS = await this._getKatexCSS();
+            }
+
+            // Get callout CSS if callouts are enabled
+            let calloutCSS = '';
+            if (this.advancedMarkdownManager && this.advancedMarkdownManager.isFeatureEnabled('callouts')) {
+                calloutCSS = this._generateCalloutCSS(theme);
+            }
 
             // Generate complete HTML document with CSS
             const fullHTML = `<!DOCTYPE html>
@@ -296,7 +565,37 @@ class Exporter {
     <title>Exported Markdown</title>
     <style>
         ${this._generateCSS(theme)}
+        ${calloutCSS}
     </style>
+    ${katexCSS ? `<style>${katexCSS}</style>` : ''}
+    ${this.advancedMarkdownManager && this.advancedMarkdownManager.isFeatureEnabled('katex') ? '<script src="https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex.min.js"></script>' : ''}
+    ${this.advancedMarkdownManager && this.advancedMarkdownManager.isFeatureEnabled('katex') ? `<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Render inline math
+            document.querySelectorAll('.katex-inline').forEach(function(element) {
+                const latex = element.getAttribute('data-katex');
+                if (latex) {
+                    try {
+                        katex.render(latex, element, { throwOnError: false, displayMode: false });
+                    } catch (e) {
+                        element.textContent = '$' + latex + '$';
+                    }
+                }
+            });
+            
+            // Render block math
+            document.querySelectorAll('.katex-block').forEach(function(element) {
+                const latex = element.getAttribute('data-katex');
+                if (latex) {
+                    try {
+                        katex.render(latex, element, { throwOnError: false, displayMode: true });
+                    } catch (e) {
+                        element.textContent = '$$' + latex + '$$';
+                    }
+                }
+            });
+        });
+    </script>` : ''}
 </head>
 <body>
     ${htmlContent}
@@ -351,7 +650,22 @@ class Exporter {
 
         try {
             // Render markdown to HTML
-            const htmlContent = this.md.render(content);
+            let htmlContent = this.md.render(content);
+
+            // Process Mermaid diagrams to render SVGs
+            htmlContent = await this._processMermaidForExport(htmlContent);
+
+            // Get KaTeX CSS if KaTeX is enabled
+            let katexCSS = '';
+            if (this.advancedMarkdownManager && this.advancedMarkdownManager.isFeatureEnabled('katex')) {
+                katexCSS = await this._getKatexCSS();
+            }
+
+            // Get callout CSS if callouts are enabled
+            let calloutCSS = '';
+            if (this.advancedMarkdownManager && this.advancedMarkdownManager.isFeatureEnabled('callouts')) {
+                calloutCSS = this._generateCalloutCSS(theme);
+            }
 
             // Generate complete HTML document with CSS
             const fullHTML = `<!DOCTYPE html>
@@ -362,7 +676,37 @@ class Exporter {
     <title>Exported Markdown</title>
     <style>
         ${this._generateCSS(theme)}
+        ${calloutCSS}
     </style>
+    ${katexCSS ? `<style>${katexCSS}</style>` : ''}
+    ${this.advancedMarkdownManager && this.advancedMarkdownManager.isFeatureEnabled('katex') ? '<script src="https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex.min.js"></script>' : ''}
+    ${this.advancedMarkdownManager && this.advancedMarkdownManager.isFeatureEnabled('katex') ? `<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Render inline math
+            document.querySelectorAll('.katex-inline').forEach(function(element) {
+                const latex = element.getAttribute('data-katex');
+                if (latex) {
+                    try {
+                        katex.render(latex, element, { throwOnError: false, displayMode: false });
+                    } catch (e) {
+                        element.textContent = '$' + latex + '$';
+                    }
+                }
+            });
+            
+            // Render block math
+            document.querySelectorAll('.katex-block').forEach(function(element) {
+                const latex = element.getAttribute('data-katex');
+                if (latex) {
+                    try {
+                        katex.render(latex, element, { throwOnError: false, displayMode: true });
+                    } catch (e) {
+                        element.textContent = '$$' + latex + '$$';
+                    }
+                }
+            });
+        });
+    </script>` : ''}
 </head>
 <body>
     ${htmlContent}
@@ -390,17 +734,18 @@ class Exporter {
             const pdfWindow = new BrowserWindow({
                 show: false,
                 webPreferences: {
-                    nodeIntegration: false,
-                    contextIsolation: true,
-                    sandbox: true
+                    nodeIntegration: true,
+                    contextIsolation: false,
+                    sandbox: false
                 }
             });
 
             // Load HTML content
             await pdfWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(fullHTML)}`);
 
-            // Wait for content to be ready
-            await new Promise(resolve => setTimeout(resolve, 500));
+            // Wait for content to be ready (longer wait for KaTeX rendering)
+            const waitTime = this.advancedMarkdownManager && this.advancedMarkdownManager.isFeatureEnabled('katex') ? 2000 : 500;
+            await new Promise(resolve => setTimeout(resolve, waitTime));
 
             // Generate PDF
             const pdfData = await pdfWindow.webContents.printToPDF({

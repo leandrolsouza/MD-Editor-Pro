@@ -20,6 +20,10 @@ const FocusMode = require('./focus-mode.js');
 const TemplateUI = require('./template-ui.js');
 const SnippetManager = require('./snippet-manager.js');
 const FormattingToolbar = require('./formatting-toolbar.js');
+const AdvancedMarkdownSettingsUI = require('./advanced-markdown-settings-ui.js');
+const AdvancedMarkdownManagerClient = require('./advanced-markdown-manager-client.js');
+const { MarkdownParser } = require('./markdown-parser.js');
+const AdvancedMarkdownPostProcessor = require('./advanced-markdown/post-processor.js');
 
 // Application state
 let editor = null;
@@ -34,6 +38,10 @@ let focusMode = null;
 let templateUI = null;
 let snippetManager = null;
 let formattingToolbar = null;
+let advancedMarkdownSettingsUI = null;
+let advancedMarkdownManager = null;
+let advancedMarkdownPostProcessor = null;
+let markdownParser = null;
 
 // Document state
 let currentFilePath = null;
@@ -53,6 +61,19 @@ async function initialize() {
         console.log('=== Initializing renderer process ===');
         console.log('window.electronAPI available:', !!window.electronAPI);
 
+        // Initialize Advanced Markdown Manager (client-side)
+        advancedMarkdownManager = new AdvancedMarkdownManagerClient();
+        await advancedMarkdownManager.loadSettings();
+        console.log('AdvancedMarkdownManager initialized');
+
+        // Initialize Advanced Markdown Post-Processor
+        advancedMarkdownPostProcessor = new AdvancedMarkdownPostProcessor();
+        console.log('AdvancedMarkdownPostProcessor initialized');
+
+        // Initialize Markdown Parser with advanced features
+        markdownParser = new MarkdownParser(advancedMarkdownManager, advancedMarkdownPostProcessor);
+        console.log('MarkdownParser initialized');
+
         // Initialize Editor
         const editorContainer = document.getElementById('editor-container');
         if (!editorContainer) {
@@ -62,12 +83,12 @@ async function initialize() {
         editor.initialize(editorContainer);
         console.log('Editor initialized');
 
-        // Initialize Preview
+        // Initialize Preview with post-processor and markdown parser
         const previewContainer = document.getElementById('preview-container');
         if (!previewContainer) {
             throw new Error('Preview container not found');
         }
-        preview = new Preview();
+        preview = new Preview(advancedMarkdownPostProcessor, markdownParser);
         preview.initialize(previewContainer);
         console.log('Preview initialized');
 
@@ -88,6 +109,14 @@ async function initialize() {
         // Initialize ThemeManager
         themeManager = new ThemeManager();
         await themeManager.initialize();
+
+        // Connect theme manager to preview for advanced markdown theme updates
+        themeManager.onThemeChange((theme) => {
+            if (preview) {
+                preview.updateTheme(theme);
+            }
+        });
+
         console.log('ThemeManager initialized');
 
         // Initialize ViewModeManager
@@ -176,6 +205,36 @@ async function initialize() {
         const snippetExtensions = snippetManager.createSnippetExtension();
         editor.enableSnippetExtensions(snippetExtensions);
         console.log('SnippetManager initialized');
+
+        // Initialize Advanced Markdown Settings UI
+        advancedMarkdownSettingsUI = new AdvancedMarkdownSettingsUI();
+        advancedMarkdownSettingsUI.onChange(async (featureName, enabled) => {
+            // Update local manager
+            advancedMarkdownManager.updateFeature(featureName, enabled);
+
+            // Reinitialize parser with new settings
+            markdownParser.reinitialize();
+
+            // Re-render preview immediately
+            const content = editor.getValue();
+            preview.render(content, true);
+
+            console.log(`Advanced markdown feature '${featureName}' ${enabled ? 'enabled' : 'disabled'}, preview updated`);
+        });
+        console.log('AdvancedMarkdownSettingsUI initialized');
+
+        // Listen for settings changes from main process
+        window.electronAPI.onAdvancedMarkdownSettingsChanged((featureName, enabled) => {
+            // Update local manager
+            advancedMarkdownManager.updateFeature(featureName, enabled);
+
+            // Reinitialize parser
+            markdownParser.reinitialize();
+
+            // Re-render preview
+            const content = editor.getValue();
+            preview.render(content, true);
+        });
 
         // Try to restore tabs from previous session
         await restoreTabsFromSession();
@@ -343,6 +402,11 @@ async function handleMenuAction(action) {
                 // This would open a keyboard shortcuts settings dialog
                 // For now, just log a message
                 alert('Keyboard shortcuts settings dialog would open here.\nThis feature requires a dedicated UI component.');
+                break;
+            case 'advanced-markdown-settings':
+                if (advancedMarkdownSettingsUI) {
+                    await advancedMarkdownSettingsUI.show();
+                }
                 break;
             default:
                 console.warn('Unknown menu action:', action);

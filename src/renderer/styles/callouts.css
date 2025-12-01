@@ -1,0 +1,164 @@
+/* Callout Blocks Styling */
+
+/* Base callout styles */
+.callout {
+    margin: 16px 0;
+    padding: 16px;
+    border-left: 4px solid;
+    border-radius: 4px;
+    background-color: var(--callout-bg);
+    color: var(--text-primary);
+}
+
+.callout-title {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.callout-title::before {
+    content: attr(data-icon);
+    font-size: 16px;
+}
+
+.callout-content {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.callout-content>*:first-child {
+    margin-top: 0;
+}
+
+.callout-content>*:last-child {
+    margin-bottom: 0;
+}
+
+/* NOTE callout - Informational blue */
+.callout-note {
+    border-left-color: var(--callout-note-border);
+    background-color: var(--callout-note-bg);
+}
+
+.callout-note .callout-title {
+    color: var(--callout-note-title);
+}
+
+.callout-note .callout-title::before {
+    content: 'ℹ️';
+}
+
+/* WARNING callout - Yellow/amber */
+.callout-warning {
+    border-left-color: var(--callout-warning-border);
+    background-color: var(--callout-warning-bg);
+}
+
+.callout-warning .callout-title {
+    color: var(--callout-warning-title);
+}
+
+.callout-warning .callout-title::before {
+    content: '⚠️';
+}
+
+/* TIP callout - Green */
+.callout-tip {
+    border-left-color: var(--callout-tip-border);
+    background-color: var(--callout-tip-bg);
+}
+
+.callout-tip .callout-title {
+    color: var(--callout-tip-title);
+}
+
+.callout-tip .callout-title::before {
+    content: '💡';
+}
+
+/* IMPORTANT callout - Purple */
+.callout-important {
+    border-left-color: var(--callout-important-border);
+    background-color: var(--callout-important-bg);
+}
+
+.callout-important .callout-title {
+    color: var(--callout-important-title);
+}
+
+.callout-important .callout-title::before {
+    content: '❗';
+}
+
+/* CAUTION callout - Red */
+.callout-caution {
+    border-left-color: var(--callout-caution-border);
+    background-color: var(--callout-caution-bg);
+}
+
+.callout-caution .callout-title {
+    color: var(--callout-caution-title);
+}
+
+.callout-caution .callout-title::before {
+    content: '🔥';
+}
+
+/* Light theme callout colors */
+.theme-light {
+    /* NOTE - Blue */
+    --callout-note-border: #0969da;
+    --callout-note-bg: #ddf4ff;
+    --callout-note-title: #0969da;
+
+    /* WARNING - Yellow/Amber */
+    --callout-warning-border: #9a6700;
+    --callout-warning-bg: #fff8c5;
+    --callout-warning-title: #9a6700;
+
+    /* TIP - Green */
+    --callout-tip-border: #1a7f37;
+    --callout-tip-bg: #dafbe1;
+    --callout-tip-title: #1a7f37;
+
+    /* IMPORTANT - Purple */
+    --callout-important-border: #8250df;
+    --callout-important-bg: #fbefff;
+    --callout-important-title: #8250df;
+
+    /* CAUTION - Red */
+    --callout-caution-border: #cf222e;
+    --callout-caution-bg: #ffebe9;
+    --callout-caution-title: #cf222e;
+}
+
+/* Dark theme callout colors */
+.theme-dark {
+    /* NOTE - Blue */
+    --callout-note-border: #58a6ff;
+    --callout-note-bg: #1c2d41;
+    --callout-note-title: #58a6ff;
+
+    /* WARNING - Yellow/Amber */
+    --callout-warning-border: #d29922;
+    --callout-warning-bg: #3d3000;
+    --callout-warning-title: #d29922;
+
+    /* TIP - Green */
+    --callout-tip-border: #3fb950;
+    --callout-tip-bg: #0f3d1a;
+    --callout-tip-title: #3fb950;
+
+    /* IMPORTANT - Purple */
+    --callout-important-border: #a371f7;
+    --callout-important-bg: #2b1f3d;
+    --callout-important-title: #a371f7;
+
+    /* CAUTION - Red */
+    --callout-caution-border: #f85149;
+    --callout-caution-bg: #4a1a1f;
+    --callout-caution-title: #f85149;
+}

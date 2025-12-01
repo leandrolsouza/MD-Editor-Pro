@@ -8,6 +8,7 @@ const { EditorState, Compartment } = require('@codemirror/state');
 const { defaultKeymap, history, historyKeymap, undo, redo } = require('@codemirror/commands');
 const { markdown } = require('@codemirror/lang-markdown');
 const { search, highlightSelectionMatches } = require('@codemirror/search');
+const { mermaidLanguage } = require('./advanced-markdown/mermaid-codemirror-lang');
 
 class Editor {
     constructor() {
@@ -30,7 +31,14 @@ class Editor {
         const startState = EditorState.create({
             doc: '',
             extensions: [
-                markdown(),
+                markdown({
+                    codeLanguages: (info) => {
+                        if (info === 'mermaid') {
+                            return mermaidLanguage;
+                        }
+                        return null;
+                    }
+                }),
                 history(),
                 search(),
                 highlightSelectionMatches(),
