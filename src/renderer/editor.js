@@ -14,6 +14,7 @@ class Editor {
         this.view = null;
         this.contentChangeCallbacks = [];
         this.customKeymapCompartment = new Compartment();
+        this.snippetExtensionCompartment = new Compartment();
     }
 
     /**
@@ -33,6 +34,8 @@ class Editor {
                 history(),
                 search(),
                 highlightSelectionMatches(),
+                // Snippet extension compartment (can be reconfigured dynamically)
+                this.snippetExtensionCompartment.of([]),
                 // Custom keymap compartment (can be reconfigured dynamically)
                 this.customKeymapCompartment.of(keymap.of(customKeymap)),
                 // Default keymaps (lower priority)
@@ -71,6 +74,24 @@ class Editor {
 
         this.view.dispatch({
             effects: this.customKeymapCompartment.reconfigure(keymap.of(customKeymap))
+        });
+    }
+
+    /**
+     * Enable snippet extensions
+     * @param {Array} snippetExtensions - Snippet extensions from SnippetManager
+     */
+    enableSnippetExtensions(snippetExtensions) {
+        if (!this.view) {
+            throw new Error('Editor not initialized');
+        }
+
+        if (!Array.isArray(snippetExtensions)) {
+            throw new Error('Snippet extensions must be an array');
+        }
+
+        this.view.dispatch({
+            effects: this.snippetExtensionCompartment.reconfigure(snippetExtensions)
         });
     }
 

@@ -18,6 +18,7 @@ const StatisticsCalculator = require('./statistics.js');
 const TabBar = require('./tab-bar.js');
 const FocusMode = require('./focus-mode.js');
 const TemplateUI = require('./template-ui.js');
+const SnippetManager = require('./snippet-manager.js');
 
 // Application state
 let editor = null;
@@ -30,6 +31,7 @@ let statisticsCalculator = null;
 let tabBar = null;
 let focusMode = null;
 let templateUI = null;
+let snippetManager = null;
 
 // Document state
 let currentFilePath = null;
@@ -120,6 +122,36 @@ async function initialize() {
             templateButton.addEventListener('click', () => templateUI.showTemplateMenu());
         }
         console.log('TemplateUI initialized');
+
+        // Initialize SnippetManager (Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6)
+        snippetManager = new SnippetManager(editor, {
+            getCustomSnippets: async () => {
+                const result = await window.electronAPI.getConfig('customSnippets');
+                return result || [];
+            },
+            addCustomSnippet: async (snippet) => {
+                const snippets = await window.electronAPI.getConfig('customSnippets') || [];
+                snippets.push(snippet);
+                await window.electronAPI.setConfig('customSnippets', snippets);
+            },
+            deleteCustomSnippet: async (trigger) => {
+                const snippets = await window.electronAPI.getConfig('customSnippets') || [];
+                const filtered = snippets.filter(s => s.trigger !== trigger);
+                await window.electronAPI.setConfig('customSnippets', filtered);
+            },
+            updateCustomSnippet: async (trigger, updates) => {
+                const snippets = await window.electronAPI.getConfig('customSnippets') || [];
+                const index = snippets.findIndex(s => s.trigger === trigger);
+                if (index !== -1) {
+                    snippets[index] = { ...snippets[index], ...updates };
+                    await window.electronAPI.setConfig('customSnippets', snippets);
+                }
+            }
+        });
+        // Enable snippet extensions in the editor
+        const snippetExtensions = snippetManager.createSnippetExtension();
+        editor.enableSnippetExtensions(snippetExtensions);
+        console.log('SnippetManager initialized');
 
         // Try to restore tabs from previous session
         await restoreTabsFromSession();
@@ -800,6 +832,9 @@ function cleanup() {
     }
     if (templateUI) {
         // TemplateUI doesn't have a destroy method, but we could add one if needed
+    }
+    if (snippetManager) {
+        // SnippetManager doesn't need cleanup
     }
 }
 
