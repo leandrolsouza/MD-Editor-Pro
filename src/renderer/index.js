@@ -11,6 +11,7 @@ const Editor = require('./editor.js');
 const Preview = require('./preview.js');
 const SearchManager = require('./search.js');
 const ThemeManager = require('./theme.js');
+const ThemeSelector = require('./theme-selector.js');
 const ViewModeManager = require('./view-mode.js');
 const AutoSaveManager = require('./auto-save.js');
 const StatisticsCalculator = require('./statistics.js');
@@ -40,6 +41,7 @@ let editor = null;
 let preview = null;
 let searchManager = null;
 let themeManager = null;
+let themeSelector = null;
 let viewModeManager = null;
 let autoSaveManager = null;
 let statisticsCalculator = null;
@@ -136,6 +138,10 @@ async function initialize() {
         // Initialize ThemeManager
         themeManager = new ThemeManager();
         await themeManager.initialize();
+
+        // Initialize ThemeSelector
+        themeSelector = new ThemeSelector(themeManager);
+        themeSelector.initialize();
 
         // Connect theme manager to preview for advanced markdown theme updates
         themeManager.onThemeChange((theme) => {
@@ -712,6 +718,11 @@ async function handleMenuAction(action, data) {
             case 'find-in-files':
                 if (globalSearchUI) {
                     globalSearchUI.show();
+                }
+                break;
+            case 'select-theme':
+                if (themeSelector) {
+                    themeSelector.open();
                 }
                 break;
             case 'toggle-theme':

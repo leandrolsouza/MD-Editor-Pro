@@ -1,0 +1,168 @@
+/* Dracula Theme - Modern Dark Theme */
+
+.theme-dracula {
+    --bg-primary: #282a36;
+    --bg-secondary: #21222c;
+    --text-primary: #f8f8f2;
+    --text-secondary: #a6accd;
+    --border-color: #44475a;
+
+    /* Accent Colors - Dracula signature colors */
+    --accent-color: #bd93f9;
+    /* purple */
+    --accent-hover: #ff79c6;
+    /* pink */
+    --accent-active: #8be9fd;
+    /* cyan */
+
+    /* Semantic Colors */
+    --success-color: #50fa7b;
+    /* green */
+    --warning-color: #f1fa8c;
+    /* yellow */
+    --error-color: #ff5555;
+    /* red */
+
+    /* Shadow Colors */
+    --shadow-color: rgba(0, 0, 0, 0.5);
+    --shadow-color-sm: rgba(0, 0, 0, 0.3);
+    --shadow-color-md: rgba(0, 0, 0, 0.5);
+    --shadow-color-lg: rgba(0, 0, 0, 0.6);
+
+    /* Backdrop Blur */
+    --backdrop-blur-color: rgba(40, 42, 54, 0.9);
+
+    /* Divider */
+    --divider-color: #44475a;
+    --divider-hover-color: #6272a4;
+    --divider-active-color: #7a8bb8;
+
+    /* Search Panel */
+    --search-bg: #21222c;
+    --search-border: #44475a;
+
+    /* Inputs */
+    --input-bg: #21222c;
+    --input-text: #f8f8f2;
+    --input-border: #44475a;
+    --input-hover-border: #6272a4;
+    --input-focus-border: var(--accent-color);
+    --input-disabled-bg: #282a36;
+    --accent-color-alpha: rgba(189, 147, 249, 0.2);
+    --error-color-alpha: rgba(255, 85, 85, 0.2);
+    --success-color-alpha: rgba(80, 250, 123, 0.2);
+    --text-tertiary: #6272a4;
+    --badge-bg: rgba(255, 255, 255, 0.1);
+    --error-bg-light: rgba(255, 85, 85, 0.15);
+
+    /* Buttons */
+    --button-bg: #44475a;
+    --button-text: #f8f8f2;
+    --button-border: #6272a4;
+    --button-hover-bg: #565869;
+    --button-active-bg: #6272a4;
+
+    /* Code */
+    --code-bg: rgba(98, 114, 164, 0.3);
+    --code-block-bg: #21222c;
+
+    /* Markdown Elements */
+    --link-color: #8be9fd;
+    --quote-color: #a6accd;
+    --quote-border: #6272a4;
+    --hr-color: #44475a;
+
+    /* Tables */
+    --table-border: #44475a;
+    --table-header-bg: #21222c;
+    --table-row-bg: #282a36;
+    --table-row-alt-bg: #21222c;
+
+    /* Status Bar */
+    --status-bar-bg: #21222c;
+    --status-bar-border: #44475a;
+    --status-saving-bg: #4a4520;
+    --status-saving-text: #f1fa8c;
+    --status-saving-border: #5a5530;
+    --status-saved-bg: #1f3a2f;
+    --status-saved-text: #50fa7b;
+    --status-saved-border: #2f4a3f;
+    --status-error-bg: #4a1f2f;
+    --status-error-text: #ff5555;
+    --status-error-border: #5a2f3f;
+
+    /* Tab Bar */
+    --tab-bar-bg: #21222c;
+    --tab-bar-border: #44475a;
+    --tab-bg: #282a36;
+    --tab-hover-bg: #44475a;
+    --tab-active-bg: #282a36;
+    --tab-active-border: var(--accent-color);
+    --tab-border: #44475a;
+    --modified-indicator-color: var(--warning-color);
+    --close-button-hover-bg: rgba(255, 255, 255, 0.1);
+    --close-button-active-bg: rgba(255, 255, 255, 0.2);
+    --scrollbar-thumb: #6272a4;
+
+    /* Formatting Toolbar */
+    --toolbar-bg: #21222c;
+    --toolbar-border: #44475a;
+    --toolbar-button-text: #f8f8f2;
+    --toolbar-button-hover-bg: #44475a;
+    --toolbar-button-hover-border: #6272a4;
+    --toolbar-button-active-bg: #282a36;
+    --toolbar-button-active-border: var(--accent-color);
+    --toolbar-button-active-text: var(--accent-color);
+    --toolbar-button-active-hover-bg: #44475a;
+    --toolbar-button-pressed-bg: #6272a4;
+    --toolbar-button-focus-outline: var(--accent-color);
+    --toolbar-separator: #6272a4;
+
+    /* Activity Bar & Sidebar */
+    --activity-bar-bg: #21222c;
+    --activity-bar-border: #44475a;
+    --activity-bar-fg: #a6accd;
+    --activity-bar-fg-hover: #f8f8f2;
+    --activity-bar-fg-active: var(--accent-color);
+    --sidebar-bg: #282a36;
+    --sidebar-border: #44475a;
+    --sidebar-header-bg: #21222c;
+    --sidebar-title-fg: #f8f8f2;
+}
+
+body.theme-dracula {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.theme-dracula #editor-pane {
+    background-color: var(--bg-primary);
+}
+
+.theme-dracula #preview-pane {
+    background-color: var(--bg-primary);
+}
+
+/* CodeMirror Styles */
+.theme-dracula .cm-editor {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.theme-dracula .cm-gutters {
+    background-color: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    color: var(--text-secondary);
+}
+
+.theme-dracula .cm-lineNumbers .cm-gutterElement {
+    color: var(--text-secondary);
+}
+
+.theme-dracula .cm-activeLineGutter {
+    background-color: var(--bg-primary);
+}
+
+.theme-dracula .cm-activeLine {
+    background-color: rgba(255, 255, 255, 0.05);
+}

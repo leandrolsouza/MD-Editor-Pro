@@ -1,0 +1,168 @@
+/* Monokai Theme - Classic Dark Theme */
+
+.theme-monokai {
+    --bg-primary: #272822;
+    --bg-secondary: #1e1f1c;
+    --text-primary: #f8f8f2;
+    --text-secondary: #a6a69c;
+    --border-color: #3e3d32;
+
+    /* Accent Colors - Monokai signature colors */
+    --accent-color: #66d9ef;
+    /* cyan */
+    --accent-hover: #a6e22e;
+    /* green */
+    --accent-active: #f92672;
+    /* pink */
+
+    /* Semantic Colors */
+    --success-color: #a6e22e;
+    /* green */
+    --warning-color: #e6db74;
+    /* yellow */
+    --error-color: #f92672;
+    /* pink */
+
+    /* Shadow Colors */
+    --shadow-color: rgba(0, 0, 0, 0.5);
+    --shadow-color-sm: rgba(0, 0, 0, 0.3);
+    --shadow-color-md: rgba(0, 0, 0, 0.5);
+    --shadow-color-lg: rgba(0, 0, 0, 0.6);
+
+    /* Backdrop Blur */
+    --backdrop-blur-color: rgba(39, 40, 34, 0.9);
+
+    /* Divider */
+    --divider-color: #3e3d32;
+    --divider-hover-color: #5a5a4e;
+    --divider-active-color: #75715e;
+
+    /* Search Panel */
+    --search-bg: #1e1f1c;
+    --search-border: #3e3d32;
+
+    /* Inputs */
+    --input-bg: #1e1f1c;
+    --input-text: #f8f8f2;
+    --input-border: #3e3d32;
+    --input-hover-border: #5a5a4e;
+    --input-focus-border: var(--accent-color);
+    --input-disabled-bg: #272822;
+    --accent-color-alpha: rgba(102, 217, 239, 0.2);
+    --error-color-alpha: rgba(249, 38, 114, 0.2);
+    --success-color-alpha: rgba(166, 226, 46, 0.2);
+    --text-tertiary: #75715e;
+    --badge-bg: rgba(255, 255, 255, 0.1);
+    --error-bg-light: rgba(249, 38, 114, 0.15);
+
+    /* Buttons */
+    --button-bg: #3e3d32;
+    --button-text: #f8f8f2;
+    --button-border: #5a5a4e;
+    --button-hover-bg: #49483e;
+    --button-active-bg: #5a5a4e;
+
+    /* Code */
+    --code-bg: rgba(117, 113, 94, 0.3);
+    --code-block-bg: #1e1f1c;
+
+    /* Markdown Elements */
+    --link-color: #66d9ef;
+    --quote-color: #a6a69c;
+    --quote-border: #5a5a4e;
+    --hr-color: #3e3d32;
+
+    /* Tables */
+    --table-border: #3e3d32;
+    --table-header-bg: #1e1f1c;
+    --table-row-bg: #272822;
+    --table-row-alt-bg: #1e1f1c;
+
+    /* Status Bar */
+    --status-bar-bg: #1e1f1c;
+    --status-bar-border: #3e3d32;
+    --status-saving-bg: #4a4520;
+    --status-saving-text: #e6db74;
+    --status-saving-border: #5a5530;
+    --status-saved-bg: #2d3a1f;
+    --status-saved-text: #a6e22e;
+    --status-saved-border: #3d4a2f;
+    --status-error-bg: #4a1f2f;
+    --status-error-text: #f92672;
+    --status-error-border: #5a2f3f;
+
+    /* Tab Bar */
+    --tab-bar-bg: #1e1f1c;
+    --tab-bar-border: #3e3d32;
+    --tab-bg: #272822;
+    --tab-hover-bg: #3e3d32;
+    --tab-active-bg: #272822;
+    --tab-active-border: var(--accent-color);
+    --tab-border: #3e3d32;
+    --modified-indicator-color: var(--warning-color);
+    --close-button-hover-bg: rgba(255, 255, 255, 0.1);
+    --close-button-active-bg: rgba(255, 255, 255, 0.2);
+    --scrollbar-thumb: #5a5a4e;
+
+    /* Formatting Toolbar */
+    --toolbar-bg: #1e1f1c;
+    --toolbar-border: #3e3d32;
+    --toolbar-button-text: #f8f8f2;
+    --toolbar-button-hover-bg: #3e3d32;
+    --toolbar-button-hover-border: #5a5a4e;
+    --toolbar-button-active-bg: #272822;
+    --toolbar-button-active-border: var(--accent-color);
+    --toolbar-button-active-text: var(--accent-color);
+    --toolbar-button-active-hover-bg: #3e3d32;
+    --toolbar-button-pressed-bg: #5a5a4e;
+    --toolbar-button-focus-outline: var(--accent-color);
+    --toolbar-separator: #5a5a4e;
+
+    /* Activity Bar & Sidebar */
+    --activity-bar-bg: #1e1f1c;
+    --activity-bar-border: #3e3d32;
+    --activity-bar-fg: #a6a69c;
+    --activity-bar-fg-hover: #f8f8f2;
+    --activity-bar-fg-active: var(--accent-color);
+    --sidebar-bg: #272822;
+    --sidebar-border: #3e3d32;
+    --sidebar-header-bg: #1e1f1c;
+    --sidebar-title-fg: #f8f8f2;
+}
+
+body.theme-monokai {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.theme-monokai #editor-pane {
+    background-color: var(--bg-primary);
+}
+
+.theme-monokai #preview-pane {
+    background-color: var(--bg-primary);
+}
+
+/* CodeMirror Styles */
+.theme-monokai .cm-editor {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.theme-monokai .cm-gutters {
+    background-color: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    color: var(--text-secondary);
+}
+
+.theme-monokai .cm-lineNumbers .cm-gutterElement {
+    color: var(--text-secondary);
+}
+
+.theme-monokai .cm-activeLineGutter {
+    background-color: var(--bg-primary);
+}
+
+.theme-monokai .cm-activeLine {
+    background-color: rgba(255, 255, 255, 0.05);
+}

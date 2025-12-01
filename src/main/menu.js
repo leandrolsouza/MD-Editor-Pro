@@ -273,13 +273,13 @@ function createApplicationMenu(windowManager, fileManager, exporter, configStore
             label: 'View',
             submenu: [
                 {
-                    label: 'Toggle Theme',
-                    accelerator: isMac ? 'Cmd+T' : 'Ctrl+T',
+                    label: 'Select Theme...',
+                    accelerator: isMac ? 'Cmd+K Cmd+T' : 'Ctrl+K Ctrl+T',
                     click: () => {
                         const mainWindow = windowManager.getMainWindow();
 
                         if (mainWindow) {
-                            mainWindow.webContents.send('menu:action', 'toggle-theme');
+                            mainWindow.webContents.send('menu:action', 'select-theme');
                         }
                     }
                 },

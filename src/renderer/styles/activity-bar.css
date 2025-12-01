@@ -6,8 +6,8 @@
     top: 0;
     bottom: 0;
     width: 48px;
-    background-color: var(--activity-bar-bg, #2c2c2c);
-    border-right: 1px solid var(--activity-bar-border, #1e1e1e);
+    background-color: var(--activity-bar-bg);
+    border-right: 1px solid var(--activity-bar-border);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -24,7 +24,7 @@
     justify-content: center;
     cursor: pointer;
     position: relative;
-    color: var(--activity-bar-fg, #858585);
+    color: var(--activity-bar-fg);
     transition: color var(--duration-fast) var(--ease-out);
     border: none;
     background: none;
@@ -32,11 +32,11 @@
 }
 
 .activity-bar__item:hover {
-    color: var(--activity-bar-fg-hover, #ffffff);
+    color: var(--activity-bar-fg-hover);
 }
 
 .activity-bar__item.active {
-    color: var(--activity-bar-fg-active, #ffffff);
+    color: var(--activity-bar-fg-active);
 }
 
 .activity-bar__item.active::before {
@@ -47,7 +47,7 @@
     transform: translateY(-50%);
     width: 2px;
     height: 24px;
-    background-color: var(--accent-color, #007acc);
+    background-color: var(--accent-color);
 }
 
 .activity-bar__icon {
@@ -66,8 +66,8 @@
     top: 0;
     bottom: 0;
     width: 300px;
-    background-color: var(--sidebar-bg, #252526);
-    border-right: 1px solid var(--sidebar-border, #1e1e1e);
+    background-color: var(--sidebar-bg);
+    border-right: 1px solid var(--sidebar-border);
     display: none;
     flex-direction: column;
     z-index: 199;
@@ -84,8 +84,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-bottom: 1px solid var(--sidebar-border, #1e1e1e);
-    background-color: var(--sidebar-header-bg, #2d2d30);
+    border-bottom: 1px solid var(--sidebar-border);
+    background-color: var(--sidebar-header-bg);
 }
 
 .sidebar-panel__title {
@@ -93,7 +93,7 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    color: var(--sidebar-title-fg, #cccccc);
+    color: var(--sidebar-title-fg);
 }
 
 .sidebar-panel__actions {
@@ -109,7 +109,7 @@
     justify-content: center;
     background: none;
     border: none;
-    color: var(--sidebar-title-fg, #cccccc);
+    color: var(--sidebar-title-fg);
     cursor: pointer;
     border-radius: var(--radius-sm);
     font-size: 16px;
@@ -151,33 +151,7 @@ body:has(.sidebar-panel.visible) .status-bar {
     /* Activity bar (48px) + Sidebar (300px) */
 }
 
-/* Light theme overrides */
-.theme-light .activity-bar {
-    background-color: var(--activity-bar-bg-light, #2c2c2c);
-    border-right-color: var(--activity-bar-border-light, #e5e5e5);
-}
-
-.theme-light .activity-bar__item {
-    color: var(--activity-bar-fg-light, #6e6e6e);
-}
-
-.theme-light .activity-bar__item:hover {
-    color: var(--activity-bar-fg-hover-light, #2c2c2c);
-}
-
-.theme-light .activity-bar__item.active {
-    color: var(--activity-bar-fg-active-light, #2c2c2c);
-}
-
-.theme-light .sidebar-panel {
-    background-color: var(--sidebar-bg-light, #f3f3f3);
-    border-right-color: var(--sidebar-border-light, #e5e5e5);
-}
-
-.theme-light .sidebar-panel__header {
-    background-color: var(--sidebar-header-bg-light, #f3f3f3);
-    border-bottom-color: var(--sidebar-border-light, #e5e5e5);
-}
+/* Theme overrides removed - using CSS variables from theme files */
 
 .theme-light .sidebar-panel__title {
     color: var(--sidebar-title-fg-light, #383838);

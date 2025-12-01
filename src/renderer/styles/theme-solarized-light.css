@@ -1,0 +1,168 @@
+/* Solarized Light Theme - Precision colors for machines and people */
+
+.theme-solarized-light {
+    --bg-primary: #fdf6e3;
+    --bg-secondary: #eee8d5;
+    --text-primary: #657b83;
+    --text-secondary: #839496;
+    --border-color: #d3cbb7;
+
+    /* Accent Colors - Solarized signature colors */
+    --accent-color: #268bd2;
+    /* blue */
+    --accent-hover: #2aa198;
+    /* cyan */
+    --accent-active: #6c71c4;
+    /* violet */
+
+    /* Semantic Colors */
+    --success-color: #859900;
+    /* green */
+    --warning-color: #b58900;
+    /* yellow */
+    --error-color: #dc322f;
+    /* red */
+
+    /* Shadow Colors */
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --shadow-color-sm: rgba(0, 0, 0, 0.05);
+    --shadow-color-md: rgba(0, 0, 0, 0.1);
+    --shadow-color-lg: rgba(0, 0, 0, 0.15);
+
+    /* Backdrop Blur */
+    --backdrop-blur-color: rgba(253, 246, 227, 0.9);
+
+    /* Divider */
+    --divider-color: #d3cbb7;
+    --divider-hover-color: #c3b3a7;
+    --divider-active-color: #93a1a1;
+
+    /* Search Panel */
+    --search-bg: #fdf6e3;
+    --search-border: #d3cbb7;
+
+    /* Inputs */
+    --input-bg: #fdf6e3;
+    --input-text: #657b83;
+    --input-border: #d3cbb7;
+    --input-hover-border: #c3b3a7;
+    --input-focus-border: var(--accent-color);
+    --input-disabled-bg: #eee8d5;
+    --accent-color-alpha: rgba(38, 139, 210, 0.15);
+    --error-color-alpha: rgba(220, 50, 47, 0.15);
+    --success-color-alpha: rgba(133, 153, 0, 0.15);
+    --text-tertiary: #93a1a1;
+    --badge-bg: rgba(0, 0, 0, 0.05);
+    --error-bg-light: rgba(220, 50, 47, 0.1);
+
+    /* Buttons */
+    --button-bg: #eee8d5;
+    --button-text: #657b83;
+    --button-border: #d3cbb7;
+    --button-hover-bg: #e3ddc7;
+    --button-active-bg: #d3cbb7;
+
+    /* Code */
+    --code-bg: rgba(0, 43, 54, 0.05);
+    --code-block-bg: #eee8d5;
+
+    /* Markdown Elements */
+    --link-color: #268bd2;
+    --quote-color: #839496;
+    --quote-border: #d3cbb7;
+    --hr-color: #d3cbb7;
+
+    /* Tables */
+    --table-border: #d3cbb7;
+    --table-header-bg: #eee8d5;
+    --table-row-bg: #fdf6e3;
+    --table-row-alt-bg: #eee8d5;
+
+    /* Status Bar */
+    --status-bar-bg: #eee8d5;
+    --status-bar-border: #d3cbb7;
+    --status-saving-bg: #f9e9a1;
+    --status-saving-text: #7d6600;
+    --status-saving-border: #e9d991;
+    --status-saved-bg: #d4e5c4;
+    --status-saved-text: #5a6600;
+    --status-saved-border: #c4d5b4;
+    --status-error-bg: #f5d0ce;
+    --status-error-text: #9c1f1c;
+    --status-error-border: #e5c0be;
+
+    /* Tab Bar */
+    --tab-bar-bg: #eee8d5;
+    --tab-bar-border: #d3cbb7;
+    --tab-bg: #e3ddc7;
+    --tab-hover-bg: #d8d2b7;
+    --tab-active-bg: #fdf6e3;
+    --tab-active-border: var(--accent-color);
+    --tab-border: #d3cbb7;
+    --modified-indicator-color: var(--warning-color);
+    --close-button-hover-bg: rgba(0, 0, 0, 0.1);
+    --close-button-active-bg: rgba(0, 0, 0, 0.2);
+    --scrollbar-thumb: #c3b3a7;
+
+    /* Formatting Toolbar */
+    --toolbar-bg: #eee8d5;
+    --toolbar-border: #d3cbb7;
+    --toolbar-button-text: #657b83;
+    --toolbar-button-hover-bg: #e3ddc7;
+    --toolbar-button-hover-border: #c3b3a7;
+    --toolbar-button-active-bg: #d3cbb7;
+    --toolbar-button-active-border: var(--accent-color);
+    --toolbar-button-active-text: var(--accent-color);
+    --toolbar-button-active-hover-bg: #c3b3a7;
+    --toolbar-button-pressed-bg: #c3b3a7;
+    --toolbar-button-focus-outline: var(--accent-color);
+    --toolbar-separator: #c3b3a7;
+
+    /* Activity Bar & Sidebar */
+    --activity-bar-bg: #eee8d5;
+    --activity-bar-border: #d3cbb7;
+    --activity-bar-fg: #839496;
+    --activity-bar-fg-hover: #657b83;
+    --activity-bar-fg-active: var(--accent-color);
+    --sidebar-bg: #fdf6e3;
+    --sidebar-border: #d3cbb7;
+    --sidebar-header-bg: #eee8d5;
+    --sidebar-title-fg: #657b83;
+}
+
+body.theme-solarized-light {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.theme-solarized-light #editor-pane {
+    background-color: var(--bg-primary);
+}
+
+.theme-solarized-light #preview-pane {
+    background-color: var(--bg-primary);
+}
+
+/* CodeMirror Styles */
+.theme-solarized-light .cm-editor {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.theme-solarized-light .cm-gutters {
+    background-color: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    color: var(--text-secondary);
+}
+
+.theme-solarized-light .cm-lineNumbers .cm-gutterElement {
+    color: var(--text-secondary);
+}
+
+.theme-solarized-light .cm-activeLineGutter {
+    background-color: var(--bg-primary);
+}
+
+.theme-solarized-light .cm-activeLine {
+    background-color: rgba(0, 43, 54, 0.05);
+}

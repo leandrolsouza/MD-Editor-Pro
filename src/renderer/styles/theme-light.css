@@ -121,6 +121,17 @@
     --toolbar-button-pressed-bg: #d1d5da;
     --toolbar-button-focus-outline: var(--accent-color);
     --toolbar-separator: #d1d5da;
+
+    /* Activity Bar & Sidebar */
+    --activity-bar-bg: #f6f8fa;
+    --activity-bar-border: #e1e4e8;
+    --activity-bar-fg: #57606a;
+    --activity-bar-fg-hover: #24292e;
+    --activity-bar-fg-active: var(--accent-color);
+    --sidebar-bg: #ffffff;
+    --sidebar-border: #e1e4e8;
+    --sidebar-header-bg: #f6f8fa;
+    --sidebar-title-fg: #24292e;
 }
 
 body.theme-light {
@@ -134,4 +145,28 @@ body.theme-light {
 
 .theme-light #preview-pane {
     background-color: var(--bg-primary);
+}
+
+/* CodeMirror Styles */
+.theme-light .cm-editor {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.theme-light .cm-gutters {
+    background-color: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    color: var(--text-secondary);
+}
+
+.theme-light .cm-lineNumbers .cm-gutterElement {
+    color: var(--text-secondary);
+}
+
+.theme-light .cm-activeLineGutter {
+    background-color: var(--bg-primary);
+}
+
+.theme-light .cm-activeLine {
+    background-color: rgba(0, 0, 0, 0.03);
 }

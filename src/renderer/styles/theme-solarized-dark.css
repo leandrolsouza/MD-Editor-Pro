@@ -1,0 +1,168 @@
+/* Solarized Dark Theme - Precision colors for machines and people */
+
+.theme-solarized-dark {
+    --bg-primary: #002b36;
+    --bg-secondary: #073642;
+    --text-primary: #839496;
+    --text-secondary: #93a1a1;
+    --border-color: #0f4a5a;
+
+    /* Accent Colors - Solarized signature colors */
+    --accent-color: #268bd2;
+    /* blue */
+    --accent-hover: #2aa198;
+    /* cyan */
+    --accent-active: #6c71c4;
+    /* violet */
+
+    /* Semantic Colors */
+    --success-color: #859900;
+    /* green */
+    --warning-color: #b58900;
+    /* yellow */
+    --error-color: #dc322f;
+    /* red */
+
+    /* Shadow Colors */
+    --shadow-color: rgba(0, 0, 0, 0.5);
+    --shadow-color-sm: rgba(0, 0, 0, 0.3);
+    --shadow-color-md: rgba(0, 0, 0, 0.5);
+    --shadow-color-lg: rgba(0, 0, 0, 0.6);
+
+    /* Backdrop Blur */
+    --backdrop-blur-color: rgba(0, 43, 54, 0.9);
+
+    /* Divider */
+    --divider-color: #0f4a5a;
+    --divider-hover-color: #1f5a6a;
+    --divider-active-color: #586e75;
+
+    /* Search Panel */
+    --search-bg: #002b36;
+    --search-border: #0f4a5a;
+
+    /* Inputs */
+    --input-bg: #002b36;
+    --input-text: #839496;
+    --input-border: #0f4a5a;
+    --input-hover-border: #1f5a6a;
+    --input-focus-border: var(--accent-color);
+    --input-disabled-bg: #073642;
+    --accent-color-alpha: rgba(38, 139, 210, 0.2);
+    --error-color-alpha: rgba(220, 50, 47, 0.2);
+    --success-color-alpha: rgba(133, 153, 0, 0.2);
+    --text-tertiary: #586e75;
+    --badge-bg: rgba(255, 255, 255, 0.1);
+    --error-bg-light: rgba(220, 50, 47, 0.15);
+
+    /* Buttons */
+    --button-bg: #073642;
+    --button-text: #839496;
+    --button-border: #0f4a5a;
+    --button-hover-bg: #0f4a5a;
+    --button-active-bg: #1f5a6a;
+
+    /* Code */
+    --code-bg: rgba(88, 110, 117, 0.3);
+    --code-block-bg: #073642;
+
+    /* Markdown Elements */
+    --link-color: #268bd2;
+    --quote-color: #93a1a1;
+    --quote-border: #0f4a5a;
+    --hr-color: #0f4a5a;
+
+    /* Tables */
+    --table-border: #0f4a5a;
+    --table-header-bg: #073642;
+    --table-row-bg: #002b36;
+    --table-row-alt-bg: #073642;
+
+    /* Status Bar */
+    --status-bar-bg: #073642;
+    --status-bar-border: #0f4a5a;
+    --status-saving-bg: #3d3000;
+    --status-saving-text: #b58900;
+    --status-saving-border: #4d4000;
+    --status-saved-bg: #2d3a00;
+    --status-saved-text: #859900;
+    --status-saved-border: #3d4a00;
+    --status-error-bg: #4a1f1f;
+    --status-error-text: #dc322f;
+    --status-error-border: #5a2f2f;
+
+    /* Tab Bar */
+    --tab-bar-bg: #073642;
+    --tab-bar-border: #0f4a5a;
+    --tab-bg: #002b36;
+    --tab-hover-bg: #0f4a5a;
+    --tab-active-bg: #002b36;
+    --tab-active-border: var(--accent-color);
+    --tab-border: #0f4a5a;
+    --modified-indicator-color: var(--warning-color);
+    --close-button-hover-bg: rgba(255, 255, 255, 0.1);
+    --close-button-active-bg: rgba(255, 255, 255, 0.2);
+    --scrollbar-thumb: #1f5a6a;
+
+    /* Formatting Toolbar */
+    --toolbar-bg: #073642;
+    --toolbar-border: #0f4a5a;
+    --toolbar-button-text: #839496;
+    --toolbar-button-hover-bg: #0f4a5a;
+    --toolbar-button-hover-border: #1f5a6a;
+    --toolbar-button-active-bg: #002b36;
+    --toolbar-button-active-border: var(--accent-color);
+    --toolbar-button-active-text: var(--accent-color);
+    --toolbar-button-active-hover-bg: #0f4a5a;
+    --toolbar-button-pressed-bg: #1f5a6a;
+    --toolbar-button-focus-outline: var(--accent-color);
+    --toolbar-separator: #1f5a6a;
+
+    /* Activity Bar & Sidebar */
+    --activity-bar-bg: #073642;
+    --activity-bar-border: #0f4a5a;
+    --activity-bar-fg: #93a1a1;
+    --activity-bar-fg-hover: #839496;
+    --activity-bar-fg-active: var(--accent-color);
+    --sidebar-bg: #002b36;
+    --sidebar-border: #0f4a5a;
+    --sidebar-header-bg: #073642;
+    --sidebar-title-fg: #839496;
+}
+
+body.theme-solarized-dark {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.theme-solarized-dark #editor-pane {
+    background-color: var(--bg-primary);
+}
+
+.theme-solarized-dark #preview-pane {
+    background-color: var(--bg-primary);
+}
+
+/* CodeMirror Styles */
+.theme-solarized-dark .cm-editor {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.theme-solarized-dark .cm-gutters {
+    background-color: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    color: var(--text-secondary);
+}
+
+.theme-solarized-dark .cm-lineNumbers .cm-gutterElement {
+    color: var(--text-secondary);
+}
+
+.theme-solarized-dark .cm-activeLineGutter {
+    background-color: var(--bg-primary);
+}
+
+.theme-solarized-dark .cm-activeLine {
+    background-color: rgba(147, 161, 161, 0.1);
+}

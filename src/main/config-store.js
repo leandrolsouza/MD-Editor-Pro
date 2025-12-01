@@ -102,11 +102,11 @@ class ConfigStore {
 
     /**
      * Set the theme preference
-     * @param {'light' | 'dark'} theme - Theme to set
+     * @param {string} theme - Theme to set
      */
     setTheme(theme) {
-        if (theme !== 'light' && theme !== 'dark') {
-            throw new Error(`Invalid theme: ${theme}. Must be 'light' or 'dark'`);
+        if (typeof theme !== 'string' || theme.trim() === '') {
+            throw new Error(`Invalid theme: ${theme}. Must be a non-empty string`);
         }
         this.store.set('theme', theme);
     }

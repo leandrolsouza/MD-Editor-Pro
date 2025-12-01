@@ -37,6 +37,7 @@ class WindowManager {
 
         // Show window gracefully when ready
         this.mainWindow.once('ready-to-show', () => {
+            this.mainWindow.maximize();
             this.mainWindow.show();
         });
 
