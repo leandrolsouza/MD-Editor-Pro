@@ -1135,6 +1135,219 @@ class Editor {
 
         return beforeText === '`' && afterText === '`';
     }
+
+    /**
+     * Check if task list formatting is active at cursor position
+     * @returns {boolean}
+     */
+    isTaskListActive() {
+        if (!this.view) {
+            throw new Error('Editor not initialized');
+        }
+
+        const line = this.getCurrentLine();
+        return /^-\s\[[ x]\]\s/.test(line.text);
+    }
+
+    /**
+     * Apply task list formatting to current line or selection
+     */
+    applyTaskList() {
+        if (!this.view) {
+            throw new Error('Editor not initialized');
+        }
+
+        const selection = this.getSelection();
+        const line = this.getCurrentLine();
+
+        // Check if already a task list
+        const taskMatch = line.text.match(/^-\s\[[ x]\]\s/);
+
+        if (taskMatch) {
+            // Remove task list formatting
+            const newText = line.text.replace(/^-\s\[[ x]\]\s/, '');
+            const transaction = this.view.state.update({
+                changes: {
+                    from: line.from,
+                    to: line.to,
+                    insert: newText
+                }
+            });
+            this.view.dispatch(transaction);
+        } else {
+            // Add task list formatting
+            const prefix = '- [ ] ';
+            const newText = line.text.replace(/^(-\s|\d+\.\s)?/, prefix);
+            const transaction = this.view.state.update({
+                changes: {
+                    from: line.from,
+                    to: line.to,
+                    insert: newText
+                }
+            });
+            this.view.dispatch(transaction);
+        }
+    }
+
+    /**
+     * Insert code block with language selector
+     * @param {string} language - Programming language for syntax highlighting
+     */
+    applyCodeBlockWithLanguage(language = '') {
+        if (!this.view) {
+            throw new Error('Editor not initialized');
+        }
+
+        const selection = this.getSelection();
+        const selectedText = selection.text;
+        const codeBlock = `\`\`\`${language}\n${selectedText}\n\`\`\``;
+
+        this.replaceSelection(codeBlock);
+
+        if (!selectedText) {
+            // Position cursor inside the code block
+            this.setCursorPosition(selection.from + 4 + language.length);
+        }
+    }
+
+    /**
+     * Insert horizontal rule
+     */
+    insertHorizontalRule() {
+        if (!this.view) {
+            throw new Error('Editor not initialized');
+        }
+
+        const selection = this.getSelection();
+        const line = this.getCurrentLine();
+
+        // Insert on new line if not at start of empty line
+        const hr = line.text.trim() === '' ? '---\n' : '\n---\n';
+
+        this.replaceSelection(hr);
+    }
+
+    /**
+     * Insert table template
+     */
+    insertTable() {
+        if (!this.view) {
+            throw new Error('Editor not initialized');
+        }
+
+        const selection = this.getSelection();
+        const table = '| Column 1 | Column 2 | Column 3 |\n| -------- | -------- | -------- |\n| Cell 1   | Cell 2   | Cell 3   |\n| Cell 4   | Cell 5   | Cell 6   |\n';
+
+        this.replaceSelection(table);
+    }
+
+    /**
+     * Indent selected lines
+     */
+    indentSelection() {
+        if (!this.view) {
+            throw new Error('Editor not initialized');
+        }
+
+        const selection = this.getSelection();
+        const doc = this.view.state.doc;
+
+        // Get all lines in selection
+        const startLine = doc.lineAt(selection.from);
+        const endLine = doc.lineAt(selection.to);
+
+        const changes = [];
+        for (let i = startLine.number; i <= endLine.number; i++) {
+            const line = doc.line(i);
+            changes.push({
+                from: line.from,
+                to: line.from,
+                insert: '  '
+            });
+        }
+
+        this.view.dispatch(this.view.state.update({ changes }));
+    }
+
+    /**
+     * Outdent selected lines
+     */
+    outdentSelection() {
+        if (!this.view) {
+            throw new Error('Editor not initialized');
+        }
+
+        const selection = this.getSelection();
+        const doc = this.view.state.doc;
+
+        // Get all lines in selection
+        const startLine = doc.lineAt(selection.from);
+        const endLine = doc.lineAt(selection.to);
+
+        const changes = [];
+        for (let i = startLine.number; i <= endLine.number; i++) {
+            const line = doc.line(i);
+            const text = line.text;
+
+            // Remove up to 2 spaces or 1 tab from start
+            if (text.startsWith('  ')) {
+                changes.push({
+                    from: line.from,
+                    to: line.from + 2,
+                    insert: ''
+                });
+            } else if (text.startsWith('\t')) {
+                changes.push({
+                    from: line.from,
+                    to: line.from + 1,
+                    insert: ''
+                });
+            }
+        }
+
+        if (changes.length > 0) {
+            this.view.dispatch(this.view.state.update({ changes }));
+        }
+    }
+
+    /**
+     * Clear all markdown formatting from selected text
+     */
+    clearFormatting() {
+        if (!this.view) {
+            throw new Error('Editor not initialized');
+        }
+
+        const selection = this.getSelection();
+
+        if (selection.isEmpty) {
+            return;
+        }
+
+        let text = selection.text;
+
+        // Remove bold
+        text = text.replace(/\*\*(.+?)\*\*/g, '$1');
+        text = text.replace(/__(.+?)__/g, '$1');
+
+        // Remove italic
+        text = text.replace(/\*(.+?)\*/g, '$1');
+        text = text.replace(/_(.+?)_/g, '$1');
+
+        // Remove strikethrough
+        text = text.replace(/~~(.+?)~~/g, '$1');
+
+        // Remove inline code
+        text = text.replace(/`(.+?)`/g, '$1');
+
+        // Remove links
+        text = text.replace(/\[(.+?)\]\(.+?\)/g, '$1');
+
+        // Remove images
+        text = text.replace(/!\[(.+?)\]\(.+?\)/g, '$1');
+
+        this.replaceSelection(text, true);
+    }
 }
 
 module.exports = Editor;

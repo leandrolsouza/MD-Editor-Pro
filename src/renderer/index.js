@@ -143,11 +143,8 @@ async function initialize() {
         templateUI.onInsert(async (template, mode) => {
             await handleTemplateInsert(template, mode);
         });
-        // Connect to existing template button in toolbar
-        const templateButton = document.getElementById('template-button');
-        if (templateButton) {
-            templateButton.addEventListener('click', () => templateUI.showTemplateMenu());
-        }
+        // Connect TemplateUI to FormattingToolbar
+        formattingToolbar.connectTemplateUI(templateUI);
         console.log('TemplateUI initialized');
 
         // Initialize SnippetManager (Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6)

@@ -103,12 +103,20 @@
 }
 
 .toolbar-button-heading {
-    font-size: 13px;
+    font-size: 12px;
 }
 
 .toolbar-button-code {
     font-family: 'Courier New', Courier, monospace;
     font-size: 12px;
+}
+
+.toolbar-button-list {
+    font-size: 16px;
+}
+
+.toolbar-button-format {
+    font-size: 14px;
 }
 
 /* Ensure proper sizing for accessibility */
