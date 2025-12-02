@@ -114,12 +114,45 @@ const electronAPI = {
     // Image paste operations
     saveImageFromClipboard: (imageBuffer, currentFilePath) => ipcRenderer.invoke('image:save-from-clipboard', imageBuffer, currentFilePath),
 
+    // Auto-updater operations
+    checkForUpdates: () => ipcRenderer.invoke('updater:check-for-updates'),
+    downloadUpdate: () => ipcRenderer.invoke('updater:download-update'),
+    quitAndInstall: () => ipcRenderer.invoke('updater:quit-and-install'),
+    getCurrentVersion: () => ipcRenderer.invoke('updater:get-current-version'),
+
+    onUpdateAvailable: (callback) => {
+        const subscription = (event, info) => callback(info);
+        ipcRenderer.on('update-available', subscription);
+        return () => ipcRenderer.removeListener('update-available', subscription);
+    },
+
+    onUpdateDownloaded: (callback) => {
+        const subscription = (event, info) => callback(info);
+        ipcRenderer.on('update-downloaded', subscription);
+        return () => ipcRenderer.removeListener('update-downloaded', subscription);
+    },
+
+    onDownloadProgress: (callback) => {
+        const subscription = (event, progressObj) => callback(progressObj);
+        ipcRenderer.on('download-progress', subscription);
+        return () => ipcRenderer.removeListener('download-progress', subscription);
+    },
+
+    onUpdateError: (callback) => {
+        const subscription = (event, error) => callback(error);
+        ipcRenderer.on('update-error', subscription);
+        return () => ipcRenderer.removeListener('update-error', subscription);
+    },
+
     // System information
     getVersions: () => ({
         electron: process.versions.electron || 'N/A',
         chrome: process.versions.chrome || 'N/A',
         node: process.versions.node || 'N/A'
-    })
+    }),
+
+    // App version
+    getAppVersion: () => ipcRenderer.invoke('app:get-version')
 };
 
 // Expose API directly to window when contextIsolation is disabled

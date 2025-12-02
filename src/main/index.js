@@ -14,6 +14,7 @@ const TemplateManager = require('./template-manager');
 const AdvancedMarkdownManager = require('./advanced-markdown-manager');
 const WorkspaceManager = require('./workspace-manager');
 const GlobalSearchManager = require('./global-search-manager');
+const AutoUpdater = require('./auto-updater');
 const { createApplicationMenu, updateMenuItemChecked } = require('./menu');
 
 // Sandbox disabled to allow nodeIntegration in renderer
@@ -49,6 +50,9 @@ const workspaceManager = new WorkspaceManager(configStore);
 
 // Create global search manager instance
 const globalSearchManager = new GlobalSearchManager(workspaceManager);
+
+// Create auto-updater instance
+let autoUpdater = null;
 
 /**
  * Register IPC handlers for all main process operations
@@ -744,6 +748,69 @@ function registerIPCHandlers() {
             throw error;
         }
     });
+
+    // Auto-updater operations
+    ipcMain.handle('updater:check-for-updates', async () => {
+        try {
+            if (!autoUpdater) {
+                return { success: false, error: 'Auto-updater not initialized' };
+            }
+            const result = await autoUpdater.checkForUpdates();
+            return { success: true, updateInfo: result };
+        } catch (error) {
+            console.error('Error checking for updates:', error);
+            return { success: false, error: error.message };
+        }
+    });
+
+    ipcMain.handle('updater:download-update', async () => {
+        try {
+            if (!autoUpdater) {
+                return { success: false, error: 'Auto-updater not initialized' };
+            }
+            const result = await autoUpdater.downloadUpdate();
+            return result;
+        } catch (error) {
+            console.error('Error downloading update:', error);
+            return { success: false, error: error.message };
+        }
+    });
+
+    ipcMain.handle('updater:quit-and-install', async () => {
+        try {
+            if (!autoUpdater) {
+                return { success: false, error: 'Auto-updater not initialized' };
+            }
+            autoUpdater.quitAndInstall();
+            return { success: true };
+        } catch (error) {
+            console.error('Error installing update:', error);
+            return { success: false, error: error.message };
+        }
+    });
+
+    ipcMain.handle('updater:get-current-version', async () => {
+        try {
+            if (!autoUpdater) {
+                return { success: false, error: 'Auto-updater not initialized' };
+            }
+            const version = autoUpdater.getCurrentVersion();
+            return { success: true, version };
+        } catch (error) {
+            console.error('Error getting current version:', error);
+            return { success: false, error: error.message };
+        }
+    });
+
+    // App version operations
+    ipcMain.handle('app:get-version', async () => {
+        try {
+            return { success: true, version: app.getVersion() };
+        } catch (error) {
+            console.error('Error getting app version:', error);
+            return { success: false, error: error.message };
+        }
+    });
 }
 
 /**
@@ -758,6 +825,16 @@ app.whenReady().then(() => {
     createApplicationMenu(windowManager, fileManager, exporter, configStore);
 
     windowManager.createMainWindow();
+
+    // Initialize auto-updater after window is created
+    autoUpdater = new AutoUpdater(windowManager);
+
+    // Check for updates 3 seconds after app starts
+    setTimeout(() => {
+        if (autoUpdater) {
+            autoUpdater.checkForUpdates();
+        }
+    }, 3000);
 
     // On macOS, re-create window when dock icon is clicked and no windows are open
     app.on('activate', () => {

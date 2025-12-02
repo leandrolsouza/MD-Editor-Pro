@@ -72,7 +72,9 @@ describe('Markdown Parser Configuration', () => {
         const html = renderMarkdown('![Alt Text](image.png)');
 
         expect(html).toContain('<img');
-        expect(html).toContain('src="image.png"');
+        // The parser converts relative paths to file:// URLs
+        expect(html).toContain('src="file://');
+        expect(html).toContain('image.png');
         expect(html).toContain('alt="Alt Text"');
     });
 

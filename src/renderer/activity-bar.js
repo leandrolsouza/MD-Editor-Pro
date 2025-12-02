@@ -36,6 +36,15 @@ class ActivityBar {
             <button class="activity-bar__item" data-view="outline" title="Outline (Ctrl+Shift+O)">
                 <span class="activity-bar__icon">≡</span>
             </button>
+            <button class="activity-bar__item" data-view="templates" title="Templates">
+                <span class="activity-bar__icon">📄</span>
+            </button>
+            <button class="activity-bar__item" data-view="snippets" title="Snippets">
+                <span class="activity-bar__icon">✂️</span>
+            </button>
+            <button class="activity-bar__item" data-view="settings" title="Settings">
+                <span class="activity-bar__icon">⚙️</span>
+            </button>
         `;
         document.body.appendChild(this.container);
     }

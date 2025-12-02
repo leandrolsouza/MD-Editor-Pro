@@ -35,6 +35,7 @@ const GlobalSearchUI = require('./global-search-ui.js');
 const ActivityBar = require('./activity-bar.js');
 const ImagePaste = require('./image-paste.js');
 const ImagePasteSettingsUI = require('./image-paste-settings-ui.js');
+const UpdateNotification = require('./update-notification.js');
 
 // Application state
 let editor = null;
@@ -64,6 +65,7 @@ let globalSearchUI = null;
 let activityBar = null;
 let imagePaste = null;
 let imagePasteSettingsUI = null;
+let updateNotification = null;
 
 // Document state
 let currentFilePath = null;
@@ -305,6 +307,10 @@ async function initialize() {
             console.log(`Advanced markdown feature '${featureName}' ${enabled ? 'enabled' : 'disabled'}, preview updated`);
         });
         console.log('AdvancedMarkdownSettingsUI initialized');
+
+        // Initialize Update Notification
+        updateNotification = new UpdateNotification();
+        console.log('UpdateNotification initialized');
 
         // Initialize Keyboard Shortcuts UI
         keyboardShortcutsUI = new KeyboardShortcutsUI();
@@ -1735,7 +1741,18 @@ async function closeTab(tabId) {
 /**
  * Show About dialog
  */
-function showAboutDialog() {
+async function showAboutDialog() {
+    // Get app version from package.json
+    let appVersion = '1.0.5'; // fallback
+    try {
+        const result = await window.electronAPI.getAppVersion();
+        if (result.success) {
+            appVersion = result.version;
+        }
+    } catch (error) {
+        console.error('Failed to get app version:', error);
+    }
+
     // Create modal overlay
     const overlay = document.createElement('div');
 
@@ -1770,7 +1787,7 @@ function showAboutDialog() {
 
     dialog.innerHTML = `
         <h2 style="margin: 0 0 16px 0; font-size: 24px;">MD Editor Pro</h2>
-        <p style="margin: 0 0 8px 0; font-size: 18px; color: var(--text-secondary, #666);">Version 1.0.5</p>
+        <p style="margin: 0 0 8px 0; font-size: 18px; color: var(--text-secondary, #666);">Version ${appVersion}</p>
         <p style="margin: 0 0 24px 0; font-size: 14px; color: var(--text-secondary, #666);">
             A cross-platform markdown editor built with Electron
         </p>
@@ -1787,7 +1804,7 @@ function showAboutDialog() {
         </div>
         <div style="margin: 0 0 24px 0;">
             <p style="margin: 0 0 12px 0; font-size: 12px; color: var(--text-secondary, #666);">
-                © 2024 MD Editor Pro. All rights reserved.
+                © 2026 MD Editor Pro. All rights reserved.
             </p>
             <div style="display: flex; gap: 16px; justify-content: center; align-items: center;">
                 <a id="github-link" href="#" style="

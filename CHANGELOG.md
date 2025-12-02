@@ -2,12 +2,47 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.6] - 2025-12-01
+
+### Added
+- **Auto-Update System**: Implemented automatic update checking and installation
+  - Checks for updates on GitHub Releases automatically on app start
+  - Visual notifications for available updates
+  - Download progress indicator
+  - One-click install and restart
+  - Support for delta updates on Windows
+  - Background download without interrupting work
+
+### Technical
+- Added `electron-updater` dependency (v6.6.2)
+- Created `AutoUpdater` manager in main process
+- Added update notification UI component in renderer
+- Implemented IPC handlers for update operations
+- Added comprehensive documentation in `AUTO_UPDATE.md`
+- Configured GitHub repository URL for auto-update
+
 ## [1.0.5] - 2025-12-01
+
+### Added
+- **Auto-Update System**: Implemented automatic update checking and installation
+  - Checks for updates on GitHub Releases automatically on app start
+  - Visual notifications for available updates
+  - Download progress indicator
+  - One-click install and restart
+  - Support for delta updates on Windows
+  - Background download without interrupting work
 
 ### Fixed
 - Fixed application not closing when clicking X or using Exit menu
 - Replaced problematic `beforeunload` event with proper Electron close handler
 - Added native dialog for unsaved changes confirmation on window close
+
+### Technical
+- Added `electron-updater` dependency
+- Created `AutoUpdater` manager in main process
+- Added update notification UI component in renderer
+- Implemented IPC handlers for update operations
+- Added comprehensive documentation in `AUTO_UPDATE.md`
 
 ## [1.0.4] - 2025-12-01
 
