@@ -7,9 +7,11 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - Improved release workflow with fail-fast disabled
 - Fixed GitHub Actions build cancellation issues
+- Removed deprecated create-release action
+- Simplified workflow to use electron-builder's built-in release creation
 
 ### Changed
-- Separated release creation from build jobs for better reliability
+- Streamlined release process for better reliability
 
 ## [1.0.2] - 2025-12-01
 
