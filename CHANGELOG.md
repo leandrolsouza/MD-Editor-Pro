@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.3] - 2025-12-01
+
+### Fixed
+- Improved release workflow with fail-fast disabled
+- Fixed GitHub Actions build cancellation issues
+
+### Changed
+- Separated release creation from build jobs for better reliability
+
 ## [1.0.2] - 2025-12-01
 
 ### Fixed
