@@ -25,7 +25,10 @@
     "commonmark",
     "gfm"
   ],
-  "author": "",
+  "author": {
+    "name": "Leandro Luiz De Souza",
+    "email": "leandro.souza@gmail.com"
+  },
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
