@@ -1,4 +1,4 @@
-const { BrowserWindow } = require('electron');
+const { BrowserWindow, dialog } = require('electron');
 const path = require('path');
 
 /**
@@ -8,6 +8,49 @@ const path = require('path');
 class WindowManager {
     constructor() {
         this.mainWindow = null;
+    }
+
+    /**
+     * Handles window close event with unsaved changes check
+     * @param {Event} e - Close event
+     */
+    async handleWindowClose(e) {
+        if (!this.mainWindow || this.mainWindow.isDestroyed()) {
+            return;
+        }
+
+        try {
+            const hasUnsaved = await this.mainWindow.webContents.executeJavaScript(
+                'window.hasUnsavedChanges ? window.hasUnsavedChanges() : false'
+            );
+
+            if (!hasUnsaved) {
+                return;
+            }
+
+            e.preventDefault();
+
+            const choice = await dialog.showMessageBox(this.mainWindow, {
+                type: 'question',
+                buttons: ['Save', 'Don\'t Save', 'Cancel'],
+                defaultId: 0,
+                cancelId: 2,
+                title: 'Unsaved Changes',
+                message: 'Do you want to save the changes you made?',
+                detail: 'Your changes will be lost if you don\'t save them.'
+            });
+
+            if (choice.response === 0) {
+                await this.mainWindow.webContents.executeJavaScript(
+                    'window.saveBeforeClose ? window.saveBeforeClose() : Promise.resolve()'
+                );
+                this.mainWindow.destroy();
+            } else if (choice.response === 1) {
+                this.mainWindow.destroy();
+            }
+        } catch (error) {
+            console.error('Error checking unsaved changes:', error);
+        }
     }
 
     /**
@@ -40,6 +83,9 @@ class WindowManager {
             this.mainWindow.maximize();
             this.mainWindow.show();
         });
+
+        // Handle window close event (before closing)
+        this.mainWindow.on('close', (e) => this.handleWindowClose(e));
 
         // Handle window closed event
         this.mainWindow.on('closed', () => {

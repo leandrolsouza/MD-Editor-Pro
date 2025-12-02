@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.5] - 2025-12-01
+
+### Fixed
+- Fixed application not closing when clicking X or using Exit menu
+- Replaced problematic `beforeunload` event with proper Electron close handler
+- Added native dialog for unsaved changes confirmation on window close
+
 ## [1.0.4] - 2025-12-01
 
 ### Fixed

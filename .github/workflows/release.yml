@@ -25,6 +25,16 @@ jobs:
         with:
           node-version: "18"
 
+      - name: Extract release notes
+        id: extract_notes
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          NOTES=$(awk "/## \[$VERSION\]/,/## \[/" CHANGELOG.md | sed '1d;$d')
+          echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
+          echo "$NOTES" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+        shell: bash
+
       - name: Install dependencies
         run: npm ci
 
@@ -43,5 +53,13 @@ jobs:
       - name: Build and publish (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: npm run build:linux -- --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update release notes
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          gh release edit "v$VERSION" --notes "${{ env.RELEASE_NOTES }}"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

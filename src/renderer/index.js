@@ -1770,7 +1770,7 @@ function showAboutDialog() {
 
     dialog.innerHTML = `
         <h2 style="margin: 0 0 16px 0; font-size: 24px;">MD Editor Pro</h2>
-        <p style="margin: 0 0 8px 0; font-size: 18px; color: var(--text-secondary, #666);">Version 1.0.0</p>
+        <p style="margin: 0 0 8px 0; font-size: 18px; color: var(--text-secondary, #666);">Version 1.0.5</p>
         <p style="margin: 0 0 24px 0; font-size: 14px; color: var(--text-secondary, #666);">
             A cross-platform markdown editor built with Electron
         </p>
@@ -1970,14 +1970,20 @@ function cleanup() {
     }
 }
 
-// Handle window beforeunload event to warn about unsaved changes
-window.addEventListener('beforeunload', (e) => {
-    if (isDirty) {
-        e.preventDefault();
-        e.returnValue = ''; // Chrome requires returnValue to be set
-        return ''; // Some browsers require a return value
+// Expose functions for main process to check unsaved changes
+window.hasUnsavedChanges = () => {
+    return isDirty;
+};
+
+window.saveBeforeClose = async () => {
+    try {
+        await handleSaveFile();
+        return true;
+    } catch (error) {
+        console.error('Error saving before close:', error);
+        return false;
     }
-});
+};
 
 // Cleanup on window unload
 window.addEventListener('unload', cleanup);
