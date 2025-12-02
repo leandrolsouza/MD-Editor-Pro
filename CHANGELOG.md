@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.0.7] - 2025-12-01
+## [1.0.9] - 2025-12-01
 
 ### Changed
 - **Documentation**: Comprehensive README update for official publication
@@ -25,6 +25,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Better presentation for GitHub repository
 - More accessible information for new users
 - Clearer development and building instructions
+
+---
+
+## [1.0.8] - 2025-12-01
+
+### Changed
+  - Minor changes
+
+---
+
+## [1.0.7] - 2025-12-01
+
+### Changed
+  - Minor changes
 
 ---
 
