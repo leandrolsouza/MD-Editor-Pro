@@ -7,126 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.0.9] - 2025-12-01
-
-### Changed
-- **Documentation**: Comprehensive README update for official publication
-  - Added professional header with badges (version, license, platform)
-  - Expanded features section with detailed categorization
-  - Added complete installation instructions for all platforms
-  - Added usage guide with quick start and keyboard shortcuts table
-  - Improved project structure documentation
-  - Added contributing guidelines and issue reporting template
-  - Added acknowledgments and author information
-  - Enhanced visual formatting with better organization
-
-### Improved
-- README now follows best practices for open-source projects
-- Better presentation for GitHub repository
-- More accessible information for new users
-- Clearer development and building instructions
-
----
-
-## [1.0.8] - 2025-12-01
-
-### Changed
-  - Minor changes
-
----
-
-## [1.0.7] - 2025-12-01
-
-### Changed
-  - Minor changes
-
----
-
-## [1.0.6] - 2025-12-01
-
-### Added
-- **Auto-Update System**: Automatic update checking and installation
-  - Checks for updates on GitHub Releases on app start
-  - Visual notifications for available updates with version details
-  - Download progress indicator with percentage and speed
-  - One-click install and restart functionality
-  - Support for delta updates on Windows (smaller downloads)
-  - Background download without interrupting work
-  - Manual check for updates via Help menu
-
-### Technical
-- Added `electron-updater` dependency (v6.6.2)
-- Created `AutoUpdater` manager class in main process
-- Added update notification UI component in renderer
-- Implemented IPC handlers for update operations (`check-for-updates`, `download-update`, `install-update`)
-- Configured GitHub repository URL for auto-update in package.json
-- Added update event listeners and error handling
-
-## [1.0.5] - 2025-12-01
-
-### Added
-- **Auto-Update System**: Implemented automatic update checking and installation
-  - Checks for updates on GitHub Releases automatically on app start
-  - Visual notifications for available updates
-  - Download progress indicator
-  - One-click install and restart
-  - Support for delta updates on Windows
-  - Background download without interrupting work
-
-### Fixed
-- Fixed application not closing when clicking X or using Exit menu
-- Replaced problematic `beforeunload` event with proper Electron close handler
-- Added native dialog for unsaved changes confirmation on window close
-
-### Technical
-- Added `electron-updater` dependency
-- Created `AutoUpdater` manager in main process
-- Added update notification UI component in renderer
-- Implemented IPC handlers for update operations
-- Added comprehensive documentation in `AUTO_UPDATE.md`
-
-## [1.0.4] - 2025-12-01
-
-### Fixed
-- Added author email to package.json for Linux DEB/RPM package builds
-- Fixed icon files not being included in CI builds
-- Resolved GitHub Actions release asset conflicts
-
-### Changed
-- Updated .gitignore to include icon files in repository
-
-## [1.0.3] - 2025-12-01
-
-### Fixed
-- Improved release workflow with fail-fast disabled
-- Fixed GitHub Actions build cancellation issues
-- Removed deprecated create-release action
-- Simplified workflow to use electron-builder's built-in release creation
-
-### Changed
-- Streamlined release process for better reliability
-
-## [1.0.2] - 2025-12-01
-
-### Fixed
-- Log corrections
-
-### Changed
-- Minor changes
-
-## [1.0.1] - 2025-12-01
-
-### Added
-- Auto-update configuration via GitHub releases
-- Environment variable support for GitHub token
-
-### Changed
-- Updated build configuration for automated releases
-
-### Fixed
-- Initial release fixes
-
-## [1.0.0] - 2025-12-01
+## [1.0.0] - 2025-12-02
 
 ### 🎉 Initial Release
 
@@ -224,6 +105,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Auto-save settings
   - Custom snippets and shortcuts
   - Tab state and content
+- **Auto-Update System**: Automatic update checking and installation
+  - Checks for updates on GitHub Releases on app start
+  - Visual notifications for available updates with version details
+  - Download progress indicator with percentage and speed
+  - One-click install and restart functionality
+  - Support for delta updates on Windows (smaller downloads)
+  - Background download without interrupting work
+  - Manual check for updates via Help menu
 
 #### Accessibility
 - **ARIA Labels**: Proper labeling for screen readers
@@ -244,6 +133,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - KaTeX 0.16.25
 - highlight.js 11.11.1
 - electron-store 11.0.2
+- electron-updater 6.6.2
 - Vitest 4.0.14 for testing
 - Custom ESLint rules for code quality
 - Comprehensive test suite with property-based testing
