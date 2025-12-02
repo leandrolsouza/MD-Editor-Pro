@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.4] - 2025-12-01
+
+### Fixed
+- Added author email to package.json for Linux DEB/RPM package builds
+- Fixed icon files not being included in CI builds
+- Resolved GitHub Actions release asset conflicts
+
+### Changed
+- Updated .gitignore to include icon files in repository
+
 ## [1.0.3] - 2025-12-01
 
 ### Fixed
