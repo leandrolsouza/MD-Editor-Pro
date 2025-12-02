@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.0] - 2025-12-02
+
+### ✨ Added
+
+#### Smart HTML to Markdown Paste
+- **Intelligent HTML Conversion**: Automatically converts HTML content from websites to Markdown when pasting
+  - Detects HTML in clipboard and converts on-the-fly
+  - Preserves formatting: bold, italic, strikethrough, inline code
+  - Converts structure: headings (H1-H6), paragraphs, lists (ordered/unordered/nested)
+  - Handles links and images with proper Markdown syntax
+  - Converts code blocks with language detection
+  - Preserves blockquotes and nested blockquotes
+  - Converts HTML tables to Markdown tables
+  - Security: Automatically strips `<script>`, `<style>` tags and HTML comments
+  - Smart detection: Only converts meaningful HTML, ignores simple fragments
+  - Post-processing: Cleans up excessive whitespace and ensures proper formatting
+  - Powered by Turndown library with custom rules
+  - Full test coverage (40 tests)
+  - Documentation: `docs/HTML_TO_MARKDOWN_PASTE.md`
+
+### 📦 Dependencies
+- Added `turndown` (2.0.0) for HTML to Markdown conversion
+
+---
+
 ## [1.0.0] - 2025-12-02
 
 ### 🎉 Initial Release

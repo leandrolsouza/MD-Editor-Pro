@@ -9,6 +9,7 @@ const { defaultKeymap, history, historyKeymap, undo, redo } = require('@codemirr
 const { markdown } = require('@codemirror/lang-markdown');
 const { search, highlightSelectionMatches, selectNextOccurrence } = require('@codemirror/search');
 const { mermaidLanguage } = require('./advanced-markdown/mermaid-codemirror-lang');
+const HtmlToMarkdownConverter = require('./html-to-markdown');
 
 class Editor {
     constructor() {
@@ -17,6 +18,7 @@ class Editor {
         this.customKeymapCompartment = new Compartment();
         this.snippetExtensionCompartment = new Compartment();
         this.lineNumbersCompartment = new Compartment();
+        this.htmlToMarkdownConverter = new HtmlToMarkdownConverter();
     }
 
     /**
@@ -97,6 +99,54 @@ class Editor {
         this.view = new EditorView({
             state: startState,
             parent: element
+        });
+
+        // Setup paste event listener for HTML to Markdown conversion
+        this.setupPasteListener();
+    }
+
+    /**
+     * Setup paste event listener to convert HTML to Markdown
+     */
+    setupPasteListener() {
+        if (!this.view) {
+            return;
+        }
+
+        this.view.dom.addEventListener('paste', (event) => {
+            try {
+                const clipboardData = event.clipboardData;
+                if (!clipboardData) {
+                    return;
+                }
+
+                // Get HTML content from clipboard
+                const htmlContent = clipboardData.getData('text/html');
+
+                // If no HTML content, let default paste behavior handle it
+                if (!htmlContent) {
+                    return;
+                }
+
+                // Check if we should convert this HTML
+                if (!this.htmlToMarkdownConverter.shouldConvert(htmlContent)) {
+                    return;
+                }
+
+                // Prevent default paste behavior
+                event.preventDefault();
+
+                // Convert HTML to Markdown
+                const markdown = this.htmlToMarkdownConverter.convert(htmlContent);
+
+                // Insert the converted Markdown at cursor position
+                if (markdown) {
+                    this.replaceSelection(markdown);
+                }
+            } catch (error) {
+                console.error('Error converting HTML to Markdown on paste:', error);
+                // Let default paste behavior handle it on error
+            }
         });
     }
 

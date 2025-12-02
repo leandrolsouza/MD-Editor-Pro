@@ -341,7 +341,9 @@ Build outputs will be in the `dist/` directory.
 
 #### Publishing
 
-For detailed publishing instructions, including code signing and auto-updates, see [PUBLISHING.md](PUBLISHING.md).
+For detailed publishing instructions, see [PUBLISHING.md](PUBLISHING.md).
+
+For information about code signing and avoiding Windows SmartScreen warnings, see [CODE_SIGNING.md](CODE_SIGNING.md).
 
 ---
 
