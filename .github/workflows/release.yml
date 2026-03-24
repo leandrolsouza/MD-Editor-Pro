@@ -5,6 +5,10 @@ on:
     tags:
       - "v*"
 
+env:
+  # Increase timeout for electron-builder uploads
+  ELECTRON_BUILDER_HTTP_TIMEOUT: 300000
+
 jobs:
   create-release:
     runs-on: ubuntu-latest
@@ -43,6 +47,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     permissions:
       contents: write
+    timeout-minutes: 60
 
     strategy:
       fail-fast: false
@@ -63,18 +68,33 @@ jobs:
 
       - name: Build and publish (Windows)
         if: matrix.os == 'windows-latest'
-        run: npm run build:win -- --publish always
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 30
+          max_attempts: 3
+          retry_wait_seconds: 30
+          command: npm run build:win -- --publish always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and publish (macOS)
         if: matrix.os == 'macos-latest'
-        run: npm run build:mac -- --publish always
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 30
+          max_attempts: 3
+          retry_wait_seconds: 30
+          command: npm run build:mac -- --publish always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and publish (Linux)
         if: matrix.os == 'ubuntu-latest'
-        run: npm run build:linux -- --publish always
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 30
+          max_attempts: 3
+          retry_wait_seconds: 30
+          command: npm run build:linux -- --publish always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
