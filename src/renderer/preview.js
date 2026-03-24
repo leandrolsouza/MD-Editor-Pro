@@ -3,6 +3,8 @@
  * Provides methods for rendering markdown and scroll synchronization
  */
 
+const i18n = require('./i18n/index.js');
+
 class Preview {
     constructor(postProcessor = null, markdownParser = null) {
         this.container = null;
@@ -91,8 +93,8 @@ class Preview {
             console.error('Error rendering preview:', error);
             // Display error message in preview
             this.container.innerHTML = `<div class="preview-error">
-                <strong>Preview Error:</strong>
-                <pre>${error.message || 'Unknown error occurred'}</pre>
+                <strong>${i18n.t('preview.error')}:</strong>
+                <pre>${error.message || i18n.t('preview.unknownError')}</pre>
             </div>`;
         }
     }

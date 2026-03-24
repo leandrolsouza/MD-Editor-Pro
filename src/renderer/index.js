@@ -36,6 +36,13 @@ const ActivityBar = require('./activity-bar.js');
 const ImagePaste = require('./image-paste.js');
 const ImagePasteSettingsUI = require('./image-paste-settings-ui.js');
 const UpdateNotification = require('./update-notification.js');
+const AIChatPanel = require('./ai-chat-panel.js');
+const AIEditCommands = require('./ai-edit-commands.js');
+const AIAutocomplete = require('./ai-autocomplete.js');
+const { ContextMenu } = require('./context-menu.js');
+const i18n = require('./i18n/index.js');
+const SettingsPanel = require('./settings-panel.js');
+const PanelResizer = require('./panel-resizer.js');
 
 // Application state
 let editor = null;
@@ -66,6 +73,11 @@ let activityBar = null;
 let imagePaste = null;
 let imagePasteSettingsUI = null;
 let updateNotification = null;
+let aiChatPanel = null;
+let aiEditCommands = null;
+let aiAutocomplete = null;
+let contextMenu = null;
+let panelResizer = null;
 
 // Document state
 let currentFilePath = null;
@@ -78,12 +90,78 @@ let removeFileDroppedListener = null;
 let removeMenuActionListener = null;
 
 /**
+ * Update static HTML elements with translations
+ */
+function updateStaticTranslations() {
+    // Search panel
+    const searchInput = document.getElementById('search-input');
+    const replaceInput = document.getElementById('replace-input');
+    const searchPanel = document.getElementById('search-panel');
+    const searchPrev = document.getElementById('search-prev');
+    const searchNext = document.getElementById('search-next');
+    const searchClose = document.getElementById('search-close');
+    const replaceCurrent = document.getElementById('replace-current');
+    const replaceAll = document.getElementById('replace-all');
+
+    if (searchInput) {
+        searchInput.placeholder = i18n.t('search.findPlaceholder');
+        searchInput.setAttribute('aria-label', i18n.t('search.find'));
+    }
+
+    if (replaceInput) {
+        replaceInput.placeholder = i18n.t('search.replacePlaceholder');
+        replaceInput.setAttribute('aria-label', i18n.t('search.replace'));
+    }
+
+    if (searchPanel) {
+        searchPanel.setAttribute('aria-label', i18n.t('search.find') + ' & ' + i18n.t('search.replace'));
+    }
+
+    if (searchPrev) {
+        searchPrev.title = i18n.t('search.previous') || 'Previous';
+        searchPrev.setAttribute('aria-label', i18n.t('search.previous') || 'Previous match');
+    }
+
+    if (searchNext) {
+        searchNext.title = i18n.t('search.next') || 'Next';
+        searchNext.setAttribute('aria-label', i18n.t('search.next') || 'Next match');
+    }
+
+    if (searchClose) {
+        searchClose.title = i18n.t('actions.close');
+        searchClose.setAttribute('aria-label', i18n.t('actions.close'));
+    }
+
+    if (replaceCurrent) {
+        replaceCurrent.textContent = i18n.t('search.replace');
+        replaceCurrent.setAttribute('aria-label', i18n.t('search.replace'));
+    }
+
+    if (replaceAll) {
+        replaceAll.textContent = i18n.t('search.replaceAll');
+        replaceAll.setAttribute('aria-label', i18n.t('search.replaceAll'));
+    }
+}
+
+/**
  * Initialize the application
  */
 async function initialize() {
     try {
         console.log('=== Initializing renderer process ===');
         console.log('window.electronAPI available:', !!window.electronAPI);
+
+        // Initialize i18n (internationalization)
+        await i18n.initialize();
+        console.log('i18n initialized with locale:', i18n.getLocale());
+
+        // Update static HTML elements with translations
+        updateStaticTranslations();
+
+        // Listen for locale changes to update static elements
+        i18n.onLocaleChange(() => {
+            updateStaticTranslations();
+        });
 
         // Initialize Advanced Markdown Manager (client-side)
         advancedMarkdownManager = new AdvancedMarkdownManagerClient();
@@ -111,6 +189,11 @@ async function initialize() {
         editor = new Editor();
         editor.initialize(editorContainer, [], lineNumbersEnabled);
         console.log('Editor initialized with line numbers:', lineNumbersEnabled);
+
+        // Initialize Context Menu
+        contextMenu = new ContextMenu(editor);
+        contextMenu.initialize(editorContainer);
+        console.log('ContextMenu initialized');
 
         // Initialize Preview with post-processor and markdown parser
         const previewContainer = document.getElementById('preview-container');
@@ -431,7 +514,7 @@ async function initialize() {
 
         // Register views with activity bar
         if (fileTreeSidebar) {
-            activityBar.registerView('files', 'EXPLORER', fileTreeContainer);
+            activityBar.registerView('files', i18n.t('activityBar.explorer').toUpperCase(), fileTreeContainer);
         }
 
         if (globalSearchUI) {
@@ -440,35 +523,65 @@ async function initialize() {
             const searchPanel = globalSearchUI.container;
             if (searchPanel) {
                 searchPanel.classList.remove('hidden');
-                activityBar.registerView('search', 'SEARCH', searchPanel);
+                activityBar.registerView('search', i18n.t('activityBar.search').toUpperCase(), searchPanel);
             }
         }
 
         if (outlinePanel) {
-            activityBar.registerView('outline', 'OUTLINE', outlinePanelContainer);
+            activityBar.registerView('outline', i18n.t('activityBar.outline').toUpperCase(), outlinePanelContainer);
         }
 
         if (templateUI) {
             const templateContent = document.createElement('div');
             templateContent.id = 'template-container';
-            templateContent.innerHTML = '<div style="padding: var(--space-3); color: var(--text-secondary);">Template panel coming soon...</div>';
-            activityBar.registerView('templates', 'TEMPLATES', templateContent);
+            templateContent.innerHTML = `<div style="padding: var(--space-3); color: var(--text-secondary);">${i18n.t('panels.templateComingSoon')}</div>`;
+            activityBar.registerView('templates', i18n.t('activityBar.templates').toUpperCase(), templateContent);
         }
 
         if (snippetManager) {
             const snippetContent = document.createElement('div');
             snippetContent.id = 'snippet-container';
-            snippetContent.innerHTML = '<div style="padding: var(--space-3); color: var(--text-secondary);">Snippet panel coming soon...</div>';
-            activityBar.registerView('snippets', 'SNIPPETS', snippetContent);
+            snippetContent.innerHTML = `<div style="padding: var(--space-3); color: var(--text-secondary);">${i18n.t('panels.snippetComingSoon')}</div>`;
+            activityBar.registerView('snippets', i18n.t('activityBar.snippets').toUpperCase(), snippetContent);
         }
 
         // Settings view
         const settingsContent = document.createElement('div');
         settingsContent.id = 'settings-container';
-        settingsContent.innerHTML = '<div style="padding: var(--space-3); color: var(--text-secondary);">Settings panel coming soon...</div>';
-        activityBar.registerView('settings', 'SETTINGS', settingsContent);
+        const settingsPanel = new SettingsPanel();
+        settingsPanel.initialize(settingsContent);
+        activityBar.registerView('settings', i18n.t('activityBar.settings').toUpperCase(), settingsContent);
+
+        // AI Chat view
+        const aiChatContainer = document.createElement('div');
+        aiChatContainer.id = 'ai-chat-container';
+        aiChatContainer.className = 'ai-chat-container';
+        aiChatPanel = new AIChatPanel(editor);
+        aiChatPanel.initialize(aiChatContainer);
+        activityBar.registerView('ai-chat', i18n.t('activityBar.aiAssistant').toUpperCase(), aiChatContainer);
+
+        console.log('AIChatPanel initialized');
+
+        // AI Edit Commands (Ctrl+Shift+E)
+        aiEditCommands = new AIEditCommands(editor);
+        aiEditCommands.initialize();
+        // Expose globally for context menu access
+        window.aiEditCommands = aiEditCommands;
+        console.log('AIEditCommands initialized');
+
+        // AI Autocomplete - inline suggestions while typing
+        aiAutocomplete = new AIAutocomplete(editor);
+        await aiAutocomplete.initialize();
+        // Expose globally for settings UI to update
+        window.aiAutocomplete = aiAutocomplete;
+        console.log('AIAutocomplete initialized');
 
         console.log('ActivityBar initialized');
+
+        // Initialize Panel Resizer for resizable editor/preview and sidebar
+        panelResizer = new PanelResizer();
+        panelResizer.initialize();
+        console.log('PanelResizer initialized');
 
         // Attach tooltips to formatting toolbar buttons
         attachFormattingToolbarTooltips();
@@ -510,6 +623,12 @@ async function initialize() {
             if (currentTabId) {
                 window.electronAPI.updateTabContent(currentTabId, content);
             }
+
+            // Trigger AI autocomplete
+            if (aiAutocomplete) {
+                const cursorPos = editor.getCursorPosition();
+                aiAutocomplete.onContentChange(content, cursorPos);
+            }
         });
 
         // Setup editor scroll synchronization with preview
@@ -524,13 +643,14 @@ async function initialize() {
         // Setup file drag-and-drop
         setupDragAndDrop();
 
-        // Render initial empty content
-        preview.render('');
+        // Render current editor content (handles both restored tabs and new empty documents)
+        const currentContent = editor.getValue();
+        preview.render(currentContent, true);
 
         console.log('Renderer process initialized successfully');
     } catch (error) {
         console.error('Failed to initialize renderer process:', error);
-        notificationManager.error('Failed to initialize application: ' + error.message);
+        notificationManager.error(i18n.t('notifications.failedToInitialize') + ': ' + error.message);
     }
 }
 
@@ -570,6 +690,8 @@ function attachFormattingToolbarTooltips() {
         const title = button.getAttribute('title');
         if (title) {
             tooltipManager.attach(button, title);
+            // Remove native title to prevent duplicate tooltip
+            button.removeAttribute('title');
         }
     });
 }
@@ -832,7 +954,7 @@ async function handleNewFile() {
         await createNewTab();
     } catch (error) {
         console.error('Failed to create new file:', error);
-        notificationManager.error('Failed to create new file. Please try again.');
+        notificationManager.error(i18n.t('notifications.failedToCreateFile') + ' ' + i18n.t('notifications.tryAgain'));
     }
 }
 
@@ -854,7 +976,7 @@ async function handleOpenFile() {
         }
     } catch (error) {
         console.error('Error opening file:', error);
-        notificationManager.error('Failed to open file: ' + error.message);
+        notificationManager.error(i18n.t('notifications.failedToOpenFile') + ': ' + error.message);
     }
 }
 
@@ -877,7 +999,7 @@ async function handleOpenRecentFile(filePath) {
         }
     } catch (error) {
         console.error('Error opening recent file:', error);
-        notificationManager.error('Failed to open recent file: ' + error.message);
+        notificationManager.error(i18n.t('notifications.failedToOpenFile') + ': ' + error.message);
     }
 }
 
@@ -902,7 +1024,7 @@ async function handleOpenFolder() {
         }
     } catch (error) {
         console.error('Error opening folder:', error);
-        notificationManager.error('Failed to open folder: ' + error.message);
+        notificationManager.error(i18n.t('notifications.failedToOpenFolder') + ': ' + error.message);
     }
 }
 
@@ -925,7 +1047,7 @@ async function handleCloseFolder() {
         }
     } catch (error) {
         console.error('Error closing folder:', error);
-        notificationManager.error('Failed to close folder: ' + error.message);
+        notificationManager.error(i18n.t('notifications.failedToCloseFolder') + ': ' + error.message);
     }
 }
 
@@ -948,7 +1070,7 @@ async function toggleOutlinePanel() {
         console.log('Outline panel:', outlinePanel.isVisible ? 'shown' : 'hidden');
     } catch (error) {
         console.error('Error toggling outline panel:', error);
-        notificationManager.error('Failed to toggle outline panel: ' + error.message);
+        notificationManager.error(i18n.t('notifications.failedToToggleOutline') + ': ' + error.message);
     }
 }
 
@@ -971,7 +1093,7 @@ async function toggleTypewriterScrolling() {
         console.log('Typewriter scrolling:', typewriterScrolling.isEnabled() ? 'enabled' : 'disabled');
     } catch (error) {
         console.error('Error toggling typewriter scrolling:', error);
-        notificationManager.error('Failed to toggle typewriter scrolling: ' + error.message);
+        notificationManager.error(i18n.t('notifications.failedToToggleTypewriter') + ': ' + error.message);
     }
 }
 
@@ -988,7 +1110,7 @@ async function handleToggleLineNumbers() {
         }
     } catch (error) {
         console.error('Error toggling line numbers:', error);
-        notificationManager.error('Failed to toggle line numbers: ' + error.message);
+        notificationManager.error(i18n.t('notifications.failedToToggleLineNumbers') + ': ' + error.message);
     }
 }
 
@@ -1029,7 +1151,7 @@ async function handleSaveFile() {
         }
     } catch (error) {
         console.error('Error saving file:', error);
-        notificationManager.error('Failed to save file: ' + error.message);
+        notificationManager.error(i18n.t('notifications.fileSaveFailed') + ': ' + error.message);
     }
 }
 
@@ -1078,7 +1200,7 @@ async function handleSaveFileAs() {
         }
     } catch (error) {
         console.error('Error saving file as:', error);
-        notificationManager.error('Failed to save file: ' + error.message);
+        notificationManager.error(i18n.t('notifications.fileSaveFailed') + ': ' + error.message);
     }
 }
 
@@ -1092,7 +1214,7 @@ async function handleSaveAll() {
         const result = await window.electronAPI.getModifiedTabs();
 
         if (!result.success || !result.tabs || result.tabs.length === 0) {
-            notificationManager.info('No modified files to save.');
+            notificationManager.info(i18n.t('notifications.noModifiedFiles'));
             return;
         }
 
@@ -1139,17 +1261,17 @@ async function handleSaveAll() {
 
         // Show result message
         if (savedCount > 0 && errorCount === 0) {
-            notificationManager.success(`Successfully saved ${savedCount} file${savedCount > 1 ? 's' : ''}.`);
+            notificationManager.success(i18n.t('notifications.successfullySavedFiles', { count: savedCount }));
         } else if (savedCount > 0 && errorCount > 0) {
-            notificationManager.warning(`Saved ${savedCount} file${savedCount > 1 ? 's' : ''}.\n\nErrors:\n${errors.join('\n')}`);
+            notificationManager.warning(i18n.t('notifications.savedWithErrors', { count: savedCount, errors: errors.join('\n') }));
         } else {
-            notificationManager.error(`Failed to save files:\n${errors.join('\n')}`);
+            notificationManager.error(i18n.t('notifications.failedToSaveFiles') + ':\n' + errors.join('\n'));
         }
 
         console.log(`Save All completed: ${savedCount} saved, ${errorCount} errors`);
     } catch (error) {
         console.error('Error in save all:', error);
-        notificationManager.error('Failed to save files: ' + error.message);
+        notificationManager.error(i18n.t('notifications.failedToSaveFiles') + ': ' + error.message);
     }
 }
 
@@ -1162,11 +1284,11 @@ async function handleExportHTML() {
         const result = await window.electronAPI.exportHTML(content);
 
         if (result && result.success) {
-            notificationManager.success('Successfully exported to HTML: ' + result.filePath);
+            notificationManager.success(i18n.t('notifications.successfullyExportedHTML') + ': ' + result.filePath);
         }
     } catch (error) {
         console.error('Error exporting to HTML:', error);
-        notificationManager.error('Failed to export to HTML: ' + error.message);
+        notificationManager.error(i18n.t('notifications.failedToExportHTML') + ': ' + error.message);
     }
 }
 
@@ -1179,11 +1301,11 @@ async function handleExportPDF() {
         const result = await window.electronAPI.exportPDF(content);
 
         if (result && result.success) {
-            notificationManager.success('Successfully exported to PDF: ' + result.filePath);
+            notificationManager.success(i18n.t('notifications.successfullyExportedPDF') + ': ' + result.filePath);
         }
     } catch (error) {
         console.error('Error exporting to PDF:', error);
-        notificationManager.error('Failed to export to PDF: ' + error.message);
+        notificationManager.error(i18n.t('notifications.failedToExportPDF') + ': ' + error.message);
     }
 }
 
@@ -1295,17 +1417,8 @@ function setupKeyboardShortcuts() {
                 }
             }
 
-            // Ctrl/Cmd + Z: Undo
-            if (modifier && e.key === 'z' && !e.shiftKey) {
-                e.preventDefault();
-                editor.undo();
-            }
-
-            // Ctrl/Cmd + Y or Ctrl/Cmd + Shift + Z: Redo
-            if ((modifier && e.key === 'y') || (modifier && e.shiftKey && e.key === 'z')) {
-                e.preventDefault();
-                editor.redo();
-            }
+            // Ctrl/Cmd + Z: Undo - Let CodeMirror handle it natively via historyKeymap
+            // Ctrl/Cmd + Y or Ctrl/Cmd + Shift + Z: Redo - Let CodeMirror handle it natively via historyKeymap
 
             // Ctrl/Cmd + S: Save
             if (modifier && e.key === 's') {
@@ -1413,12 +1526,12 @@ function setupDragAndDrop() {
                         console.log('File loaded via drag-and-drop:', file.path);
                     } catch (error) {
                         console.error('Failed to load dropped file:', error);
-                        notificationManager.error('Failed to load file. Please try again.');
+                        notificationManager.error(i18n.t('notifications.failedToLoadFile') + ' ' + i18n.t('notifications.tryAgain'));
                     }
                 };
                 reader.readAsText(file);
             } else {
-                notificationManager.warning('Please drop a markdown file (.md or .markdown)');
+                notificationManager.warning(i18n.t('notifications.pleaseDropMarkdown'));
             }
         }
     });
@@ -1475,7 +1588,7 @@ function setupSidebarIntegration() {
             }
         } catch (error) {
             console.error('Error opening file from sidebar:', error);
-            notificationManager.error('Failed to open file: ' + error.message);
+            notificationManager.error(i18n.t('notifications.failedToOpenFile') + ': ' + error.message);
         }
     });
 
@@ -1620,7 +1733,7 @@ async function createNewTab(filePath = null, content = '') {
         }
     } catch (error) {
         console.error('Error creating tab:', error);
-        notificationManager.error('Failed to create tab: ' + error.message);
+        notificationManager.error(i18n.t('notifications.failedToCreateTab') + ': ' + error.message);
     }
 }
 
@@ -1673,11 +1786,11 @@ async function switchToTab(tabId) {
                 editor.setScrollPosition(tab.scrollPosition);
             }
 
-            preview.render(tab.content);
+            preview.render(tab.content, true);
         }
     } catch (error) {
         console.error('Error switching tab:', error);
-        notificationManager.error('Failed to switch tab: ' + error.message);
+        notificationManager.error(i18n.t('notifications.failedToSwitchTab') + ': ' + error.message);
     }
 }
 
@@ -1734,7 +1847,7 @@ async function closeTab(tabId) {
         }
     } catch (error) {
         console.error('Error closing tab:', error);
-        notificationManager.error('Failed to close tab: ' + error.message);
+        notificationManager.error(i18n.t('notifications.failedToCloseTab') + ': ' + error.message);
     }
 }
 
@@ -1916,7 +2029,7 @@ async function handleTemplateInsert(template, mode) {
         console.log('Template inserted:', template.name, 'mode:', mode);
     } catch (error) {
         console.error('Error inserting template:', error);
-        notificationManager.error('Failed to insert template: ' + error.message);
+        notificationManager.error(i18n.t('notifications.failedToInsertTemplate') + ': ' + error.message);
     }
 }
 
@@ -1984,6 +2097,12 @@ function cleanup() {
     }
     if (imagePasteSettingsUI) {
         imagePasteSettingsUI.destroy();
+    }
+    if (aiEditCommands) {
+        aiEditCommands.destroy();
+    }
+    if (contextMenu) {
+        contextMenu.destroy();
     }
 }
 

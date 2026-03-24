@@ -166,3 +166,63 @@ body.theme-monokai {
 .theme-monokai .cm-activeLine {
     background-color: rgba(255, 255, 255, 0.05);
 }
+
+/* Selection styles - Monokai cyan */
+.theme-monokai .cm-selectionBackground,
+.theme-monokai .cm-content ::selection {
+    background-color: rgba(102, 217, 239, 0.35) !important;
+}
+
+.theme-monokai .cm-editor.cm-focused .cm-selectionBackground {
+    background-color: rgba(102, 217, 239, 0.45) !important;
+}
+
+.theme-monokai .cm-selectionMatch {
+    background-color: rgba(102, 217, 239, 0.2);
+}
+
+/* Cursor styles - Monokai white */
+.theme-monokai .cm-cursor,
+.theme-monokai .cm-cursor-primary {
+    border-left-color: #f8f8f2 !important;
+}
+
+.theme-monokai .cm-cursor-secondary {
+    border-left-color: rgba(248, 248, 242, 0.6) !important;
+}
+
+/* Matching brackets */
+.theme-monokai .cm-matchingBracket {
+    background-color: rgba(102, 217, 239, 0.3);
+    outline: 1px solid rgba(102, 217, 239, 0.5);
+}
+
+/* Search highlights */
+.theme-monokai .cm-searchMatch {
+    background-color: rgba(230, 219, 116, 0.3);
+    outline: 1px solid rgba(230, 219, 116, 0.5);
+}
+
+.theme-monokai .cm-searchMatch-selected {
+    background-color: rgba(230, 219, 116, 0.5);
+}
+
+/* Fold placeholder */
+.theme-monokai .cm-foldPlaceholder {
+    background-color: #3e3d32;
+    border-color: #5a5a4e;
+    color: #a6a69c;
+}
+
+/* Active line number highlight */
+.theme-monokai .cm-lineNumbers .cm-gutterElement.cm-activeLineGutter {
+    color: #f8f8f2;
+}
+
+/* Caret color for contenteditable and inputs */
+.theme-monokai,
+.theme-monokai input,
+.theme-monokai textarea,
+.theme-monokai [contenteditable="true"] {
+    caret-color: #f8f8f2;
+}

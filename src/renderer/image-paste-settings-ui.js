@@ -3,6 +3,8 @@
  * Allows users to enable/disable image paste and configure assets folder
  */
 
+const i18n = require('./i18n/index.js');
+
 class ImagePasteSettingsUI {
     constructor() {
         this.modal = null;
@@ -50,7 +52,7 @@ class ImagePasteSettingsUI {
         // Create header
         const header = document.createElement('div');
         header.className = 'modal-header';
-        header.innerHTML = '<h2>Image Paste Settings</h2>';
+        header.innerHTML = `<h2>${i18n.t('imagePasteSettings.title')}</h2>`;
 
         // Create close button
         const closeBtn = document.createElement('button');
@@ -69,10 +71,10 @@ class ImagePasteSettingsUI {
         enableContainer.innerHTML = `
             <label>
                 <input type="checkbox" id="image-paste-enabled" checked>
-                Enable automatic image paste
+                ${i18n.t('imagePasteSettings.enable')}
             </label>
             <p class="setting-description">
-                When enabled, pasting images from clipboard (Ctrl+V) will automatically save them to the assets folder and insert markdown links.
+                ${i18n.t('imagePasteSettings.enableDescription')}
             </p>
         `;
 
@@ -80,10 +82,10 @@ class ImagePasteSettingsUI {
         const folderContainer = document.createElement('div');
         folderContainer.className = 'setting-item';
         folderContainer.innerHTML = `
-            <label for="assets-folder">Assets Folder Path:</label>
+            <label for="assets-folder">${i18n.t('imagePasteSettings.assetsFolder')}</label>
             <input type="text" id="assets-folder" value="./assets" placeholder="./assets">
             <p class="setting-description">
-                Relative path from the markdown file where images will be saved. The folder will be created automatically if it doesn't exist.
+                ${i18n.t('imagePasteSettings.assetsFolderDescription')}
             </p>
         `;
 
@@ -96,12 +98,12 @@ class ImagePasteSettingsUI {
 
         const saveBtn = document.createElement('button');
         saveBtn.className = 'btn btn-primary';
-        saveBtn.textContent = 'Save';
+        saveBtn.textContent = i18n.t('actions.save');
         saveBtn.onclick = () => this.saveSettings();
 
         const cancelBtn = document.createElement('button');
         cancelBtn.className = 'btn btn-secondary';
-        cancelBtn.textContent = 'Cancel';
+        cancelBtn.textContent = i18n.t('actions.cancel');
         cancelBtn.onclick = () => this.hide();
 
         footer.appendChild(cancelBtn);
@@ -178,7 +180,7 @@ class ImagePasteSettingsUI {
             console.log('Image paste settings saved:', { enabled, assetsFolder });
         } catch (error) {
             console.error('Failed to save image paste settings:', error);
-            alert('Failed to save settings: ' + error.message);
+            alert(i18n.t('imagePasteSettings.failedToSave') + ': ' + error.message);
         }
     }
 

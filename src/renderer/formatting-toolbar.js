@@ -3,6 +3,8 @@
  * Requirements: 9.1, 9.2, 9.4, 4.5, 6.5
  */
 
+const i18n = require('./i18n/index.js');
+
 class FormattingToolbar {
     constructor(editor) {
         if (!editor) {
@@ -15,38 +17,39 @@ class FormattingToolbar {
         this.initialized = false;
         this.updateDebounceTimer = null;
         this.editorUpdateListener = null;
+        this.removeLocaleListener = null;
 
         // Button configuration array with all formatting buttons
         this.buttonConfig = [
-            { id: 'bold', icon: 'B', title: 'Bold (Ctrl+B)', action: 'bold', group: 'inline' },
-            { id: 'italic', icon: 'I', title: 'Italic (Ctrl+I)', action: 'italic', group: 'inline' },
-            { id: 'strikethrough', icon: 'S', title: 'Strikethrough', action: 'strikethrough', group: 'inline' },
-            { id: 'code', icon: '</>', title: 'Inline Code (Ctrl+`)', action: 'code', group: 'code' },
+            { id: 'bold', icon: 'B', titleKey: 'formatting.bold', shortcut: 'Ctrl+B', action: 'bold', group: 'inline' },
+            { id: 'italic', icon: 'I', titleKey: 'formatting.italic', shortcut: 'Ctrl+I', action: 'italic', group: 'inline' },
+            { id: 'strikethrough', icon: 'S', titleKey: 'formatting.strikethrough', action: 'strikethrough', group: 'inline' },
+            { id: 'code', icon: '</>', titleKey: 'formatting.code', shortcut: 'Ctrl+`', action: 'code', group: 'code' },
             { id: 'separator-1', type: 'separator' },
-            { id: 'heading1', icon: 'H1', title: 'Heading 1', action: 'heading', level: 1, group: 'heading' },
-            { id: 'heading2', icon: 'H2', title: 'Heading 2', action: 'heading', level: 2, group: 'heading' },
-            { id: 'heading3', icon: 'H3', title: 'Heading 3', action: 'heading', level: 3, group: 'heading' },
-            { id: 'heading4', icon: 'H4', title: 'Heading 4', action: 'heading', level: 4, group: 'heading' },
-            { id: 'heading5', icon: 'H5', title: 'Heading 5', action: 'heading', level: 5, group: 'heading' },
-            { id: 'heading6', icon: 'H6', title: 'Heading 6', action: 'heading', level: 6, group: 'heading' },
+            { id: 'heading1', icon: 'H1', titleKey: 'formatting.heading', level: 1, action: 'heading', group: 'heading' },
+            { id: 'heading2', icon: 'H2', titleKey: 'formatting.heading', level: 2, action: 'heading', group: 'heading' },
+            { id: 'heading3', icon: 'H3', titleKey: 'formatting.heading', level: 3, action: 'heading', group: 'heading' },
+            { id: 'heading4', icon: 'H4', titleKey: 'formatting.heading', level: 4, action: 'heading', group: 'heading' },
+            { id: 'heading5', icon: 'H5', titleKey: 'formatting.heading', level: 5, action: 'heading', group: 'heading' },
+            { id: 'heading6', icon: 'H6', titleKey: 'formatting.heading', level: 6, action: 'heading', group: 'heading' },
             { id: 'separator-2', type: 'separator' },
-            { id: 'unordered-list', icon: '•', title: 'Bullet List', action: 'unordered-list', group: 'list' },
-            { id: 'ordered-list', icon: '1.', title: 'Numbered List', action: 'ordered-list', group: 'list' },
-            { id: 'task-list', icon: '☑', title: 'Task List', action: 'task-list', group: 'list' },
+            { id: 'unordered-list', icon: '•', titleKey: 'formatting.bulletList', action: 'unordered-list', group: 'list' },
+            { id: 'ordered-list', icon: '1.', titleKey: 'formatting.numberedList', action: 'ordered-list', group: 'list' },
+            { id: 'task-list', icon: '☑', titleKey: 'formatting.taskList', action: 'task-list', group: 'list' },
             { id: 'separator-3', type: 'separator' },
-            { id: 'blockquote', icon: '"', title: 'Blockquote', action: 'blockquote', group: 'block' },
-            { id: 'code-block', icon: '{ }', title: 'Code Block', action: 'code-block', group: 'code' },
-            { id: 'table', icon: '⊞', title: 'Insert Table', action: 'table', group: 'insert' },
-            { id: 'horizontal-rule', icon: '—', title: 'Horizontal Rule', action: 'horizontal-rule', group: 'insert' },
+            { id: 'blockquote', icon: '"', titleKey: 'formatting.blockquote', action: 'blockquote', group: 'block' },
+            { id: 'code-block', icon: '{ }', titleKey: 'formatting.codeBlock', action: 'code-block', group: 'code' },
+            { id: 'table', icon: '⊞', titleKey: 'formatting.table', action: 'table', group: 'insert' },
+            { id: 'horizontal-rule', icon: '—', titleKey: 'formatting.horizontalRule', action: 'horizontal-rule', group: 'insert' },
             { id: 'separator-4', type: 'separator' },
-            { id: 'link', icon: '🔗', title: 'Insert Link', action: 'link', group: 'insert' },
-            { id: 'image', icon: '🖼', title: 'Insert Image', action: 'image', group: 'insert' },
+            { id: 'link', icon: '🔗', titleKey: 'formatting.link', action: 'link', group: 'insert' },
+            { id: 'image', icon: '🖼', titleKey: 'formatting.image', action: 'image', group: 'insert' },
             { id: 'separator-5', type: 'separator' },
-            { id: 'indent', icon: '→', title: 'Indent', action: 'indent', group: 'format' },
-            { id: 'outdent', icon: '←', title: 'Outdent', action: 'outdent', group: 'format' },
-            { id: 'clear-format', icon: '✕', title: 'Clear Formatting', action: 'clear-format', group: 'format' },
+            { id: 'indent', icon: '→', titleKey: 'formatting.indent', action: 'indent', group: 'format' },
+            { id: 'outdent', icon: '←', titleKey: 'formatting.outdent', action: 'outdent', group: 'format' },
+            { id: 'clear-format', icon: '✕', titleKey: 'formatting.clearFormat', action: 'clear-format', group: 'format' },
             { id: 'separator-6', type: 'separator' },
-            { id: 'template', icon: '📄', title: 'Insert Template', action: 'template', group: 'insert' }
+            { id: 'template', icon: '📄', titleKey: 'templates.insert', action: 'template', group: 'insert' }
         ];
     }
 
@@ -67,7 +70,40 @@ class FormattingToolbar {
         this.container = container;
         this.createToolbarDOM();
         this.setupEditorListeners();
+        this.setupLocaleListener();
         this.initialized = true;
+    }
+
+    /**
+     * Setup locale change listener
+     */
+    setupLocaleListener() {
+        this.removeLocaleListener = i18n.onLocaleChange(() => {
+            this.updateTranslations();
+        });
+    }
+
+    /**
+     * Update translations when locale changes
+     */
+    updateTranslations() {
+        // Update button tooltips
+        this.buttonConfig.forEach(config => {
+            if (config.type === 'separator') return;
+
+            const button = this.buttons.get(config.id);
+            if (!button) return;
+
+            let title = config.level
+                ? i18n.t(config.titleKey, { level: config.level })
+                : i18n.t(config.titleKey);
+
+            if (config.shortcut) {
+                title += ` (${config.shortcut})`;
+            }
+
+            button.setAttribute('title', title);
+        });
     }
 
     /**
@@ -115,7 +151,17 @@ class FormattingToolbar {
         button.className = 'toolbar-button';
         button.setAttribute('data-action', config.action);
         button.setAttribute('data-button-id', config.id);
-        button.setAttribute('title', config.title);
+
+        // Build title with translation and optional shortcut
+        let title = config.level
+            ? i18n.t(config.titleKey, { level: config.level })
+            : i18n.t(config.titleKey);
+
+        if (config.shortcut) {
+            title += ` (${config.shortcut})`;
+        }
+
+        button.setAttribute('title', title);
         button.setAttribute('type', 'button');
 
         // Add group class for styling
@@ -267,7 +313,7 @@ class FormattingToolbar {
         // Title
         const title = document.createElement('h3');
 
-        title.textContent = 'Select Code Language';
+        title.textContent = i18n.t('codeBlock.selectLanguage');
         title.style.cssText = 'margin: 0 0 15px 0; font-size: 16px; color: var(--text-color, #333);';
         dialog.appendChild(title);
 
@@ -305,7 +351,7 @@ class FormattingToolbar {
 
         const cancelBtn = document.createElement('button');
 
-        cancelBtn.textContent = 'Cancel';
+        cancelBtn.textContent = i18n.t('actions.cancel');
         cancelBtn.style.cssText = 'padding: 8px 16px; border: 1px solid var(--border-color, #ccc); border-radius: 4px; background: var(--bg-secondary, #f5f5f5); cursor: pointer;';
         cancelBtn.onclick = () => {
             document.body.removeChild(overlay);
@@ -314,7 +360,7 @@ class FormattingToolbar {
 
         const okBtn = document.createElement('button');
 
-        okBtn.textContent = 'Insert';
+        okBtn.textContent = i18n.t('codeBlock.insert');
         okBtn.style.cssText = 'padding: 8px 16px; border: 1px solid #0969da; border-radius: 4px; background: #0969da; color: white; cursor: pointer;';
         okBtn.onclick = () => {
             const language = input.value.trim();
@@ -525,6 +571,12 @@ class FormattingToolbar {
         if (this.updateDebounceTimer) {
             clearTimeout(this.updateDebounceTimer);
             this.updateDebounceTimer = null;
+        }
+
+        // Remove locale listener
+        if (this.removeLocaleListener) {
+            this.removeLocaleListener();
+            this.removeLocaleListener = null;
         }
 
         // Remove editor listener

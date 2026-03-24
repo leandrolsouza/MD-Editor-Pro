@@ -4,6 +4,8 @@
  * Requirements: 6.1, 6.2, 6.3
  */
 
+const i18n = require('./i18n/index.js');
+
 class AdvancedMarkdownSettingsUI {
     constructor() {
         this.dialog = null;
@@ -63,48 +65,48 @@ class AdvancedMarkdownSettingsUI {
         this.dialog.innerHTML = `
             <div class="settings-dialog">
                 <div class="settings-dialog-header">
-                    <h2>Advanced Markdown Features</h2>
-                    <button class="settings-close-btn" aria-label="Close">&times;</button>
+                    <h2>${i18n.t('advancedMarkdown.title')}</h2>
+                    <button class="settings-close-btn" aria-label="${i18n.t('actions.close')}">&times;</button>
                 </div>
                 <div class="settings-dialog-body">
                     <div class="settings-section">
                         <p class="settings-description">
-                            Enable or disable advanced markdown features. Changes take effect immediately.
+                            ${i18n.t('advancedMarkdown.description')}
                         </p>
                         
                         <div class="settings-feature">
                             <label class="settings-feature-label">
                                 <input type="checkbox" id="feature-mermaid" class="settings-checkbox">
-                                <span class="settings-feature-name">Mermaid Diagrams</span>
+                                <span class="settings-feature-name">${i18n.t('advancedMarkdown.mermaid')}</span>
                             </label>
                             <p class="settings-feature-description">
-                                Render diagrams using Mermaid syntax in fenced code blocks
+                                ${i18n.t('advancedMarkdown.mermaidDescription')}
                             </p>
                         </div>
 
                         <div class="settings-feature">
                             <label class="settings-feature-label">
                                 <input type="checkbox" id="feature-katex" class="settings-checkbox">
-                                <span class="settings-feature-name">Mathematical Formulas (KaTeX)</span>
+                                <span class="settings-feature-name">${i18n.t('advancedMarkdown.katex')}</span>
                             </label>
                             <p class="settings-feature-description">
-                                Render LaTeX math expressions using $ delimiters
+                                ${i18n.t('advancedMarkdown.katexDescription')}
                             </p>
                         </div>
 
                         <div class="settings-feature">
                             <label class="settings-feature-label">
                                 <input type="checkbox" id="feature-callouts" class="settings-checkbox">
-                                <span class="settings-feature-name">Callout Blocks</span>
+                                <span class="settings-feature-name">${i18n.t('advancedMarkdown.callouts')}</span>
                             </label>
                             <p class="settings-feature-description">
-                                Display styled callout blocks for notes, warnings, and tips
+                                ${i18n.t('advancedMarkdown.calloutsDescription')}
                             </p>
                         </div>
                     </div>
                 </div>
                 <div class="settings-dialog-footer">
-                    <button class="settings-done-btn">Done</button>
+                    <button class="settings-done-btn">${i18n.t('actions.done')}</button>
                 </div>
             </div>
         `;

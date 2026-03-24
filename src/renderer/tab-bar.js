@@ -5,6 +5,7 @@
  */
 
 const notificationManager = require('./notification.js');
+const i18n = require('./i18n/index.js');
 
 class TabBar {
     constructor(container) {
@@ -16,6 +17,7 @@ class TabBar {
         this.activeTabId = null;
         this.tabClickCallbacks = [];
         this.tabCloseCallbacks = [];
+        this.removeLocaleListener = null;
     }
 
     /**
@@ -32,6 +34,31 @@ class TabBar {
 
         // Update indicators on resize
         window.addEventListener('resize', () => this._updateScrollIndicators());
+
+        // Setup locale change listener
+        this.setupLocaleListener();
+    }
+
+    /**
+     * Setup locale change listener
+     */
+    setupLocaleListener() {
+        this.removeLocaleListener = i18n.onLocaleChange(() => {
+            this.updateTranslations();
+        });
+    }
+
+    /**
+     * Update translations when locale changes
+     */
+    updateTranslations() {
+        // Update close button tooltips on all tabs
+        this.tabs.forEach((tabElement) => {
+            const closeButton = tabElement.querySelector('.tab-close-button');
+            if (closeButton) {
+                closeButton.title = i18n.t('tabs.closeTab');
+            }
+        });
     }
 
     /**
@@ -83,7 +110,7 @@ class TabBar {
 
         closeButton.className = 'tab-close-button';
         closeButton.textContent = '×';
-        closeButton.title = 'Close tab';
+        closeButton.title = i18n.t('tabs.closeTab');
         closeButton.setAttribute('aria-label', `Close ${title}`);
         closeButton.setAttribute('type', 'button');
         tabElement.appendChild(closeButton);
@@ -363,6 +390,12 @@ class TabBar {
      * Destroy the tab bar
      */
     destroy() {
+        // Remove locale listener
+        if (this.removeLocaleListener) {
+            this.removeLocaleListener();
+            this.removeLocaleListener = null;
+        }
+
         this.clearTabs();
         this.tabClickCallbacks = [];
         this.tabCloseCallbacks = [];

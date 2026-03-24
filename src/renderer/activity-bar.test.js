@@ -61,7 +61,7 @@ describe('ActivityBar', () => {
             activityBar.initialize();
 
             const items = activityBar.container.querySelectorAll('.activity-bar__item');
-            expect(items.length).toBe(6); // files, search, outline, templates, snippets, settings
+            expect(items.length).toBe(7); // files, search, outline, templates, snippets, settings, ai-chat
         });
 
         it('should have correct data-view attributes', () => {

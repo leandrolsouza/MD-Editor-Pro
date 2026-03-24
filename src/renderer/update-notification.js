@@ -3,6 +3,8 @@
  * Handles UI for app updates
  */
 
+const i18n = require('./i18n/index.js');
+
 class UpdateNotification {
     constructor() {
         this.notificationElement = null;
@@ -49,12 +51,12 @@ class UpdateNotification {
             <div class="update-notification-content">
                 <div class="update-notification-icon">🎉</div>
                 <div class="update-notification-text">
-                    <strong>Nova versão disponível!</strong>
-                    <p>Versão ${info.version} está pronta para download.</p>
+                    <strong>${i18n.t('updates.available')}</strong>
+                    <p>${i18n.t('updates.newVersion', { version: info.version })}</p>
                 </div>
                 <div class="update-notification-actions">
-                    <button class="update-btn-download">Baixar</button>
-                    <button class="update-btn-later">Depois</button>
+                    <button class="update-btn-download">${i18n.t('updates.download')}</button>
+                    <button class="update-btn-later">${i18n.t('updates.later')}</button>
                 </div>
             </div>
         `;
@@ -90,7 +92,7 @@ class UpdateNotification {
                 content.innerHTML = `
                     <div class="update-notification-icon">⬇️</div>
                     <div class="update-notification-text">
-                        <strong>Baixando atualização...</strong>
+                        <strong>${i18n.t('updates.downloading')}</strong>
                         <div class="update-progress-bar">
                             <div class="update-progress-fill" style="width: 0%"></div>
                         </div>
@@ -134,12 +136,12 @@ class UpdateNotification {
             <div class="update-notification-content">
                 <div class="update-notification-icon">✅</div>
                 <div class="update-notification-text">
-                    <strong>Atualização pronta!</strong>
-                    <p>Versão ${info.version} foi baixada. Reinicie para instalar.</p>
+                    <strong>${i18n.t('updates.ready')}</strong>
+                    <p>${i18n.t('updates.readyMessage')}</p>
                 </div>
                 <div class="update-notification-actions">
-                    <button class="update-btn-install">Reiniciar Agora</button>
-                    <button class="update-btn-later">Depois</button>
+                    <button class="update-btn-install">${i18n.t('updates.restartNow')}</button>
+                    <button class="update-btn-later">${i18n.t('updates.later')}</button>
                 </div>
             </div>
         `;
@@ -175,11 +177,11 @@ class UpdateNotification {
             <div class="update-notification-content">
                 <div class="update-notification-icon">⚠️</div>
                 <div class="update-notification-text">
-                    <strong>Erro ao atualizar</strong>
-                    <p>${error.message || 'Não foi possível verificar atualizações.'}</p>
+                    <strong>${i18n.t('updates.error')}</strong>
+                    <p>${error.message || i18n.t('updates.errorMessage')}</p>
                 </div>
                 <div class="update-notification-actions">
-                    <button class="update-btn-close">Fechar</button>
+                    <button class="update-btn-close">${i18n.t('dialogs.close')}</button>
                 </div>
             </div>
         `;
@@ -230,8 +232,8 @@ class UpdateNotification {
             <div class="update-notification-content">
                 <div class="update-notification-icon">✓</div>
                 <div class="update-notification-text">
-                    <strong>Você está atualizado!</strong>
-                    <p>Nenhuma atualização disponível no momento.</p>
+                    <strong>${i18n.t('updates.upToDate')}</strong>
+                    <p>${i18n.t('updates.upToDateMessage')}</p>
                 </div>
             </div>
         `;

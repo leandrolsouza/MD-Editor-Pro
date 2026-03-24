@@ -4,6 +4,8 @@
  * Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6
  */
 
+const i18n = require('./i18n/index.js');
+
 class FocusMode {
     constructor(editor) {
         if (!editor) {
@@ -29,7 +31,7 @@ class FocusMode {
         this.overlay.className = 'focus-mode-overlay hidden';
         this.overlay.innerHTML = `
             <div class="focus-mode-overlay-content">
-                <p>Press <kbd>Esc</kbd> to exit focus mode</p>
+                <p>${i18n.t('focusMode.exitHint')}</p>
             </div>
         `;
         document.body.appendChild(this.overlay);

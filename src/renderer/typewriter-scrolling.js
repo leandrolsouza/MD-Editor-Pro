@@ -5,6 +5,7 @@
 
 const { EditorView } = require('@codemirror/view');
 const { Compartment } = require('@codemirror/state');
+const i18n = require('./i18n/index.js');
 
 class TypewriterScrolling {
     constructor(editor) {
@@ -40,7 +41,7 @@ class TypewriterScrolling {
         });
 
         console.log('Typewriter scrolling enabled');
-        this.announceToScreenReader('Typewriter scrolling enabled');
+        this.announceToScreenReader(i18n.t('typewriter.enabled'));
     }
 
     /**
@@ -61,7 +62,7 @@ class TypewriterScrolling {
         });
 
         console.log('Typewriter scrolling disabled');
-        this.announceToScreenReader('Typewriter scrolling disabled');
+        this.announceToScreenReader(i18n.t('typewriter.disabled'));
     }
 
     /**

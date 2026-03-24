@@ -5,6 +5,7 @@
  */
 
 const notificationManager = require('./notification.js');
+const i18n = require('./i18n/index.js');
 
 class TemplateUI {
     constructor() {
@@ -12,7 +13,56 @@ class TemplateUI {
         this.categories = [];
         this.onInsertCallback = null;
         this.onCreateCallback = null;
+        this.removeLocaleListener = null;
         this.createUI();
+        this.setupLocaleListener();
+    }
+
+    /**
+     * Setup locale change listener
+     */
+    setupLocaleListener() {
+        this.removeLocaleListener = i18n.onLocaleChange(() => {
+            this.updateTranslations();
+        });
+    }
+
+    /**
+     * Update translations when locale changes
+     */
+    updateTranslations() {
+        // Recreate dialogs with new translations
+        if (this.templateMenuDialog) {
+            this.templateMenuDialog.remove();
+            this.templateMenuDialog = null;
+            this.createTemplateMenuDialog();
+        }
+
+        if (this.customTemplateDialog) {
+            this.customTemplateDialog.remove();
+            this.customTemplateDialog = null;
+            this.createCustomTemplateDialog();
+        }
+    }
+
+    /**
+     * Cleanup resources
+     */
+    destroy() {
+        if (this.removeLocaleListener) {
+            this.removeLocaleListener();
+            this.removeLocaleListener = null;
+        }
+
+        if (this.templateMenuDialog) {
+            this.templateMenuDialog.remove();
+            this.templateMenuDialog = null;
+        }
+
+        if (this.customTemplateDialog) {
+            this.customTemplateDialog.remove();
+            this.customTemplateDialog = null;
+        }
     }
 
     /**
@@ -37,14 +87,14 @@ class TemplateUI {
         dialog.innerHTML = `
             <div class="template-dialog-content">
                 <div class="template-dialog-header">
-                    <h2>Insert Template</h2>
+                    <h2>${i18n.t('templates.insert')}</h2>
                     <button class="template-dialog-close" id="template-menu-close">✕</button>
                 </div>
                 <div class="template-dialog-body">
                     <div class="template-actions">
-                        <button id="template-insert-mode" class="template-mode-button active">Insert at Cursor</button>
-                        <button id="template-replace-mode" class="template-mode-button">Replace Document</button>
-                        <button id="template-create-custom" class="template-create-button">+ Create Custom</button>
+                        <button id="template-insert-mode" class="template-mode-button active">${i18n.t('templates.insertMode')}</button>
+                        <button id="template-replace-mode" class="template-mode-button">${i18n.t('templates.replaceMode')}</button>
+                        <button id="template-create-custom" class="template-create-button">+ ${i18n.t('templates.create')}</button>
                     </div>
                     <div class="template-categories" id="template-categories"></div>
                     <div class="template-list" id="template-list"></div>
@@ -81,30 +131,30 @@ class TemplateUI {
         dialog.innerHTML = `
             <div class="template-dialog-content">
                 <div class="template-dialog-header">
-                    <h2>Create Custom Template</h2>
+                    <h2>${i18n.t('templates.create')}</h2>
                     <button class="template-dialog-close" id="custom-template-close">✕</button>
                 </div>
                 <div class="template-dialog-body">
                     <form id="custom-template-form">
                         <div class="form-group">
-                            <label for="template-name">Template Name:</label>
-                            <input type="text" id="template-name" required placeholder="My Template">
+                            <label for="template-name">${i18n.t('templates.name')}:</label>
+                            <input type="text" id="template-name" required placeholder="${i18n.t('templates.namePlaceholder')}">
                         </div>
                         <div class="form-group">
-                            <label for="template-category">Category:</label>
-                            <input type="text" id="template-category" placeholder="custom" value="custom">
+                            <label for="template-category">${i18n.t('templates.category')}:</label>
+                            <input type="text" id="template-category" placeholder="${i18n.t('templates.categoryPlaceholder')}" value="custom">
                         </div>
                         <div class="form-group">
-                            <label for="template-description">Description:</label>
-                            <input type="text" id="template-description" placeholder="Template description">
+                            <label for="template-description">${i18n.t('templates.description')}:</label>
+                            <input type="text" id="template-description" placeholder="${i18n.t('templates.descriptionPlaceholder')}">
                         </div>
                         <div class="form-group">
-                            <label for="template-content">Content:</label>
-                            <textarea id="template-content" required rows="10" placeholder="Enter template content. Use {{placeholder}} for placeholders."></textarea>
+                            <label for="template-content">${i18n.t('templates.content')}:</label>
+                            <textarea id="template-content" required rows="10" placeholder="${i18n.t('templates.contentPlaceholder')}"></textarea>
                         </div>
                         <div class="form-actions">
-                            <button type="button" id="custom-template-cancel" class="button-secondary">Cancel</button>
-                            <button type="submit" class="button-primary">Save Template</button>
+                            <button type="button" id="custom-template-cancel" class="button-secondary">${i18n.t('actions.cancel')}</button>
+                            <button type="submit" class="button-primary">${i18n.t('templates.saveTemplate')}</button>
                         </div>
                     </form>
                 </div>
@@ -213,7 +263,7 @@ class TemplateUI {
         const allButton = document.createElement('button');
 
         allButton.className = 'category-button active';
-        allButton.textContent = 'All';
+        allButton.textContent = i18n.t('templates.all');
         allButton.dataset.category = 'all';
         allButton.addEventListener('click', (e) => this.filterByCategory('all', e.target));
         container.appendChild(allButton);
@@ -260,7 +310,7 @@ class TemplateUI {
             : this.templates;
 
         if (filteredTemplates.length === 0) {
-            container.innerHTML = '<p class="no-templates">No templates found</p>';
+            container.innerHTML = `<p class="no-templates">${i18n.t('templates.noTemplates')}</p>`;
             return;
         }
 
@@ -271,9 +321,9 @@ class TemplateUI {
             item.innerHTML = `
                 <div class="template-item-header">
                     <h3>${template.name}</h3>
-                    ${!template.isBuiltIn ? '<button class="template-delete-button" title="Delete">🗑️</button>' : ''}
+                    ${!template.isBuiltIn ? `<button class="template-delete-button" title="${i18n.t('templates.delete')}">🗑️</button>` : ''}
                 </div>
-                <p class="template-description">${template.description || 'No description'}</p>
+                <p class="template-description">${template.description || i18n.t('templates.noDescription')}</p>
                 <div class="template-meta">
                     <span class="template-category">${template.category}</span>
                     ${template.placeholders && template.placeholders.length > 0 ? `<span class="template-placeholders">${template.placeholders.length} placeholders</span>` : ''}
@@ -336,7 +386,7 @@ class TemplateUI {
             }
         } catch (error) {
             console.error('Error deleting template:', error);
-            notificationManager.error('Failed to delete template');
+            notificationManager.error(i18n.t('templates.failedToDelete'));
         }
     }
 
@@ -353,7 +403,7 @@ class TemplateUI {
         const content = this.customTemplateDialog.querySelector('#template-content').value;
 
         if (!name || !content) {
-            notificationManager.warning('Name and content are required');
+            notificationManager.warning(i18n.t('templates.nameAndContentRequired'));
             return;
         }
 
@@ -365,11 +415,11 @@ class TemplateUI {
 
             if (result.success) {
                 this.hideCustomTemplateDialog();
-                notificationManager.success('Template created successfully!');
+                notificationManager.success(i18n.t('templates.createdSuccessfully'));
             }
         } catch (error) {
             console.error('Error creating template:', error);
-            notificationManager.error('Failed to create template: ' + error.message);
+            notificationManager.error(i18n.t('templates.failedToCreate') + ': ' + error.message);
         }
     }
 

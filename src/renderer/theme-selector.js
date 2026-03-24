@@ -3,6 +3,8 @@
  * Provides a visual interface for browsing and selecting themes
  */
 
+const i18n = require('./i18n/index.js');
+
 class ThemeSelector {
     constructor(themeManager) {
         this.themeManager = themeManager;
@@ -38,8 +40,8 @@ class ThemeSelector {
         const header = document.createElement('div');
         header.className = 'theme-selector-header';
         header.innerHTML = `
-            <h3>Select Theme</h3>
-            <button id="theme-selector-close" class="close-button" aria-label="Close theme selector">✕</button>
+            <h3>${i18n.t('themeSelector.title')}</h3>
+            <button id="theme-selector-close" class="close-button" aria-label="${i18n.t('themeSelector.close')}">✕</button>
         `;
 
         // Create theme grid

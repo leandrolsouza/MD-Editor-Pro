@@ -4,6 +4,8 @@
  * Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7
  */
 
+const i18n = require('./i18n/index.js');
+
 class AutoSaveManager {
     constructor(editor) {
         if (!editor) {
@@ -280,15 +282,15 @@ class AutoSaveManager {
         // Update text content and ARIA attributes
         switch (status) {
             case 'saving':
-                this.statusIndicator.textContent = 'Saving...';
-                this.statusIndicator.title = 'Auto-saving document';
-                this.statusIndicator.setAttribute('aria-label', 'Auto-saving document');
+                this.statusIndicator.textContent = i18n.t('autoSaveStatus.saving');
+                this.statusIndicator.title = i18n.t('autoSaveStatus.savingTitle');
+                this.statusIndicator.setAttribute('aria-label', i18n.t('autoSaveStatus.savingTitle'));
                 this.statusIndicator.setAttribute('role', 'status');
                 break;
             case 'saved':
-                this.statusIndicator.textContent = 'Saved';
-                this.statusIndicator.title = 'Document saved successfully';
-                this.statusIndicator.setAttribute('aria-label', 'Document saved successfully');
+                this.statusIndicator.textContent = i18n.t('autoSaveStatus.saved');
+                this.statusIndicator.title = i18n.t('autoSaveStatus.savedTitle');
+                this.statusIndicator.setAttribute('aria-label', i18n.t('autoSaveStatus.savedTitle'));
                 this.statusIndicator.setAttribute('role', 'status');
                 // Auto-hide after 2 seconds
                 setTimeout(() => {
@@ -300,9 +302,9 @@ class AutoSaveManager {
                 }, 2000);
                 break;
             case 'error':
-                this.statusIndicator.textContent = 'Save Error';
-                this.statusIndicator.title = errorMessage || 'Failed to save document';
-                this.statusIndicator.setAttribute('aria-label', errorMessage || 'Failed to save document');
+                this.statusIndicator.textContent = i18n.t('autoSaveStatus.error');
+                this.statusIndicator.title = errorMessage || i18n.t('autoSaveStatus.errorTitle');
+                this.statusIndicator.setAttribute('aria-label', errorMessage || i18n.t('autoSaveStatus.errorTitle'));
                 this.statusIndicator.setAttribute('role', 'alert');
                 break;
         }

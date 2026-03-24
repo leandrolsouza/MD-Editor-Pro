@@ -3,6 +3,8 @@
  * Provides user interface for searching across all workspace files
  */
 
+const i18n = require('./i18n/index.js');
+
 class GlobalSearchUI {
     constructor() {
         this.isVisible = false;
@@ -11,6 +13,7 @@ class GlobalSearchUI {
         this.resultsContainer = null;
         this.currentResults = null;
         this.onFileClickCallback = null;
+        this.removeLocaleListener = null;
     }
 
     /**
@@ -19,6 +22,57 @@ class GlobalSearchUI {
     initialize() {
         this.createUI();
         this.attachEventListeners();
+        this.setupLocaleListener();
+    }
+
+    /**
+     * Setup locale change listener
+     */
+    setupLocaleListener() {
+        this.removeLocaleListener = i18n.onLocaleChange(() => {
+            this.updateTranslations();
+        });
+    }
+
+    /**
+     * Update translations when locale changes
+     */
+    updateTranslations() {
+        // Update header
+        const header = this.container.querySelector('.global-search-header h3');
+        if (header) {
+            header.textContent = i18n.t('globalSearch.title');
+        }
+
+        // Update input placeholder
+        if (this.searchInput) {
+            this.searchInput.placeholder = i18n.t('globalSearch.placeholder');
+        }
+
+        // Update search button
+        const searchBtn = this.container.querySelector('#global-search-btn');
+        if (searchBtn) {
+            searchBtn.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                </svg>
+                ${i18n.t('search.find')}
+            `;
+        }
+
+        // Update checkbox labels
+        const labels = this.container.querySelectorAll('.search-options label');
+        if (labels.length >= 3) {
+            labels[0].innerHTML = `<input type="checkbox" id="global-search-case-sensitive" /> ${i18n.t('search.matchCase')}`;
+            labels[1].innerHTML = `<input type="checkbox" id="global-search-whole-word" /> ${i18n.t('search.wholeWord')}`;
+            labels[2].innerHTML = `<input type="checkbox" id="global-search-regex" /> ${i18n.t('search.useRegex')}`;
+        }
+
+        // Update no results message if showing
+        const noResults = this.resultsContainer.querySelector('.no-results');
+        if (noResults) {
+            noResults.textContent = i18n.t('globalSearch.placeholder');
+        }
     }
 
     /**
@@ -32,35 +86,35 @@ class GlobalSearchUI {
 
         this.container.innerHTML = `
             <div class="global-search-header">
-                <h3>Search in Files</h3>
+                <h3>${i18n.t('globalSearch.title')}</h3>
             </div>
             <div class="global-search-controls">
                 <div class="search-input-group">
                     <input 
                         type="text" 
                         id="global-search-input" 
-                        placeholder="Search text..."
+                        placeholder="${i18n.t('globalSearch.placeholder')}"
                         autocomplete="off"
                     />
                     <button id="global-search-btn" class="primary-button">
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
                             <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
                         </svg>
-                        Search
+                        ${i18n.t('search.find')}
                     </button>
                 </div>
                 <div class="search-options">
                     <label>
                         <input type="checkbox" id="global-search-case-sensitive" />
-                        Aa (Match case)
+                        ${i18n.t('search.matchCase')}
                     </label>
                     <label>
                         <input type="checkbox" id="global-search-whole-word" />
-                        Whole word
+                        ${i18n.t('search.wholeWord')}
                     </label>
                     <label>
                         <input type="checkbox" id="global-search-regex" />
-                        Use regex
+                        ${i18n.t('search.useRegex')}
                     </label>
                 </div>
             </div>
@@ -68,7 +122,7 @@ class GlobalSearchUI {
                 <span id="global-search-status-text"></span>
             </div>
             <div class="global-search-results" id="global-search-results">
-                <div class="no-results">Enter a search term to find in workspace files</div>
+                <div class="no-results">${i18n.t('globalSearch.placeholder')}</div>
             </div>
         `;
 
@@ -109,7 +163,7 @@ class GlobalSearchUI {
         const searchText = this.searchInput.value.trim();
 
         if (!searchText) {
-            this.showStatus('Enter a search term', 'warning');
+            this.showStatus(i18n.t('globalSearch.enterSearchTerm'), 'warning');
             return;
         }
 
@@ -119,8 +173,8 @@ class GlobalSearchUI {
             useRegex: this.container.querySelector('#global-search-regex')?.checked || false
         };
 
-        this.showStatus('Searching...', 'info');
-        this.resultsContainer.innerHTML = '<div class="searching">Searching in files...</div>';
+        this.showStatus(i18n.t('globalSearch.searching'), 'info');
+        this.resultsContainer.innerHTML = `<div class="searching">${i18n.t('globalSearch.searching')}</div>`;
 
         try {
             const result = await window.electronAPI.globalSearch(searchText, options);
@@ -129,13 +183,13 @@ class GlobalSearchUI {
                 this.currentResults = result;
                 this.displayResults(result);
             } else {
-                this.showStatus(result.error || 'Search error', 'error');
-                this.resultsContainer.innerHTML = `<div class="error-message">${result.error || 'Search error'}</div>`;
+                this.showStatus(result.error || i18n.t('globalSearch.searchError'), 'error');
+                this.resultsContainer.innerHTML = `<div class="error-message">${result.error || i18n.t('globalSearch.searchError')}</div>`;
             }
         } catch (error) {
             console.error('Search error:', error);
-            this.showStatus('Search error: ' + error.message, 'error');
-            this.resultsContainer.innerHTML = `<div class="error-message">Search error: ${error.message}</div>`;
+            this.showStatus(i18n.t('globalSearch.searchError') + ': ' + error.message, 'error');
+            this.resultsContainer.innerHTML = `<div class="error-message">${i18n.t('globalSearch.searchError')}: ${error.message}</div>`;
         }
     }
 
@@ -145,13 +199,13 @@ class GlobalSearchUI {
      */
     displayResults(result) {
         if (result.totalMatches === 0) {
-            this.showStatus('No results found', 'warning');
-            this.resultsContainer.innerHTML = '<div class="no-results">No results found</div>';
+            this.showStatus(i18n.t('globalSearch.noResults'), 'warning');
+            this.resultsContainer.innerHTML = `<div class="no-results">${i18n.t('globalSearch.noResults')}</div>`;
             return;
         }
 
         this.showStatus(
-            `${result.totalMatches} result${result.totalMatches > 1 ? 's' : ''} in ${result.totalFiles} file${result.totalFiles > 1 ? 's' : ''}`,
+            i18n.t('globalSearch.resultsInFiles', { matches: result.totalMatches, files: result.totalFiles }),
             'success'
         );
 

@@ -6,6 +6,7 @@
  */
 
 const notificationManager = require('./notification.js');
+const i18n = require('./i18n/index.js');
 
 class KeyboardShortcutsUI {
     constructor() {
@@ -69,18 +70,18 @@ class KeyboardShortcutsUI {
         this.dialog.innerHTML = `
             <div class="shortcuts-dialog">
                 <div class="shortcuts-dialog-header">
-                    <h2>Keyboard Shortcuts</h2>
-                    <button class="shortcuts-close-btn" aria-label="Close">&times;</button>
+                    <h2>${i18n.t('shortcuts.title')}</h2>
+                    <button class="shortcuts-close-btn" aria-label="${i18n.t('actions.close')}">&times;</button>
                 </div>
                 <div class="shortcuts-dialog-body">
                     <div class="shortcuts-search">
-                        <input type="text" class="shortcuts-search-input" placeholder="Search shortcuts..." />
+                        <input type="text" class="shortcuts-search-input" placeholder="${i18n.t('shortcuts.searchPlaceholder')}" />
                     </div>
                     <div class="shortcuts-list"></div>
                 </div>
                 <div class="shortcuts-dialog-footer">
-                    <button class="shortcuts-reset-all-btn">Reset All to Defaults</button>
-                    <button class="shortcuts-done-btn">Done</button>
+                    <button class="shortcuts-reset-all-btn">${i18n.t('shortcuts.resetAll')}</button>
+                    <button class="shortcuts-done-btn">${i18n.t('actions.done')}</button>
                 </div>
             </div>
         `;
@@ -198,8 +199,8 @@ class KeyboardShortcutsUI {
             const resetButton = document.createElement('button');
 
             resetButton.className = 'shortcuts-reset-btn';
-            resetButton.textContent = 'Reset';
-            resetButton.title = 'Reset to default';
+            resetButton.textContent = i18n.t('shortcuts.reset');
+            resetButton.title = i18n.t('shortcuts.reset');
             resetButton.addEventListener('click', () => this.resetShortcut(action.id));
             actionsCell.appendChild(resetButton);
         }
@@ -240,7 +241,7 @@ class KeyboardShortcutsUI {
         this.recordingActionId = actionId;
         this.recordingElement = buttonElement;
 
-        buttonElement.textContent = 'Press keys...';
+        buttonElement.textContent = i18n.t('shortcuts.pressKeys');
         buttonElement.classList.add('recording');
 
         // Add key down listener
@@ -337,11 +338,11 @@ class KeyboardShortcutsUI {
      */
     async showConflictDialog(keyBinding, conflictingActionName) {
         const formattedBinding = this.formatShortcut(keyBinding);
-        const message = `The shortcut "${formattedBinding}" is already assigned to "${conflictingActionName}".\n\nDo you want to reassign it?`;
+        const message = i18n.t('shortcuts.conflictMessage', { shortcut: formattedBinding, action: conflictingActionName });
 
         return await notificationManager.confirm(message, {
-            confirmText: 'Reassign',
-            cancelText: 'Cancel',
+            confirmText: i18n.t('shortcuts.reassign'),
+            cancelText: i18n.t('actions.cancel'),
             type: 'warning'
         });
     }
@@ -408,10 +409,10 @@ class KeyboardShortcutsUI {
      */
     async resetAll() {
         const confirmed = await notificationManager.confirm(
-            'Are you sure you want to reset all keyboard shortcuts to their default values?',
+            i18n.t('shortcuts.resetAllConfirm'),
             {
-                confirmText: 'Reset All',
-                cancelText: 'Cancel',
+                confirmText: i18n.t('shortcuts.resetAll'),
+                cancelText: i18n.t('actions.cancel'),
                 type: 'warning'
             }
         );

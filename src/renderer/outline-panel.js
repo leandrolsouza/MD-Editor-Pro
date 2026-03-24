@@ -5,6 +5,7 @@
  */
 
 const { syntaxTree } = require('@codemirror/language');
+const i18n = require('./i18n/index.js');
 
 class OutlinePanel {
     constructor(editor) {
@@ -15,11 +16,12 @@ class OutlinePanel {
         this.editor = editor;
         this.container = null;
         this.treeContainer = null;
-        this.isVisible = false;
+        this._isVisible = false;
         this.headings = [];
         this.activeHeadingId = null;
         this.updateDebounceTimer = null;
         this.cursorChangeListener = null;
+        this.removeLocaleListener = null;
     }
 
     /**
@@ -40,13 +42,41 @@ class OutlinePanel {
 
         // Add ARIA attributes to tree container
         this.treeContainer.setAttribute('role', 'tree');
-        this.treeContainer.setAttribute('aria-label', 'Document Outline');
+        this.treeContainer.setAttribute('aria-label', i18n.t('outline.title'));
 
         // Setup event listeners
         this.setupEventListeners();
 
+        // Setup locale change listener
+        this.setupLocaleListener();
+
         // Initial update
         this.update();
+    }
+
+    /**
+     * Setup locale change listener
+     */
+    setupLocaleListener() {
+        this.removeLocaleListener = i18n.onLocaleChange(() => {
+            this.updateTranslations();
+        });
+    }
+
+    /**
+     * Update translations when locale changes
+     */
+    updateTranslations() {
+        if (!this.treeContainer) return;
+
+        // Update ARIA label
+        this.treeContainer.setAttribute('aria-label', i18n.t('outline.title'));
+
+        // Update empty state message if present
+        const emptyDiv = this.treeContainer.querySelector('.outline-panel__empty');
+        if (emptyDiv) {
+            emptyDiv.textContent = i18n.t('outline.noHeadings');
+        }
     }
 
     /**
@@ -169,7 +199,7 @@ class OutlinePanel {
     renderEmptyState() {
         const emptyDiv = document.createElement('div');
         emptyDiv.className = 'outline-panel__empty';
-        emptyDiv.textContent = 'No headings found';
+        emptyDiv.textContent = i18n.t('outline.noHeadings');
         this.treeContainer.appendChild(emptyDiv);
     }
 
@@ -353,7 +383,7 @@ class OutlinePanel {
 
         this.container.classList.remove('outline-panel--hidden');
         this.container.classList.add('outline-panel--visible');
-        this.isVisible = true;
+        this._isVisible = true;
 
         // Add body class for layout adjustment
         document.body.classList.add('outline-visible');
@@ -375,7 +405,7 @@ class OutlinePanel {
 
         this.container.classList.add('outline-panel--hidden');
         this.container.classList.remove('outline-panel--visible');
-        this.isVisible = false;
+        this._isVisible = false;
 
         // Remove body class
         document.body.classList.remove('outline-visible');
@@ -388,7 +418,7 @@ class OutlinePanel {
      * Toggle outline panel visibility (Requirement: 1.7)
      */
     toggle() {
-        if (this.isVisible) {
+        if (this._isVisible) {
             this.hide();
         } else {
             this.show();
@@ -399,8 +429,8 @@ class OutlinePanel {
      * Check if outline panel is visible
      * @returns {boolean}
      */
-    isVisible() {
-        return this.isVisible;
+    getIsVisible() {
+        return this._isVisible;
     }
 
     /**
@@ -608,6 +638,12 @@ class OutlinePanel {
     destroy() {
         if (this.updateDebounceTimer) {
             clearTimeout(this.updateDebounceTimer);
+        }
+
+        // Remove locale listener
+        if (this.removeLocaleListener) {
+            this.removeLocaleListener();
+            this.removeLocaleListener = null;
         }
 
         if (this.container) {

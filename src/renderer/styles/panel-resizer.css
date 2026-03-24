@@ -1,0 +1,87 @@
+/* Panel Resizer Styles */
+
+/* Body state during resize */
+body.resizing {
+    cursor: col-resize !important;
+    user-select: none;
+}
+
+body.resizing * {
+    cursor: col-resize !important;
+    user-select: none;
+}
+
+/* Divider active state */
+.divider.dragging {
+    background-color: var(--accent-color) !important;
+}
+
+.divider.dragging::before {
+    opacity: 1;
+}
+
+/* Sidebar Resizer */
+.sidebar-resizer {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    cursor: col-resize;
+    background-color: transparent;
+    transition: background-color var(--duration-fast) var(--ease-out);
+    z-index: 10;
+}
+
+.sidebar-resizer:hover {
+    background-color: var(--accent-color);
+}
+
+.sidebar-resizer.dragging {
+    background-color: var(--accent-color);
+}
+
+/* Ensure sidebar panel has relative positioning for resizer */
+.sidebar-panel {
+    position: fixed;
+}
+
+/* Override flex for resizable panes */
+#editor-pane,
+#preview-pane {
+    transition: none;
+    /* Disable transitions during resize for smooth dragging */
+}
+
+/* Smooth transition when not resizing */
+body:not(.resizing) #editor-pane,
+body:not(.resizing) #preview-pane {
+    transition: flex var(--duration-normal) var(--ease-out);
+}
+
+/* Sidebar width transition when not resizing */
+body:not(.resizing) .sidebar-panel {
+    transition: width var(--duration-normal) var(--ease-out);
+}
+
+/* Update dependent elements smoothly */
+body:not(.resizing) .tab-bar,
+body:not(.resizing) .formatting-toolbar,
+body:not(.resizing) .status-bar,
+body:not(.resizing) #app-container {
+    transition: left var(--duration-normal) var(--ease-out),
+        margin-left var(--duration-normal) var(--ease-out);
+}
+
+/* High contrast support */
+@media (prefers-contrast: high) {
+
+    .sidebar-resizer:hover,
+    .sidebar-resizer.dragging {
+        background-color: var(--text-primary);
+    }
+
+    .divider.dragging {
+        background-color: var(--text-primary) !important;
+    }
+}

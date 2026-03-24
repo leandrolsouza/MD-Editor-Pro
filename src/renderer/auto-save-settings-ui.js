@@ -5,6 +5,7 @@
  */
 
 const notificationManager = require('./notification.js');
+const i18n = require('./i18n/index.js');
 
 class AutoSaveSettingsUI {
     constructor() {
@@ -60,18 +61,18 @@ class AutoSaveSettingsUI {
         this.dialog.innerHTML = `
             <div class="autosave-dialog">
                 <div class="autosave-dialog-header">
-                    <h2>Auto-Save Settings</h2>
-                    <button class="autosave-close-btn" aria-label="Close">&times;</button>
+                    <h2>${i18n.t('autoSaveSettings.title')}</h2>
+                    <button class="autosave-close-btn" aria-label="${i18n.t('actions.close')}">&times;</button>
                 </div>
                 <div class="autosave-dialog-body">
                     <div class="autosave-setting-group">
                         <div class="autosave-setting-row">
                             <label class="autosave-setting-label">
                                 <input type="checkbox" id="autosave-enabled" class="autosave-checkbox" />
-                                <span>Enable Auto-Save</span>
+                                <span>${i18n.t('autoSaveSettings.enable')}</span>
                             </label>
                             <p class="autosave-setting-description">
-                                Automatically save your document after a period of inactivity
+                                ${i18n.t('autoSaveSettings.enableDescription')}
                             </p>
                         </div>
                     </div>
@@ -79,17 +80,17 @@ class AutoSaveSettingsUI {
                     <div class="autosave-setting-group" id="delay-group">
                         <div class="autosave-setting-row">
                             <label class="autosave-setting-label">
-                                <span>Auto-Save Delay</span>
+                                <span>${i18n.t('autoSaveSettings.delay')}</span>
                             </label>
                             <div class="autosave-delay-controls">
                                 <input type="range" id="autosave-delay-slider" class="autosave-slider" 
                                        min="1" max="60" value="5" step="1" />
                                 <input type="number" id="autosave-delay-input" class="autosave-number-input" 
                                        min="1" max="60" value="5" />
-                                <span class="autosave-unit">seconds</span>
+                                <span class="autosave-unit">${i18n.t('autoSaveSettings.seconds')}</span>
                             </div>
                             <p class="autosave-setting-description">
-                                Time to wait after you stop typing before auto-saving (1-60 seconds)
+                                ${i18n.t('autoSaveSettings.delayDescription')}
                             </p>
                         </div>
                     </div>
@@ -99,12 +100,12 @@ class AutoSaveSettingsUI {
                             <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                             <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
                         </svg>
-                        <span>Auto-save only works when a file has been saved at least once. Unsaved new documents must be manually saved first.</span>
+                        <span>${i18n.t('autoSaveSettings.info')}</span>
                     </div>
                 </div>
                 <div class="autosave-dialog-footer">
-                    <button class="autosave-cancel-btn">Cancel</button>
-                    <button class="autosave-save-btn">Save</button>
+                    <button class="autosave-cancel-btn">${i18n.t('actions.cancel')}</button>
+                    <button class="autosave-save-btn">${i18n.t('actions.save')}</button>
                 </div>
             </div>
         `;
@@ -201,7 +202,7 @@ class AutoSaveSettingsUI {
 
             // Validate delay
             if (isNaN(delay) || delay < 1 || delay > 60) {
-                notificationManager.warning('Invalid delay. Please enter a number between 1 and 60.');
+                notificationManager.warning(i18n.t('autoSaveSettings.invalidDelay'));
                 return;
             }
 
@@ -220,7 +221,7 @@ class AutoSaveSettingsUI {
             this.hide();
         } catch (error) {
             console.error('Error saving auto-save settings:', error);
-            notificationManager.error('Failed to save settings: ' + error.message);
+            notificationManager.error(i18n.t('notifications.failedToSaveSettings') + ': ' + error.message);
         }
     }
 

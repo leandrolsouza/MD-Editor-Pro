@@ -172,3 +172,63 @@ body.theme-dark {
 .theme-dark .cm-activeLine {
     background-color: rgba(255, 255, 255, 0.05);
 }
+
+/* Selection styles - visible on dark background */
+.theme-dark .cm-selectionBackground,
+.theme-dark .cm-content ::selection {
+    background-color: rgba(59, 130, 246, 0.4) !important;
+}
+
+.theme-dark .cm-editor.cm-focused .cm-selectionBackground {
+    background-color: rgba(59, 130, 246, 0.5) !important;
+}
+
+.theme-dark .cm-selectionMatch {
+    background-color: rgba(59, 130, 246, 0.25);
+}
+
+/* Cursor styles - visible on dark background */
+.theme-dark .cm-cursor,
+.theme-dark .cm-cursor-primary {
+    border-left-color: #e6edf3 !important;
+}
+
+.theme-dark .cm-cursor-secondary {
+    border-left-color: rgba(230, 237, 243, 0.6) !important;
+}
+
+/* Matching brackets */
+.theme-dark .cm-matchingBracket {
+    background-color: rgba(59, 130, 246, 0.3);
+    outline: 1px solid rgba(59, 130, 246, 0.5);
+}
+
+/* Search highlights */
+.theme-dark .cm-searchMatch {
+    background-color: rgba(234, 179, 8, 0.3);
+    outline: 1px solid rgba(234, 179, 8, 0.5);
+}
+
+.theme-dark .cm-searchMatch-selected {
+    background-color: rgba(234, 179, 8, 0.5);
+}
+
+/* Fold placeholder */
+.theme-dark .cm-foldPlaceholder {
+    background-color: #30363d;
+    border-color: #484f58;
+    color: #9198a1;
+}
+
+/* Active line number highlight */
+.theme-dark .cm-lineNumbers .cm-gutterElement.cm-activeLineGutter {
+    color: #e6edf3;
+}
+
+/* Caret color for contenteditable and inputs */
+.theme-dark,
+.theme-dark input,
+.theme-dark textarea,
+.theme-dark [contenteditable="true"] {
+    caret-color: #e6edf3;
+}

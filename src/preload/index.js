@@ -152,7 +152,34 @@ const electronAPI = {
     }),
 
     // App version
-    getAppVersion: () => ipcRenderer.invoke('app:get-version')
+    getAppVersion: () => ipcRenderer.invoke('app:get-version'),
+
+    // AI Chat operations
+    aiSendMessage: (message, documentContent, selectedText) => ipcRenderer.invoke('ai:send-message', message, documentContent, selectedText),
+    aiClearHistory: () => ipcRenderer.invoke('ai:clear-history'),
+    aiGetApiKey: (provider) => ipcRenderer.invoke('ai:get-api-key', provider),
+    aiSetApiKey: (apiKey, provider) => ipcRenderer.invoke('ai:set-api-key', apiKey, provider),
+    aiGetModel: (provider) => ipcRenderer.invoke('ai:get-model', provider),
+    aiSetModel: (model, provider) => ipcRenderer.invoke('ai:set-model', model, provider),
+    aiGetModels: () => ipcRenderer.invoke('ai:get-models'),
+    aiGetProvider: () => ipcRenderer.invoke('ai:get-provider'),
+    aiSetProvider: (provider) => ipcRenderer.invoke('ai:set-provider', provider),
+    aiGetLocalUrl: () => ipcRenderer.invoke('ai:get-local-url'),
+    aiSetLocalUrl: (url) => ipcRenderer.invoke('ai:set-local-url', url),
+    aiGetLocalApiKey: () => ipcRenderer.invoke('ai:get-local-api-key'),
+    aiSetLocalApiKey: (apiKey) => ipcRenderer.invoke('ai:set-local-api-key', apiKey),
+    aiFetchLocalModels: () => ipcRenderer.invoke('ai:fetch-local-models'),
+    aiTestLocalConnection: () => ipcRenderer.invoke('ai:test-local-connection'),
+    aiGetSettings: () => ipcRenderer.invoke('ai:get-settings'),
+    aiTransformText: (text, command, customPrompt, targetLanguage) => ipcRenderer.invoke('ai:transform-text', text, command, customPrompt, targetLanguage),
+
+    // AI Autocomplete operations
+    aiAutocompleteGetSuggestion: (textBefore, textAfter) => ipcRenderer.invoke('ai-autocomplete:get-suggestion', textBefore, textAfter),
+    aiAutocompleteGetSettings: () => ipcRenderer.invoke('ai-autocomplete:get-settings'),
+    aiAutocompleteSetEnabled: (enabled) => ipcRenderer.invoke('ai-autocomplete:set-enabled', enabled),
+    aiAutocompleteSetDebounce: (ms) => ipcRenderer.invoke('ai-autocomplete:set-debounce', ms),
+    aiAutocompleteSetMinChars: (chars) => ipcRenderer.invoke('ai-autocomplete:set-min-chars', chars),
+    aiAutocompleteSetMaxTokens: (tokens) => ipcRenderer.invoke('ai-autocomplete:set-max-tokens', tokens)
 };
 
 // Expose API directly to window when contextIsolation is disabled

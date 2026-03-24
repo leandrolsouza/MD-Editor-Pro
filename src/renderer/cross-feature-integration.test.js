@@ -193,16 +193,16 @@ Even more content.`;
 
         it('should maintain outline visibility when toggling typewriter mode', () => {
             outlinePanel.show();
-            expect(outlinePanel.isVisible).toBe(true);
+            expect(outlinePanel.getIsVisible()).toBe(true);
 
             typewriterScrolling.enable();
-            expect(outlinePanel.isVisible).toBe(true);
+            expect(outlinePanel.getIsVisible()).toBe(true);
 
             typewriterScrolling.disable();
-            expect(outlinePanel.isVisible).toBe(true);
+            expect(outlinePanel.getIsVisible()).toBe(true);
 
             typewriterScrolling.toggle();
-            expect(outlinePanel.isVisible).toBe(true);
+            expect(outlinePanel.getIsVisible()).toBe(true);
         });
     });
 
@@ -317,7 +317,7 @@ Content for section 3.`;
             expect(editor.getCursorPosition()).toBe(headings[2].position);
 
             // Verify all features still active
-            expect(outlinePanel.isVisible).toBe(true);
+            expect(outlinePanel.getIsVisible()).toBe(true);
             expect(typewriterScrolling.isEnabled()).toBe(true);
         });
 
@@ -332,7 +332,7 @@ Content for section 3.`;
             outlinePanel.toggle();
 
             // Verify no errors and features respond correctly
-            expect(outlinePanel.isVisible).toBe(true);
+            expect(outlinePanel.getIsVisible()).toBe(true);
             expect(typewriterScrolling.isEnabled()).toBe(false);
 
             // Toggle again
@@ -371,7 +371,7 @@ Content for section 3.`;
         it('should maintain independent state for each feature', () => {
             // Enable outline
             outlinePanel.show();
-            expect(outlinePanel.isVisible).toBe(true);
+            expect(outlinePanel.getIsVisible()).toBe(true);
 
             // Enable typewriter
             typewriterScrolling.enable();
@@ -379,13 +379,13 @@ Content for section 3.`;
 
             // Disable outline
             outlinePanel.hide();
-            expect(outlinePanel.isVisible).toBe(false);
+            expect(outlinePanel.getIsVisible()).toBe(false);
             expect(typewriterScrolling.isEnabled()).toBe(true);
 
             // Disable typewriter
             typewriterScrolling.disable();
             expect(typewriterScrolling.isEnabled()).toBe(false);
-            expect(outlinePanel.isVisible).toBe(false);
+            expect(outlinePanel.getIsVisible()).toBe(false);
         });
 
         it('should not affect document content when toggling features', () => {

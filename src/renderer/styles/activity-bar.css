@@ -129,26 +129,26 @@
 
 /* Adjust main container when sidebar is visible */
 #app-container.sidebar-visible {
-    margin-left: 300px;
+    margin-left: var(--sidebar-width, 300px);
     /* Sidebar width (activity bar already accounted for in left: 48px) */
 }
 
 /* Adjust tab bar when sidebar is visible */
 body:has(.sidebar-panel.visible) .tab-bar {
-    left: 348px;
-    /* Activity bar (48px) + Sidebar (300px) */
+    left: calc(48px + var(--sidebar-width, 300px));
+    /* Activity bar (48px) + Sidebar */
 }
 
 /* Adjust formatting toolbar when sidebar is visible */
 body:has(.sidebar-panel.visible) .formatting-toolbar {
-    left: 348px;
-    /* Activity bar (48px) + Sidebar (300px) */
+    left: calc(48px + var(--sidebar-width, 300px));
+    /* Activity bar (48px) + Sidebar */
 }
 
 /* Adjust status bar when sidebar is visible */
 body:has(.sidebar-panel.visible) .status-bar {
-    left: 348px;
-    /* Activity bar (48px) + Sidebar (300px) */
+    left: calc(48px + var(--sidebar-width, 300px));
+    /* Activity bar (48px) + Sidebar */
 }
 
 /* Theme overrides removed - using CSS variables from theme files */

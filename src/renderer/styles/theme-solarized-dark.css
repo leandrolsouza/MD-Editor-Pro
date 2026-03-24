@@ -166,3 +166,63 @@ body.theme-solarized-dark {
 .theme-solarized-dark .cm-activeLine {
     background-color: rgba(147, 161, 161, 0.1);
 }
+
+/* Selection styles - Solarized blue */
+.theme-solarized-dark .cm-selectionBackground,
+.theme-solarized-dark .cm-content ::selection {
+    background-color: rgba(38, 139, 210, 0.4) !important;
+}
+
+.theme-solarized-dark .cm-editor.cm-focused .cm-selectionBackground {
+    background-color: rgba(38, 139, 210, 0.5) !important;
+}
+
+.theme-solarized-dark .cm-selectionMatch {
+    background-color: rgba(38, 139, 210, 0.25);
+}
+
+/* Cursor styles - Solarized base1 */
+.theme-solarized-dark .cm-cursor,
+.theme-solarized-dark .cm-cursor-primary {
+    border-left-color: #93a1a1 !important;
+}
+
+.theme-solarized-dark .cm-cursor-secondary {
+    border-left-color: rgba(147, 161, 161, 0.6) !important;
+}
+
+/* Matching brackets */
+.theme-solarized-dark .cm-matchingBracket {
+    background-color: rgba(38, 139, 210, 0.3);
+    outline: 1px solid rgba(38, 139, 210, 0.5);
+}
+
+/* Search highlights */
+.theme-solarized-dark .cm-searchMatch {
+    background-color: rgba(181, 137, 0, 0.3);
+    outline: 1px solid rgba(181, 137, 0, 0.5);
+}
+
+.theme-solarized-dark .cm-searchMatch-selected {
+    background-color: rgba(181, 137, 0, 0.5);
+}
+
+/* Fold placeholder */
+.theme-solarized-dark .cm-foldPlaceholder {
+    background-color: #073642;
+    border-color: #0f4a5a;
+    color: #93a1a1;
+}
+
+/* Active line number highlight */
+.theme-solarized-dark .cm-lineNumbers .cm-gutterElement.cm-activeLineGutter {
+    color: #93a1a1;
+}
+
+/* Caret color for contenteditable and inputs */
+.theme-solarized-dark,
+.theme-solarized-dark input,
+.theme-solarized-dark textarea,
+.theme-solarized-dark [contenteditable="true"] {
+    caret-color: #93a1a1;
+}

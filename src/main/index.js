@@ -15,6 +15,8 @@ const AdvancedMarkdownManager = require('./advanced-markdown-manager');
 const WorkspaceManager = require('./workspace-manager');
 const GlobalSearchManager = require('./global-search-manager');
 const AutoUpdater = require('./auto-updater');
+const AIChatManager = require('./ai-chat-manager');
+const AIAutocompleteManager = require('./ai-autocomplete-manager');
 const { createApplicationMenu, updateMenuItemChecked } = require('./menu');
 
 // Sandbox disabled to allow nodeIntegration in renderer
@@ -50,6 +52,12 @@ const workspaceManager = new WorkspaceManager(configStore);
 
 // Create global search manager instance
 const globalSearchManager = new GlobalSearchManager(workspaceManager);
+
+// Create AI chat manager instance
+const aiChatManager = new AIChatManager(configStore);
+
+// Create AI autocomplete manager instance
+const aiAutocompleteManager = new AIAutocompleteManager(configStore);
 
 // Create auto-updater instance
 let autoUpdater = null;
@@ -808,6 +816,227 @@ function registerIPCHandlers() {
             return { success: true, version: app.getVersion() };
         } catch (error) {
             console.error('Error getting app version:', error);
+            return { success: false, error: error.message };
+        }
+    });
+
+    // AI Chat operations
+    ipcMain.handle('ai:send-message', async (event, message, documentContent, selectedText) => {
+        try {
+            const result = await aiChatManager.sendMessage(message, documentContent, selectedText);
+            return result;
+        } catch (error) {
+            console.error('Error sending AI message:', error);
+            return { success: false, error: error.message };
+        }
+    });
+
+    ipcMain.handle('ai:clear-history', async () => {
+        try {
+            aiChatManager.clearHistory();
+            return { success: true };
+        } catch (error) {
+            console.error('Error clearing AI history:', error);
+            return { success: false, error: error.message };
+        }
+    });
+
+    ipcMain.handle('ai:get-api-key', async () => {
+        try {
+            const apiKey = aiChatManager.getApiKey();
+            return apiKey || '';
+        } catch (error) {
+            console.error('Error getting API key:', error);
+            return '';
+        }
+    });
+
+    ipcMain.handle('ai:set-api-key', async (event, apiKey, provider) => {
+        try {
+            aiChatManager.setApiKey(apiKey, provider);
+            return { success: true };
+        } catch (error) {
+            console.error('Error setting API key:', error);
+            return { success: false, error: error.message };
+        }
+    });
+
+    ipcMain.handle('ai:get-model', async (event, provider) => {
+        try {
+            return aiChatManager.getModel(provider);
+        } catch (error) {
+            console.error('Error getting AI model:', error);
+            return 'gpt-4o-mini';
+        }
+    });
+
+    ipcMain.handle('ai:set-model', async (event, model, provider) => {
+        try {
+            aiChatManager.setModel(model, provider);
+            return { success: true };
+        } catch (error) {
+            console.error('Error setting AI model:', error);
+            return { success: false, error: error.message };
+        }
+    });
+
+    ipcMain.handle('ai:get-models', async () => {
+        try {
+            return aiChatManager.getAvailableModels();
+        } catch (error) {
+            console.error('Error getting AI models:', error);
+            return [];
+        }
+    });
+
+    ipcMain.handle('ai:get-provider', async () => {
+        try {
+            return aiChatManager.getProvider();
+        } catch (error) {
+            console.error('Error getting AI provider:', error);
+            return 'openai';
+        }
+    });
+
+    ipcMain.handle('ai:set-provider', async (event, provider) => {
+        try {
+            aiChatManager.setProvider(provider);
+            return { success: true };
+        } catch (error) {
+            console.error('Error setting AI provider:', error);
+            return { success: false, error: error.message };
+        }
+    });
+
+    ipcMain.handle('ai:get-local-url', async () => {
+        try {
+            return aiChatManager.getLocalServerUrl();
+        } catch (error) {
+            console.error('Error getting local server URL:', error);
+            return 'http://localhost:1234';
+        }
+    });
+
+    ipcMain.handle('ai:set-local-url', async (event, url) => {
+        try {
+            aiChatManager.setLocalServerUrl(url);
+            return { success: true };
+        } catch (error) {
+            console.error('Error setting local server URL:', error);
+            return { success: false, error: error.message };
+        }
+    });
+
+    ipcMain.handle('ai:get-local-api-key', async () => {
+        try {
+            return aiChatManager.getLocalApiKey() || '';
+        } catch (error) {
+            console.error('Error getting local API key:', error);
+            return '';
+        }
+    });
+
+    ipcMain.handle('ai:set-local-api-key', async (event, apiKey) => {
+        try {
+            aiChatManager.setLocalApiKey(apiKey);
+            return { success: true };
+        } catch (error) {
+            console.error('Error setting local API key:', error);
+            return { success: false, error: error.message };
+        }
+    });
+
+    ipcMain.handle('ai:fetch-local-models', async () => {
+        try {
+            return await aiChatManager.fetchLocalModels();
+        } catch (error) {
+            console.error('Error fetching local models:', error);
+            return [];
+        }
+    });
+
+    ipcMain.handle('ai:test-local-connection', async () => {
+        try {
+            return await aiChatManager.testLocalConnection();
+        } catch (error) {
+            console.error('Error testing local connection:', error);
+            return { success: false, error: error.message };
+        }
+    });
+
+    ipcMain.handle('ai:get-settings', async () => {
+        try {
+            return aiChatManager.getSettings();
+        } catch (error) {
+            console.error('Error getting AI settings:', error);
+            return null;
+        }
+    });
+
+    ipcMain.handle('ai:transform-text', async (event, text, command, customPrompt, targetLanguage) => {
+        try {
+            return await aiChatManager.transformText(text, command, customPrompt, targetLanguage);
+        } catch (error) {
+            console.error('Error transforming text:', error);
+            return { success: false, error: error.message };
+        }
+    });
+
+    // AI Autocomplete operations
+    ipcMain.handle('ai-autocomplete:get-suggestion', async (event, textBefore, textAfter) => {
+        try {
+            return await aiAutocompleteManager.getSuggestion(textBefore, textAfter);
+        } catch (error) {
+            console.error('Error getting autocomplete suggestion:', error);
+            return { success: false, error: error.message };
+        }
+    });
+
+    ipcMain.handle('ai-autocomplete:get-settings', async () => {
+        try {
+            return aiAutocompleteManager.getSettings();
+        } catch (error) {
+            console.error('Error getting autocomplete settings:', error);
+            return null;
+        }
+    });
+
+    ipcMain.handle('ai-autocomplete:set-enabled', async (event, enabled) => {
+        try {
+            aiAutocompleteManager.setEnabled(enabled);
+            return { success: true };
+        } catch (error) {
+            console.error('Error setting autocomplete enabled:', error);
+            return { success: false, error: error.message };
+        }
+    });
+
+    ipcMain.handle('ai-autocomplete:set-debounce', async (event, ms) => {
+        try {
+            aiAutocompleteManager.setDebounceMs(ms);
+            return { success: true };
+        } catch (error) {
+            console.error('Error setting autocomplete debounce:', error);
+            return { success: false, error: error.message };
+        }
+    });
+
+    ipcMain.handle('ai-autocomplete:set-min-chars', async (event, chars) => {
+        try {
+            aiAutocompleteManager.setMinCharsToTrigger(chars);
+            return { success: true };
+        } catch (error) {
+            console.error('Error setting autocomplete min chars:', error);
+            return { success: false, error: error.message };
+        }
+    });
+
+    ipcMain.handle('ai-autocomplete:set-max-tokens', async (event, tokens) => {
+        try {
+            aiAutocompleteManager.setMaxTokens(tokens);
+            return { success: true };
+        } catch (error) {
+            console.error('Error setting autocomplete max tokens:', error);
             return { success: false, error: error.message };
         }
     });

@@ -4,6 +4,8 @@
  * Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.7
  */
 
+const i18n = require('./i18n/index.js');
+
 class StatisticsCalculator {
     constructor(editor) {
         if (!editor) {
@@ -81,7 +83,7 @@ class StatisticsCalculator {
         const wordCountLabel = document.createElement('span');
 
         wordCountLabel.className = 'stat-label';
-        wordCountLabel.textContent = 'Words: ';
+        wordCountLabel.textContent = i18n.t('statistics.words') + ': ';
         this.wordCountElement = document.createElement('span');
         this.wordCountElement.className = 'stat-value';
         this.wordCountElement.textContent = '0';
@@ -95,7 +97,7 @@ class StatisticsCalculator {
         const charCountLabel = document.createElement('span');
 
         charCountLabel.className = 'stat-label';
-        charCountLabel.textContent = 'Characters: ';
+        charCountLabel.textContent = i18n.t('statistics.characters') + ': ';
         this.characterCountElement = document.createElement('span');
         this.characterCountElement.className = 'stat-value';
         this.characterCountElement.textContent = '0';
@@ -109,10 +111,10 @@ class StatisticsCalculator {
         const readingTimeLabel = document.createElement('span');
 
         readingTimeLabel.className = 'stat-label';
-        readingTimeLabel.textContent = 'Reading time: ';
+        readingTimeLabel.textContent = i18n.t('statistics.readingTime') + ': ';
         this.readingTimeElement = document.createElement('span');
         this.readingTimeElement.className = 'stat-value';
-        this.readingTimeElement.textContent = '0 min';
+        this.readingTimeElement.textContent = i18n.t('statistics.minutes', { count: 0 });
         readingTimeContainer.appendChild(readingTimeLabel);
         readingTimeContainer.appendChild(this.readingTimeElement);
 
@@ -243,7 +245,7 @@ class StatisticsCalculator {
 
         this.wordCountElement.textContent = statistics.wordCount.toString();
         this.characterCountElement.textContent = statistics.characterCount.toString();
-        this.readingTimeElement.textContent = `${statistics.readingTime} min`;
+        this.readingTimeElement.textContent = i18n.t('statistics.minutes', { count: statistics.readingTime });
     }
 
     /**

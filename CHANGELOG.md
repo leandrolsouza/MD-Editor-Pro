@@ -7,6 +7,72 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.0] - 2026-03-24
+
+### ✨ Added
+
+#### Internationalization (i18n)
+- **Multi-language Support**: Full internationalization system with English and Portuguese (Brazil)
+  - Automatic system language detection
+  - Language selector in settings panel
+  - All UI elements translated
+  - Persistent language preference
+
+#### AI Integration
+- **AI Chat Panel**: Integrated AI assistant for writing help
+  - Support for multiple AI providers (OpenAI, Anthropic, Ollama, LM Studio)
+  - Configurable models per provider
+  - Apply AI suggestions directly to editor
+  - Code block syntax highlighting in responses
+  - Copy code functionality
+  - Chat history within session
+
+- **AI Autocomplete**: Intelligent text completion while typing
+  - Configurable trigger delay
+  - Multiple provider support
+  - Enable/disable via settings
+
+- **AI Edit Commands**: Context menu AI actions for selected text
+  - Rewrite text
+  - Fix grammar
+  - Summarize
+  - Expand content
+  - Make formal/casual
+  - Translate
+  - Custom prompts
+
+#### Enhanced UI
+- **Context Menu**: Rich right-click menu with formatting options
+  - Cut, Copy, Paste, Undo, Redo, Select All
+  - Markdown formatting (Bold, Italic, Strikethrough)
+  - Insert elements (Link, Image, Table, Code Block)
+  - AI edit commands submenu
+
+- **Settings Panel**: Centralized settings management
+  - Language selection
+  - Auto-save configuration
+  - Keyboard shortcuts
+  - Advanced markdown settings
+  - Image paste settings
+  - AI autocomplete settings
+
+- **Panel Resizer**: Adjustable panel widths
+  - Drag to resize sidebar and chat panels
+  - Persistent panel sizes
+
+#### Activity Bar Improvements
+- New Settings view in activity bar
+- AI Chat view integration
+- Improved panel switching
+
+### 🔧 Changed
+- Improved theme CSS with AI chat and context menu styles
+- Enhanced formatting toolbar with i18n support
+- Updated all UI components to use translation system
+- Improved template UI with translations
+
+---
+
 ## [1.1.0] - 2025-12-02
 
 ### ✨ Added

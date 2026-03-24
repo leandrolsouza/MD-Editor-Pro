@@ -3,12 +3,15 @@
  * Manages the activity bar and sidebar panels
  */
 
+const i18n = require('./i18n/index.js');
+
 class ActivityBar {
     constructor() {
         this.container = null;
         this.sidebarPanel = null;
         this.activeView = null;
         this.views = new Map();
+        this.removeLocaleListener = null;
     }
 
     /**
@@ -18,6 +21,67 @@ class ActivityBar {
         this.createActivityBar();
         this.createSidebarPanel();
         this.setupEventListeners();
+        this.setupLocaleListener();
+    }
+
+    /**
+     * Setup locale change listener
+     */
+    setupLocaleListener() {
+        this.removeLocaleListener = i18n.onLocaleChange(() => {
+            this.updateTranslations();
+        });
+    }
+
+    /**
+     * Update translations when locale changes
+     */
+    updateTranslations() {
+        // Update activity bar tooltips
+        const items = this.container.querySelectorAll('.activity-bar__item');
+        items.forEach(item => {
+            const view = item.dataset.view;
+            switch (view) {
+                case 'files':
+                    item.title = `${i18n.t('activityBar.explorer')} (Ctrl+Shift+E)`;
+                    break;
+                case 'search':
+                    item.title = `${i18n.t('activityBar.search')} (Ctrl+Shift+F)`;
+                    break;
+                case 'outline':
+                    item.title = `${i18n.t('activityBar.outline')} (Ctrl+Shift+O)`;
+                    break;
+                case 'templates':
+                    item.title = i18n.t('activityBar.templates');
+                    break;
+                case 'snippets':
+                    item.title = i18n.t('activityBar.snippets');
+                    break;
+                case 'settings':
+                    item.title = i18n.t('activityBar.settings');
+                    break;
+                case 'ai-chat':
+                    item.title = i18n.t('activityBar.aiAssistant');
+                    break;
+            }
+        });
+
+        // Update close button tooltip
+        const closeBtn = this.sidebarPanel.querySelector('#sidebar-close-btn');
+        if (closeBtn) {
+            closeBtn.title = i18n.t('activityBar.closeSidebar');
+        }
+
+        // Update sidebar title if a view is active
+        if (this.activeView) {
+            const view = this.views.get(this.activeView);
+            if (view) {
+                const titleEl = this.sidebarPanel.querySelector('.sidebar-panel__title');
+                if (titleEl) {
+                    titleEl.textContent = view.title;
+                }
+            }
+        }
     }
 
     /**
@@ -27,23 +91,26 @@ class ActivityBar {
         this.container = document.createElement('div');
         this.container.className = 'activity-bar';
         this.container.innerHTML = `
-            <button class="activity-bar__item" data-view="files" title="Explorer (Ctrl+Shift+E)">
+            <button class="activity-bar__item" data-view="files" title="${i18n.t('activityBar.explorer')} (Ctrl+Shift+E)">
                 <span class="activity-bar__icon">📁</span>
             </button>
-            <button class="activity-bar__item" data-view="search" title="Search (Ctrl+Shift+F)">
+            <button class="activity-bar__item" data-view="search" title="${i18n.t('activityBar.search')} (Ctrl+Shift+F)">
                 <span class="activity-bar__icon">🔍</span>
             </button>
-            <button class="activity-bar__item" data-view="outline" title="Outline (Ctrl+Shift+O)">
+            <button class="activity-bar__item" data-view="outline" title="${i18n.t('activityBar.outline')} (Ctrl+Shift+O)">
                 <span class="activity-bar__icon">≡</span>
             </button>
-            <button class="activity-bar__item" data-view="templates" title="Templates">
+            <button class="activity-bar__item" data-view="templates" title="${i18n.t('activityBar.templates')}">
                 <span class="activity-bar__icon">📄</span>
             </button>
-            <button class="activity-bar__item" data-view="snippets" title="Snippets">
+            <button class="activity-bar__item" data-view="snippets" title="${i18n.t('activityBar.snippets')}">
                 <span class="activity-bar__icon">✂️</span>
             </button>
-            <button class="activity-bar__item" data-view="settings" title="Settings">
+            <button class="activity-bar__item" data-view="settings" title="${i18n.t('activityBar.settings')}">
                 <span class="activity-bar__icon">⚙️</span>
+            </button>
+            <button class="activity-bar__item" data-view="ai-chat" title="${i18n.t('activityBar.aiAssistant')}">
+                <span class="activity-bar__icon">🤖</span>
             </button>
         `;
         document.body.appendChild(this.container);
@@ -59,7 +126,7 @@ class ActivityBar {
             <div class="sidebar-panel__header">
                 <span class="sidebar-panel__title"></span>
                 <div class="sidebar-panel__actions">
-                    <button class="sidebar-panel__action-btn" id="sidebar-close-btn" title="Close Sidebar">✕</button>
+                    <button class="sidebar-panel__action-btn" id="sidebar-close-btn" title="${i18n.t('activityBar.closeSidebar')}">✕</button>
                 </div>
             </div>
             <div class="sidebar-panel__content"></div>

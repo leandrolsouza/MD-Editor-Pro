@@ -4,6 +4,7 @@
  */
 
 const { searchKeymap, highlightSelectionMatches, SearchQuery, setSearchQuery, findNext, findPrevious, replaceNext, replaceAll } = require('@codemirror/search');
+const i18n = require('./i18n/index.js');
 
 class SearchManager {
     constructor(editor) {
@@ -312,9 +313,9 @@ class SearchManager {
         }
 
         if (total === 0) {
-            this.searchResults.textContent = 'No results';
+            this.searchResults.textContent = i18n.t('search.noResults');
         } else {
-            this.searchResults.textContent = `${current} of ${total}`;
+            this.searchResults.textContent = i18n.t('search.resultsCount', { current, total });
         }
     }
 

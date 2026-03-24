@@ -166,3 +166,45 @@ body.theme-solarized-light {
 .theme-solarized-light .cm-activeLine {
     background-color: rgba(0, 43, 54, 0.05);
 }
+
+/* Selection styles - Solarized blue */
+.theme-solarized-light .cm-selectionBackground,
+.theme-solarized-light .cm-content ::selection {
+    background-color: rgba(38, 139, 210, 0.25) !important;
+}
+
+.theme-solarized-light .cm-editor.cm-focused .cm-selectionBackground {
+    background-color: rgba(38, 139, 210, 0.35) !important;
+}
+
+.theme-solarized-light .cm-selectionMatch {
+    background-color: rgba(38, 139, 210, 0.15);
+}
+
+/* Matching brackets */
+.theme-solarized-light .cm-matchingBracket {
+    background-color: rgba(38, 139, 210, 0.2);
+    outline: 1px solid rgba(38, 139, 210, 0.4);
+}
+
+/* Search highlights */
+.theme-solarized-light .cm-searchMatch {
+    background-color: rgba(181, 137, 0, 0.25);
+    outline: 1px solid rgba(181, 137, 0, 0.4);
+}
+
+.theme-solarized-light .cm-searchMatch-selected {
+    background-color: rgba(181, 137, 0, 0.4);
+}
+
+/* Fold placeholder */
+.theme-solarized-light .cm-foldPlaceholder {
+    background-color: #eee8d5;
+    border-color: #d3cbb7;
+    color: #657b83;
+}
+
+/* Active line number highlight */
+.theme-solarized-light .cm-lineNumbers .cm-gutterElement.cm-activeLineGutter {
+    color: #586e75;
+}

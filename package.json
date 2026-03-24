@@ -1,6 +1,6 @@
 {
   "name": "md-editor-pro",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "A cross-platform markdown editor built with Electron",
   "main": "src/main/index.js",
   "scripts": {

@@ -170,3 +170,45 @@ body.theme-light {
 .theme-light .cm-activeLine {
     background-color: rgba(0, 0, 0, 0.03);
 }
+
+/* Selection styles - visible on light background */
+.theme-light .cm-selectionBackground,
+.theme-light .cm-content ::selection {
+    background-color: rgba(37, 99, 235, 0.25) !important;
+}
+
+.theme-light .cm-editor.cm-focused .cm-selectionBackground {
+    background-color: rgba(37, 99, 235, 0.35) !important;
+}
+
+.theme-light .cm-selectionMatch {
+    background-color: rgba(37, 99, 235, 0.15);
+}
+
+/* Matching brackets */
+.theme-light .cm-matchingBracket {
+    background-color: rgba(37, 99, 235, 0.2);
+    outline: 1px solid rgba(37, 99, 235, 0.4);
+}
+
+/* Search highlights */
+.theme-light .cm-searchMatch {
+    background-color: rgba(234, 179, 8, 0.3);
+    outline: 1px solid rgba(234, 179, 8, 0.5);
+}
+
+.theme-light .cm-searchMatch-selected {
+    background-color: rgba(234, 179, 8, 0.5);
+}
+
+/* Fold placeholder */
+.theme-light .cm-foldPlaceholder {
+    background-color: #f6f8fa;
+    border-color: #d1d5da;
+    color: #57606a;
+}
+
+/* Active line number highlight */
+.theme-light .cm-lineNumbers .cm-gutterElement.cm-activeLineGutter {
+    color: #24292e;
+}
