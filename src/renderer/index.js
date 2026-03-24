@@ -19,6 +19,7 @@ const TabBar = require('./tab-bar.js');
 const FocusMode = require('./focus-mode.js');
 const TemplateUI = require('./template-ui.js');
 const SnippetManager = require('./snippet-manager.js');
+const SnippetUI = require('./snippet-ui.js');
 const FormattingToolbar = require('./formatting-toolbar.js');
 const AdvancedMarkdownSettingsUI = require('./advanced-markdown-settings-ui.js');
 const AdvancedMarkdownManagerClient = require('./advanced-markdown-manager-client.js');
@@ -57,6 +58,7 @@ let tabBar = null;
 let focusMode = null;
 let templateUI = null;
 let snippetManager = null;
+let snippetUI = null;
 let formattingToolbar = null;
 let advancedMarkdownSettingsUI = null;
 let advancedMarkdownManager = null;
@@ -532,17 +534,18 @@ async function initialize() {
         }
 
         if (templateUI) {
-            const templateContent = document.createElement('div');
-            templateContent.id = 'template-container';
-            templateContent.innerHTML = `<div style="padding: var(--space-3); color: var(--text-secondary);">${i18n.t('panels.templateComingSoon')}</div>`;
-            activityBar.registerView('templates', i18n.t('activityBar.templates').toUpperCase(), templateContent);
+            activityBar.registerView('templates', i18n.t('activityBar.templates').toUpperCase(), () => templateUI.createSidebarPanel());
         }
 
         if (snippetManager) {
-            const snippetContent = document.createElement('div');
-            snippetContent.id = 'snippet-container';
-            snippetContent.innerHTML = `<div style="padding: var(--space-3); color: var(--text-secondary);">${i18n.t('panels.snippetComingSoon')}</div>`;
-            activityBar.registerView('snippets', i18n.t('activityBar.snippets').toUpperCase(), snippetContent);
+            snippetUI = new SnippetUI(snippetManager);
+            snippetUI.onInsert((snippet) => {
+                if (editor && editor.view) {
+                    snippetManager.insertSnippetContent(snippet);
+                    editor.view.focus();
+                }
+            });
+            activityBar.registerView('snippets', i18n.t('activityBar.snippets').toUpperCase(), () => snippetUI.createSidebarPanel());
         }
 
         // Settings view

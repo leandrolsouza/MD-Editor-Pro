@@ -73,36 +73,37 @@ class GlobalSearchManager {
 
     /**
      * Get all markdown files in a directory recursively
+     * Uses Node.js 24+ recursive readdir for better performance
      * @param {string} dirPath - Directory path
      * @returns {Promise<string[]>} Array of file paths
      */
     async getAllMarkdownFiles(dirPath) {
-        const files = [];
-
         try {
-            const entries = await fs.readdir(dirPath, { withFileTypes: true });
+            // Node.js 24: Use native recursive readdir for better performance
+            const entries = await fs.readdir(dirPath, { withFileTypes: true, recursive: true });
 
-            for (const entry of entries) {
-                const fullPath = path.join(dirPath, entry.name);
+            return entries
+                .filter(entry => {
+                    // Skip hidden files/folders and node_modules
+                    const pathParts = entry.parentPath
+                        ? path.relative(dirPath, entry.parentPath).split(path.sep)
+                        : [];
+                    const hasHiddenParent = pathParts.some(part => part.startsWith('.') || part === 'node_modules');
 
-                // Skip hidden files and node_modules
-                if (entry.name.startsWith('.') || entry.name === 'node_modules') {
-                    continue;
-                }
+                    if (hasHiddenParent || entry.name.startsWith('.') || entry.name === 'node_modules') {
+                        return false;
+                    }
 
-                if (entry.isDirectory()) {
-                    const subFiles = await this.getAllMarkdownFiles(fullPath);
-
-                    files.push(...subFiles);
-                } else if (entry.isFile() && this.isMarkdownFile(entry.name)) {
-                    files.push(fullPath);
-                }
-            }
+                    return entry.isFile() && this.isMarkdownFile(entry.name);
+                })
+                .map(entry => entry.parentPath
+                    ? path.join(entry.parentPath, entry.name)
+                    : path.join(dirPath, entry.name)
+                );
         } catch (error) {
             console.error('Error reading directory:', dirPath, error);
+            return [];
         }
-
-        return files;
     }
 
     /**

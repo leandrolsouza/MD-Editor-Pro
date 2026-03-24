@@ -265,7 +265,7 @@ describe('TemplateManager', () => {
 
             expect(categories.length).toBeGreaterThan(0);
             expect(categories).toContain('documentation');
-            expect(categories).toContain('blog');
+            expect(categories).toContain('content');
             expect(categories).toContain('notes');
         });
 

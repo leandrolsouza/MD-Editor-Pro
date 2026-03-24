@@ -4,6 +4,7 @@
  */
 
 const i18n = require('./i18n/index.js');
+const { getIcon } = require('./icons.js');
 
 class ActivityBar {
     constructor() {
@@ -92,25 +93,25 @@ class ActivityBar {
         this.container.className = 'activity-bar';
         this.container.innerHTML = `
             <button class="activity-bar__item" data-view="files" title="${i18n.t('activityBar.explorer')} (Ctrl+Shift+E)">
-                <span class="activity-bar__icon">📁</span>
+                <span class="activity-bar__icon">${getIcon('folder')}</span>
             </button>
             <button class="activity-bar__item" data-view="search" title="${i18n.t('activityBar.search')} (Ctrl+Shift+F)">
-                <span class="activity-bar__icon">🔍</span>
+                <span class="activity-bar__icon">${getIcon('search')}</span>
             </button>
             <button class="activity-bar__item" data-view="outline" title="${i18n.t('activityBar.outline')} (Ctrl+Shift+O)">
-                <span class="activity-bar__icon">≡</span>
+                <span class="activity-bar__icon">${getIcon('outline')}</span>
             </button>
             <button class="activity-bar__item" data-view="templates" title="${i18n.t('activityBar.templates')}">
-                <span class="activity-bar__icon">📄</span>
+                <span class="activity-bar__icon">${getIcon('template')}</span>
             </button>
             <button class="activity-bar__item" data-view="snippets" title="${i18n.t('activityBar.snippets')}">
-                <span class="activity-bar__icon">✂️</span>
+                <span class="activity-bar__icon">${getIcon('snippet')}</span>
             </button>
             <button class="activity-bar__item" data-view="settings" title="${i18n.t('activityBar.settings')}">
-                <span class="activity-bar__icon">⚙️</span>
+                <span class="activity-bar__icon">${getIcon('settings')}</span>
             </button>
             <button class="activity-bar__item" data-view="ai-chat" title="${i18n.t('activityBar.aiAssistant')}">
-                <span class="activity-bar__icon">🤖</span>
+                <span class="activity-bar__icon">${getIcon('ai')}</span>
             </button>
         `;
         document.body.appendChild(this.container);
@@ -126,7 +127,7 @@ class ActivityBar {
             <div class="sidebar-panel__header">
                 <span class="sidebar-panel__title"></span>
                 <div class="sidebar-panel__actions">
-                    <button class="sidebar-panel__action-btn" id="sidebar-close-btn" title="${i18n.t('activityBar.closeSidebar')}">✕</button>
+                    <button class="sidebar-panel__action-btn" id="sidebar-close-btn" title="${i18n.t('activityBar.closeSidebar')}">${getIcon('close')}</button>
                 </div>
             </div>
             <div class="sidebar-panel__content"></div>

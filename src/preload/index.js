@@ -173,6 +173,14 @@ const electronAPI = {
     aiGetSettings: () => ipcRenderer.invoke('ai:get-settings'),
     aiTransformText: (text, command, customPrompt, targetLanguage) => ipcRenderer.invoke('ai:transform-text', text, command, customPrompt, targetLanguage),
 
+    // Snippet operations
+    getAllSnippets: () => ipcRenderer.invoke('snippet:get-all'),
+    getBuiltInSnippets: () => ipcRenderer.invoke('snippet:get-builtin'),
+    getCustomSnippets: () => ipcRenderer.invoke('snippet:get-custom'),
+    saveCustomSnippet: (trigger, content, description) => ipcRenderer.invoke('snippet:save-custom', trigger, content, description),
+    deleteCustomSnippet: (trigger) => ipcRenderer.invoke('snippet:delete-custom', trigger),
+    updateCustomSnippet: (trigger, updates) => ipcRenderer.invoke('snippet:update-custom', trigger, updates),
+
     // AI Autocomplete operations
     aiAutocompleteGetSuggestion: (textBefore, textAfter) => ipcRenderer.invoke('ai-autocomplete:get-suggestion', textBefore, textAfter),
     aiAutocompleteGetSettings: () => ipcRenderer.invoke('ai-autocomplete:get-settings'),

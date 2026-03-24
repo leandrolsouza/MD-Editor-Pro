@@ -63,6 +63,75 @@ const aiAutocompleteManager = new AIAutocompleteManager(configStore);
 let autoUpdater = null;
 
 /**
+ * Built-in snippets for common markdown elements
+ */
+const BUILT_IN_SNIPPETS = [
+    {
+        trigger: 'code',
+        content: '```{{language}}\n{{code}}\n```',
+        description: 'Code block with syntax highlighting',
+        placeholders: ['{{language}}', '{{code}}'],
+        isBuiltIn: true
+    },
+    {
+        trigger: 'table',
+        content: '| {{header1}} | {{header2}} | {{header3}} |\n|------------|------------|------------|\n| {{cell1}}   | {{cell2}}   | {{cell3}}   |',
+        description: 'Markdown table structure',
+        placeholders: ['{{header1}}', '{{header2}}', '{{header3}}', '{{cell1}}', '{{cell2}}', '{{cell3}}'],
+        isBuiltIn: true
+    },
+    {
+        trigger: 'link',
+        content: '[{{text}}]({{url}})',
+        description: 'Markdown link',
+        placeholders: ['{{text}}', '{{url}}'],
+        isBuiltIn: true
+    },
+    {
+        trigger: 'img',
+        content: '![{{alt}}]({{url}})',
+        description: 'Markdown image',
+        placeholders: ['{{alt}}', '{{url}}'],
+        isBuiltIn: true
+    },
+    {
+        trigger: 'task',
+        content: '- [ ] {{task}}',
+        description: 'Task list item',
+        placeholders: ['{{task}}'],
+        isBuiltIn: true
+    },
+    {
+        trigger: 'quote',
+        content: '> {{quote}}',
+        description: 'Block quote',
+        placeholders: ['{{quote}}'],
+        isBuiltIn: true
+    }
+];
+
+/**
+ * Get all built-in snippets
+ * @returns {Array} Array of built-in snippets
+ */
+function getBuiltInSnippets() {
+    return [...BUILT_IN_SNIPPETS];
+}
+
+/**
+ * Find placeholders in snippet content
+ * @param {string} content - Snippet content
+ * @returns {Array<string>} Array of placeholder strings
+ */
+function findSnippetPlaceholders(content) {
+    if (!content || typeof content !== 'string') {
+        return [];
+    }
+    const matches = content.match(/\{\{[^}]+\}\}/g);
+    return matches || [];
+}
+
+/**
  * Register IPC handlers for all main process operations
  * Implements proper error handling for all handlers
  * Requirements: 3.1, 3.2, 3.3, 5.1, 5.2, 6.3, 8.4
@@ -617,6 +686,79 @@ function registerIPCHandlers() {
             return { success: true, position };
         } catch (error) {
             console.error('Error getting first placeholder position:', error);
+            throw error;
+        }
+    });
+
+    // Snippet operations
+    ipcMain.handle('snippet:get-all', async () => {
+        try {
+            const builtIn = getBuiltInSnippets();
+            const custom = configStore.getCustomSnippets();
+            return { success: true, snippets: [...builtIn, ...custom] };
+        } catch (error) {
+            console.error('Error getting all snippets:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('snippet:get-builtin', async () => {
+        try {
+            const snippets = getBuiltInSnippets();
+            return { success: true, snippets };
+        } catch (error) {
+            console.error('Error getting built-in snippets:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('snippet:get-custom', async () => {
+        try {
+            const snippets = configStore.getCustomSnippets();
+            return { success: true, snippets };
+        } catch (error) {
+            console.error('Error getting custom snippets:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('snippet:save-custom', async (event, trigger, content, description) => {
+        try {
+            const snippet = {
+                trigger: trigger.trim(),
+                content,
+                description: description || '',
+                placeholders: findSnippetPlaceholders(content),
+                isBuiltIn: false,
+                createdAt: Date.now()
+            };
+            configStore.addCustomSnippet(snippet);
+            return { success: true, snippet };
+        } catch (error) {
+            console.error('Error saving custom snippet:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('snippet:delete-custom', async (event, trigger) => {
+        try {
+            configStore.deleteCustomSnippet(trigger);
+            return { success: true };
+        } catch (error) {
+            console.error('Error deleting custom snippet:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('snippet:update-custom', async (event, trigger, updates) => {
+        try {
+            if (updates.content) {
+                updates.placeholders = findSnippetPlaceholders(updates.content);
+            }
+            configStore.updateCustomSnippet(trigger, updates);
+            return { success: true };
+        } catch (error) {
+            console.error('Error updating custom snippet:', error);
             throw error;
         }
     });

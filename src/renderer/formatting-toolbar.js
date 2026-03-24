@@ -4,6 +4,7 @@
  */
 
 const i18n = require('./i18n/index.js');
+const { getIcon } = require('./icons.js');
 
 class FormattingToolbar {
     constructor(editor) {
@@ -21,35 +22,35 @@ class FormattingToolbar {
 
         // Button configuration array with all formatting buttons
         this.buttonConfig = [
-            { id: 'bold', icon: 'B', titleKey: 'formatting.bold', shortcut: 'Ctrl+B', action: 'bold', group: 'inline' },
-            { id: 'italic', icon: 'I', titleKey: 'formatting.italic', shortcut: 'Ctrl+I', action: 'italic', group: 'inline' },
-            { id: 'strikethrough', icon: 'S', titleKey: 'formatting.strikethrough', action: 'strikethrough', group: 'inline' },
-            { id: 'code', icon: '</>', titleKey: 'formatting.code', shortcut: 'Ctrl+`', action: 'code', group: 'code' },
+            { id: 'bold', icon: 'bold', titleKey: 'formatting.bold', shortcut: 'Ctrl+B', action: 'bold', group: 'inline' },
+            { id: 'italic', icon: 'italic', titleKey: 'formatting.italic', shortcut: 'Ctrl+I', action: 'italic', group: 'inline' },
+            { id: 'strikethrough', icon: 'strikethrough', titleKey: 'formatting.strikethrough', action: 'strikethrough', group: 'inline' },
+            { id: 'code', icon: 'code', titleKey: 'formatting.code', shortcut: 'Ctrl+`', action: 'code', group: 'code' },
             { id: 'separator-1', type: 'separator' },
-            { id: 'heading1', icon: 'H1', titleKey: 'formatting.heading', level: 1, action: 'heading', group: 'heading' },
-            { id: 'heading2', icon: 'H2', titleKey: 'formatting.heading', level: 2, action: 'heading', group: 'heading' },
-            { id: 'heading3', icon: 'H3', titleKey: 'formatting.heading', level: 3, action: 'heading', group: 'heading' },
-            { id: 'heading4', icon: 'H4', titleKey: 'formatting.heading', level: 4, action: 'heading', group: 'heading' },
-            { id: 'heading5', icon: 'H5', titleKey: 'formatting.heading', level: 5, action: 'heading', group: 'heading' },
-            { id: 'heading6', icon: 'H6', titleKey: 'formatting.heading', level: 6, action: 'heading', group: 'heading' },
+            { id: 'heading1', icon: 'heading1', titleKey: 'formatting.heading', level: 1, action: 'heading', group: 'heading' },
+            { id: 'heading2', icon: 'heading2', titleKey: 'formatting.heading', level: 2, action: 'heading', group: 'heading' },
+            { id: 'heading3', icon: 'heading3', titleKey: 'formatting.heading', level: 3, action: 'heading', group: 'heading' },
+            { id: 'heading4', icon: 'heading1', titleKey: 'formatting.heading', level: 4, action: 'heading', group: 'heading', label: 'H4' },
+            { id: 'heading5', icon: 'heading1', titleKey: 'formatting.heading', level: 5, action: 'heading', group: 'heading', label: 'H5' },
+            { id: 'heading6', icon: 'heading1', titleKey: 'formatting.heading', level: 6, action: 'heading', group: 'heading', label: 'H6' },
             { id: 'separator-2', type: 'separator' },
-            { id: 'unordered-list', icon: '•', titleKey: 'formatting.bulletList', action: 'unordered-list', group: 'list' },
-            { id: 'ordered-list', icon: '1.', titleKey: 'formatting.numberedList', action: 'ordered-list', group: 'list' },
-            { id: 'task-list', icon: '☑', titleKey: 'formatting.taskList', action: 'task-list', group: 'list' },
+            { id: 'unordered-list', icon: 'listBullet', titleKey: 'formatting.bulletList', action: 'unordered-list', group: 'list' },
+            { id: 'ordered-list', icon: 'listOrdered', titleKey: 'formatting.numberedList', action: 'ordered-list', group: 'list' },
+            { id: 'task-list', icon: 'listTask', titleKey: 'formatting.taskList', action: 'task-list', group: 'list' },
             { id: 'separator-3', type: 'separator' },
-            { id: 'blockquote', icon: '"', titleKey: 'formatting.blockquote', action: 'blockquote', group: 'block' },
-            { id: 'code-block', icon: '{ }', titleKey: 'formatting.codeBlock', action: 'code-block', group: 'code' },
-            { id: 'table', icon: '⊞', titleKey: 'formatting.table', action: 'table', group: 'insert' },
-            { id: 'horizontal-rule', icon: '—', titleKey: 'formatting.horizontalRule', action: 'horizontal-rule', group: 'insert' },
+            { id: 'blockquote', icon: 'quote', titleKey: 'formatting.blockquote', action: 'blockquote', group: 'block' },
+            { id: 'code-block', icon: 'codeBlock', titleKey: 'formatting.codeBlock', action: 'code-block', group: 'code' },
+            { id: 'table', icon: 'table', titleKey: 'formatting.table', action: 'table', group: 'insert' },
+            { id: 'horizontal-rule', icon: 'horizontalRule', titleKey: 'formatting.horizontalRule', action: 'horizontal-rule', group: 'insert' },
             { id: 'separator-4', type: 'separator' },
-            { id: 'link', icon: '🔗', titleKey: 'formatting.link', action: 'link', group: 'insert' },
-            { id: 'image', icon: '🖼', titleKey: 'formatting.image', action: 'image', group: 'insert' },
+            { id: 'link', icon: 'link', titleKey: 'formatting.link', action: 'link', group: 'insert' },
+            { id: 'image', icon: 'image', titleKey: 'formatting.image', action: 'image', group: 'insert' },
             { id: 'separator-5', type: 'separator' },
-            { id: 'indent', icon: '→', titleKey: 'formatting.indent', action: 'indent', group: 'format' },
-            { id: 'outdent', icon: '←', titleKey: 'formatting.outdent', action: 'outdent', group: 'format' },
-            { id: 'clear-format', icon: '✕', titleKey: 'formatting.clearFormat', action: 'clear-format', group: 'format' },
+            { id: 'indent', icon: 'indent', titleKey: 'formatting.indent', action: 'indent', group: 'format' },
+            { id: 'outdent', icon: 'outdent', titleKey: 'formatting.outdent', action: 'outdent', group: 'format' },
+            { id: 'clear-format', icon: 'clearFormat', titleKey: 'formatting.clearFormat', action: 'clear-format', group: 'format' },
             { id: 'separator-6', type: 'separator' },
-            { id: 'template', icon: '📄', titleKey: 'templates.insert', action: 'template', group: 'insert' }
+            { id: 'template', icon: 'template', titleKey: 'templates.insert', action: 'template', group: 'insert' }
         ];
     }
 
@@ -169,8 +170,13 @@ class FormattingToolbar {
             button.classList.add(`toolbar-button-${config.group}`);
         }
 
-        // Set button content (icon)
-        button.textContent = config.icon;
+        // Set button content (icon) - use SVG icon or label fallback
+        if (config.label) {
+            button.innerHTML = `<span class="toolbar-button__label">${config.label}</span>`;
+        } else {
+            const iconSvg = getIcon(config.icon);
+            button.innerHTML = iconSvg || config.icon;
+        }
 
         // Add click handler
         button.addEventListener('click', (e) => {

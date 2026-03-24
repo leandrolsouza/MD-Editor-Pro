@@ -25,7 +25,7 @@ module.exports = {
     },
 
     create(context) {
-        const filename = context.getFilename();
+        const filename = context.filename || context.getFilename();
 
         // Only apply this rule to preload scripts
         if (!filename.includes('preload')) {

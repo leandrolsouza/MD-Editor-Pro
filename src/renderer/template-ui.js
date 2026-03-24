@@ -430,6 +430,141 @@ class TemplateUI {
     onInsert(callback) {
         this.onInsertCallback = callback;
     }
+
+    /**
+     * Create sidebar panel content for the activity bar
+     * @returns {HTMLElement} Sidebar panel content
+     */
+    createSidebarPanel() {
+        const panel = document.createElement('div');
+
+        panel.className = 'template-sidebar-panel';
+        panel.innerHTML = `
+            <div class="template-sidebar-actions">
+                <button class="template-sidebar-create-btn">+ ${i18n.t('templates.create')}</button>
+            </div>
+            <div class="template-sidebar-modes">
+                <button class="template-mode-btn active" data-mode="insert">${i18n.t('templates.insertMode')}</button>
+                <button class="template-mode-btn" data-mode="replace">${i18n.t('templates.replaceMode')}</button>
+            </div>
+            <div class="template-sidebar-categories"></div>
+            <div class="template-sidebar-list"></div>
+        `;
+
+        // Event listeners
+        panel.querySelector('.template-sidebar-create-btn').addEventListener('click', () => {
+            this.showCustomTemplateDialog();
+        });
+
+        const modeButtons = panel.querySelectorAll('.template-mode-btn');
+
+        modeButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                modeButtons.forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                this.insertMode = e.target.dataset.mode;
+            });
+        });
+
+        this.sidebarPanel = panel;
+        this.renderSidebarContent();
+
+        return panel;
+    }
+
+    /**
+     * Render sidebar content (categories and templates)
+     */
+    async renderSidebarContent() {
+        if (!this.sidebarPanel) return;
+
+        try {
+            await this.loadTemplates();
+
+            const categoriesContainer = this.sidebarPanel.querySelector('.template-sidebar-categories');
+
+            // Render categories
+            categoriesContainer.innerHTML = '';
+
+            const allBtn = document.createElement('button');
+
+            allBtn.className = 'template-category-btn active';
+            allBtn.textContent = i18n.t('templates.all');
+            allBtn.dataset.category = 'all';
+            categoriesContainer.appendChild(allBtn);
+
+            this.categories.forEach(cat => {
+                const btn = document.createElement('button');
+
+                btn.className = 'template-category-btn';
+                btn.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
+                btn.dataset.category = cat;
+                categoriesContainer.appendChild(btn);
+            });
+
+            categoriesContainer.querySelectorAll('.template-category-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    categoriesContainer.querySelectorAll('.template-category-btn').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    this.renderSidebarTemplates(e.target.dataset.category === 'all' ? null : e.target.dataset.category);
+                });
+            });
+
+            this.renderSidebarTemplates(null);
+        } catch (error) {
+            console.error('Error rendering sidebar content:', error);
+        }
+    }
+
+    /**
+     * Render templates in sidebar
+     * @param {string|null} filterCategory - Category to filter by
+     */
+    renderSidebarTemplates(filterCategory = null) {
+        if (!this.sidebarPanel) return;
+
+        const listContainer = this.sidebarPanel.querySelector('.template-sidebar-list');
+
+        listContainer.innerHTML = '';
+
+        const filtered = filterCategory
+            ? this.templates.filter(t => t.category === filterCategory)
+            : this.templates;
+
+        if (filtered.length === 0) {
+            listContainer.innerHTML = `<p class="template-sidebar-empty">${i18n.t('templates.noTemplates')}</p>`;
+            return;
+        }
+
+        filtered.forEach(template => {
+            const item = document.createElement('div');
+
+            item.className = 'template-sidebar-item';
+            item.innerHTML = `
+                <div class="template-sidebar-item-header">
+                    <span class="template-sidebar-item-name">${template.name}</span>
+                    ${!template.isBuiltIn ? `<button class="template-sidebar-delete-btn" title="${i18n.t('templates.delete')}">🗑️</button>` : ''}
+                </div>
+                <p class="template-sidebar-item-desc">${template.description || i18n.t('templates.noDescription')}</p>
+                <span class="template-sidebar-item-category">${template.category}</span>
+            `;
+
+            item.addEventListener('click', (e) => {
+                if (!e.target.classList.contains('template-sidebar-delete-btn')) {
+                    this.insertTemplate(template);
+                }
+            });
+
+            if (!template.isBuiltIn) {
+                item.querySelector('.template-sidebar-delete-btn').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.deleteTemplate(template.id).then(() => this.renderSidebarContent()).catch(err => console.error('Error deleting template:', err));
+                });
+            }
+
+            listContainer.appendChild(item);
+        });
+    }
 }
 
 module.exports = TemplateUI;

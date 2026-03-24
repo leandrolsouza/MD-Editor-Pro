@@ -7,6 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.3.0] - 2026-03-24
+
+### ✨ Added
+
+#### Activity Bar Enhancements
+- **Templates Panel**: New sidebar panel for templates in the activity bar
+  - Browse and filter templates by category
+  - Insert or replace mode selection
+  - Create custom templates directly from sidebar
+  - Delete custom templates with one click
+
+- **Snippets Panel**: New sidebar panel for snippets in the activity bar
+  - Browse all snippets (built-in and custom)
+  - Filter by type (all, built-in, custom)
+  - Create, edit, and delete custom snippets
+  - Preview snippet content before insertion
+  - Click to insert snippet at cursor position
+
+#### Custom SVG Icon System
+- **New Icon Library**: Replaced emoji icons with custom SVG icons
+  - Consistent, scalable vector icons across the application
+  - Professional look with proper stroke widths
+  - Icons for: files, folders, search, settings, templates, snippets, AI, formatting, and more
+  - Better accessibility and theme compatibility
+
+### 🔧 Changed
+- Activity bar now uses SVG icons instead of emojis for a more professional appearance
+- Improved template and snippet management UX with dedicated sidebar panels
+- Updated CSS styles for new icon system and sidebar panels
+
+### 🐛 Fixed
+- Various ESLint rule improvements for better code quality
+- Test file updates for improved coverage
+
+---
+
 ## [1.2.0] - 2026-03-24
 
 ### ✨ Added

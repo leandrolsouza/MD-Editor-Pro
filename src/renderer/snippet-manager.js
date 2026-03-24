@@ -298,6 +298,42 @@ class SnippetManager {
     }
 
     /**
+     * Insert snippet content directly at cursor position
+     * @param {Object} snippet - Snippet object with content
+     * @returns {boolean} True if inserted successfully
+     */
+    insertSnippetContent(snippet) {
+        if (!this.editor || !this.editor.view) {
+            throw new Error('Editor not initialized');
+        }
+
+        if (!snippet || !snippet.content) {
+            return false;
+        }
+
+        const view = this.editor.view;
+        const state = view.state;
+        const selection = state.selection.main;
+        const insertPosition = selection.from;
+
+        // Insert snippet content at cursor position
+        const transaction = state.update({
+            changes: {
+                from: insertPosition,
+                to: selection.to,
+                insert: snippet.content
+            }
+        });
+
+        view.dispatch(transaction);
+
+        // Position cursor at first placeholder
+        this.positionCursorAtFirstPlaceholder(snippet.content, insertPosition);
+
+        return true;
+    }
+
+    /**
      * Expand snippet at cursor position
      * Requirements: 7.1, 7.2
      * @param {string} trigger - Snippet trigger

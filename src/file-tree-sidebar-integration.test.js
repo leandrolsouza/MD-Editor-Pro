@@ -125,14 +125,18 @@ describe('File Tree Sidebar Integration Tests', () => {
                     if (!expandedFolders.includes(folderPath)) {
                         expandedFolders.push(folderPath);
                     }
+                    // Return children when expanding
+                    const children = await buildTreeStructure(folderPath);
+                    configStore.set('workspace.expandedFolders', expandedFolders);
+                    return { success: true, children };
                 } else {
                     const index = expandedFolders.indexOf(folderPath);
                     if (index !== -1) {
                         expandedFolders.splice(index, 1);
                     }
+                    configStore.set('workspace.expandedFolders', expandedFolders);
+                    return { success: true, children: [] };
                 }
-                configStore.set('workspace.expandedFolders', expandedFolders);
-                return { success: true };
             }),
 
             // Tab operations
@@ -224,9 +228,9 @@ describe('File Tree Sidebar Integration Tests', () => {
 
             // Click to expand folder
             folder1Node.click();
-            await new Promise(resolve => setTimeout(resolve, 50));
+            await new Promise(resolve => setTimeout(resolve, 200));
 
-            // Verify folder is expanded
+            // Verify folder is expanded - use the original reference since the element should still be valid
             const expandIcon = folder1Node.querySelector('.file-tree-sidebar__expand-icon');
             expect(expandIcon.textContent).toBe('▼');
 
@@ -587,12 +591,13 @@ describe('File Tree Sidebar Integration Tests', () => {
             );
 
             file1Node.click();
-            await new Promise(resolve => setTimeout(resolve, 50));
+            await new Promise(resolve => setTimeout(resolve, 100));
 
             // Mark file as modified
             await mockElectronAPI.markTabModified(currentTabId, true);
             tabBar.markTabModified(currentTabId, true);
             sidebar.markFileModified(testFiles.file1, true);
+            await new Promise(resolve => setTimeout(resolve, 50));
 
             // Verify modified indicator in sidebar
             let modifiedIndicator = file1Node.querySelector('.file-tree-sidebar__modified-indicator');

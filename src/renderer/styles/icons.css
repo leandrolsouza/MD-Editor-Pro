@@ -209,3 +209,73 @@
 .icon-with-label .icon {
     flex-shrink: 0;
 }
+
+
+/* ============================================
+   Inline SVG Icon Support
+   ============================================ */
+
+/* SVG icons inherit color from parent */
+.icon svg,
+.activity-bar__icon svg,
+.toolbar-button svg,
+.sidebar-panel__action-btn svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    stroke: currentColor;
+    fill: none;
+}
+
+/* Activity bar icon sizing */
+.activity-bar__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    color: var(--text-secondary, #6b7280);
+    transition: color var(--duration-fast, 150ms) ease;
+}
+
+.activity-bar__item:hover .activity-bar__icon,
+.activity-bar__item.active .activity-bar__icon {
+    color: var(--text-primary, #1f2937);
+}
+
+/* Toolbar button icon sizing */
+.toolbar-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    padding: 4px;
+}
+
+.toolbar-button svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Label fallback for headings H4-H6 */
+.toolbar-button__label {
+    font-size: 12px;
+    font-weight: 600;
+    font-family: var(--font-mono, monospace);
+}
+
+/* Sidebar close button */
+.sidebar-panel__action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    padding: 4px;
+}
+
+.sidebar-panel__action-btn svg {
+    width: 16px;
+    height: 16px;
+}

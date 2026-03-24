@@ -445,10 +445,7 @@ class FileTreeSidebar {
         }
 
         // Find the node element and its children container
-        const escapedPath = this._escapePath(node.path);
-        const nodeElement = this.container.querySelector(
-            `.file-tree-sidebar__node[data-path="${escapedPath}"]`
-        );
+        const nodeElement = this._findNodeByPath(node.path);
 
         if (nodeElement) {
             // Update expand icon
@@ -632,10 +629,7 @@ class FileTreeSidebar {
             }
 
             // Update the node's modified indicator
-            const escapedPath = this._escapePath(filePath);
-            const nodeElement = this.container.querySelector(
-                `.file-tree-sidebar__node[data-path="${escapedPath}"]`
-            );
+            const nodeElement = this._findNodeByPath(filePath);
 
             if (nodeElement && nodeElement.dataset.type === 'file') {
                 let indicator = nodeElement.querySelector('.file-tree-sidebar__modified-indicator');
@@ -994,6 +988,22 @@ class FileTreeSidebar {
     }
 
     /**
+     * Find a node element by its path
+     * @param {string} path - Path to find
+     * @returns {HTMLElement|null} Node element or null
+     * @private
+     */
+    _findNodeByPath(path) {
+        const allNodes = this.container.querySelectorAll('.file-tree-sidebar__node');
+        for (const node of allNodes) {
+            if (node.dataset.path === path) {
+                return node;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Escape a path for use in CSS selectors
      * @param {string} path - Path to escape
      * @returns {string} Escaped path
@@ -1004,9 +1014,10 @@ class FileTreeSidebar {
         if (typeof CSS !== 'undefined' && typeof CSS.escape === 'function') {
             return CSS.escape(path);
         }
-        // Basic escaping for test environments
-        return path.replace(/["\\]/g, '\\$&');
+        // Basic escaping for test environments - escape special CSS selector characters
+        return path.replace(/([!"#$%&'()*+,./:;<=>?@[\\\]^`{|}~])/g, '\\$1');
     }
+
 
     /**
      * Validate tree data structure

@@ -22,7 +22,7 @@ module.exports = {
     },
 
     create(context) {
-        const filename = context.getFilename();
+        const filename = context.filename || context.getFilename();
 
         // Only apply this rule to renderer scripts (not main or preload)
         if (!filename.includes('renderer') || filename.includes('.test.')) {
