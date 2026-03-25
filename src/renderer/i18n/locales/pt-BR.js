@@ -217,6 +217,9 @@ module.exports = {
         dismiss: 'Dispensar',
         error: 'Erro na Atualização',
         errorMessage: 'Falha ao baixar atualização. Tente novamente mais tarde.',
+        errorNotFound: 'Arquivos de atualização ainda não disponíveis. A release pode estar sendo processada. Tente novamente em alguns minutos.',
+        errorNetwork: 'Não foi possível conectar ao servidor de atualizações. Verifique sua conexão com a internet.',
+        errorServer: 'Servidor de atualizações temporariamente indisponível. Tente novamente mais tarde.',
         upToDate: 'Atualizado',
         upToDateMessage: 'Você está usando a versão mais recente.'
     },

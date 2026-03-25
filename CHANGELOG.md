@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.3.1] - 2026-03-25
+
+### 🐛 Fixed
+
+#### Auto-Update Error Messages
+- Improved error messages for auto-update failures
+  - User-friendly message when update files are not yet available (404 errors)
+  - Specific message for network connection issues
+  - Specific message for server unavailability
+- Error notification now stays visible for 8 seconds (was 5) to give users time to read
+
+---
+
 ## [1.3.0] - 2026-03-24
 
 ### ✨ Added

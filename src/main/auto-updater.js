@@ -45,8 +45,44 @@ class AutoUpdater {
         // Erro durante atualização
         autoUpdater.on('error', (err) => {
             console.error('Error in auto-updater:', err);
-            this.sendStatusToWindow('update-error', { message: err.message });
+            const errorInfo = this.categorizeError(err);
+            this.sendStatusToWindow('update-error', errorInfo);
         });
+    }
+
+    // Categorizar erros para mensagens amigáveis
+    categorizeError(err) {
+        const message = err.message || '';
+
+        // Erro 404 - arquivo não encontrado (release incompleta)
+        if (message.includes('404') || message.includes('Cannot find latest.yml') || message.includes('net::ERR_FILE_NOT_FOUND')) {
+            return {
+                type: 'not_found',
+                message: message
+            };
+        }
+
+        // Erros de rede
+        if (message.includes('net::ERR_') || message.includes('ENOTFOUND') || message.includes('ECONNREFUSED') || message.includes('ETIMEDOUT')) {
+            return {
+                type: 'network',
+                message: message
+            };
+        }
+
+        // Erros de servidor (5xx)
+        if (message.includes('500') || message.includes('502') || message.includes('503') || message.includes('504')) {
+            return {
+                type: 'server',
+                message: message
+            };
+        }
+
+        // Erro genérico
+        return {
+            type: 'generic',
+            message: message
+        };
     }
 
     // Verificar atualizações

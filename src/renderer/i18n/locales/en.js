@@ -216,6 +216,9 @@ module.exports = {
         dismiss: 'Dismiss',
         error: 'Update Error',
         errorMessage: 'Failed to download update. Please try again later.',
+        errorNotFound: 'Update files not available yet. The release may still be processing. Please try again in a few minutes.',
+        errorNetwork: 'Could not connect to the update server. Check your internet connection.',
+        errorServer: 'Update server is temporarily unavailable. Please try again later.',
         upToDate: 'Up to Date',
         upToDateMessage: 'You are using the latest version.'
     },

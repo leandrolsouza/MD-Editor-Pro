@@ -170,6 +170,22 @@ class UpdateNotification {
     showUpdateError(error) {
         this.hideNotification();
 
+        // Determinar a mensagem apropriada baseada no tipo de erro
+        let errorMessage;
+        switch (error.type) {
+            case 'not_found':
+                errorMessage = i18n.t('updates.errorNotFound');
+                break;
+            case 'network':
+                errorMessage = i18n.t('updates.errorNetwork');
+                break;
+            case 'server':
+                errorMessage = i18n.t('updates.errorServer');
+                break;
+            default:
+                errorMessage = error.message || i18n.t('updates.errorMessage');
+        }
+
         const notification = document.createElement('div');
 
         notification.className = 'update-notification update-notification-error';
@@ -178,7 +194,7 @@ class UpdateNotification {
                 <div class="update-notification-icon">⚠️</div>
                 <div class="update-notification-text">
                     <strong>${i18n.t('updates.error')}</strong>
-                    <p>${error.message || i18n.t('updates.errorMessage')}</p>
+                    <p>${errorMessage}</p>
                 </div>
                 <div class="update-notification-actions">
                     <button class="update-btn-close">${i18n.t('dialogs.close')}</button>
@@ -193,12 +209,12 @@ class UpdateNotification {
             this.hideNotification();
         });
 
-        // Auto-hide after 5 seconds
+        // Auto-hide after 8 seconds (mais tempo para ler)
         setTimeout(() => {
             if (this.notificationElement === notification) {
                 this.hideNotification();
             }
-        }, 5000);
+        }, 8000);
     }
 
     hideNotification() {
