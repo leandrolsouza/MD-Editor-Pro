@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.3.1] - 2026-03-25
+## [1.3.2] - 2026-03-25
 
 ### 🐛 Fixed
 
@@ -17,6 +17,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Specific message for network connection issues
   - Specific message for server unavailability
 - Error notification now stays visible for 8 seconds (was 5) to give users time to read
+
+#### Build Improvements
+- Increased upload timeout for GitHub releases
+- Removed 32-bit (ia32) Windows build to speed up releases
+
+---
+
+## [1.3.1] - 2026-03-25
+
+(Skipped due to build issues)
 
 ---
 
