@@ -6,9 +6,6 @@ on:
       - "v*"
 
 env:
-  # Increase timeout for electron-builder uploads (10 minutes)
-  ELECTRON_BUILDER_HTTP_TIMEOUT: 600000
-  # Use Node.js 24 for GitHub Actions
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
@@ -44,17 +41,12 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  build:
+  build-windows:
     needs: create-release
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-latest
     permissions:
       contents: write
     timeout-minutes: 60
-
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
 
     steps:
       - name: Checkout code
@@ -68,35 +60,76 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build and publish (Windows)
-        if: matrix.os == 'windows-latest'
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 30
-          max_attempts: 3
-          retry_wait_seconds: 30
-          command: npm run build:win -- --publish always
+      - name: Build Windows
+        run: npm run build:win
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and publish (macOS)
-        if: matrix.os == 'macos-latest'
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 30
-          max_attempts: 3
-          retry_wait_seconds: 30
-          command: npm run build:mac -- --publish always
+      - name: Upload Windows artifacts
+        run: |
+          $version = (Get-Content package.json | ConvertFrom-Json).version
+          gh release upload "v$version" dist/*.exe dist/*.blockmap dist/latest.yml --clobber
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and publish (Linux)
-        if: matrix.os == 'ubuntu-latest'
-        uses: nick-fields/retry@v3
+  build-macos:
+    needs: create-release
+    runs-on: macos-latest
+    permissions:
+      contents: write
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          timeout_minutes: 30
-          max_attempts: 3
-          retry_wait_seconds: 30
-          command: npm run build:linux -- --publish always
+          node-version: "24"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build macOS
+        run: npm run build:mac
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload macOS artifacts
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          gh release upload "v$VERSION" dist/*.dmg dist/*.zip dist/*.blockmap dist/latest-mac.yml --clobber
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-linux:
+    needs: create-release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Linux
+        run: npm run build:linux
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Linux artifacts
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          gh release upload "v$VERSION" dist/*.AppImage dist/*.deb dist/*.rpm dist/*.blockmap dist/latest-linux.yml --clobber
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
