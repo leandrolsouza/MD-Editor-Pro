@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.3.3] - 2026-03-25
+
+### 🐛 Fixed
+
+#### Build Pipeline
+- Fixed GitHub Actions timeout issues by separating build and upload steps
+- Using `gh release upload` instead of electron-builder's built-in publish
+
+---
+
 ## [1.3.2] - 2026-03-25
 
 ### 🐛 Fixed
