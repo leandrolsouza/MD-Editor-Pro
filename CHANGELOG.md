@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.3.5] - 2026-03-25
+
+### 🐛 Fixed
+
+#### Auto-Update
+- Fixed artifact naming to use `md-editor-pro` instead of `MD Editor Pro` (spaces caused 404 errors)
+
+---
+
 ## [1.3.4] - 2026-03-25
 
 ### 🐛 Fixed

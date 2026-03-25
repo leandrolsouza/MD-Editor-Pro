@@ -1,6 +1,6 @@
 {
   "name": "md-editor-pro",
-  "version": "1.3.4",
+  "version": "1.3.5",
   "description": "A cross-platform markdown editor built with Electron",
   "main": "src/main/index.js",
   "scripts": {
@@ -125,7 +125,7 @@
       ],
       "icon": "build/icon.ico",
       "verifyUpdateCodeSignature": false,
-      "artifactName": "${productName}-${version}-${arch}.${ext}"
+      "artifactName": "${name}-${version}-${arch}.${ext}"
     },
     "nsis": {
       "oneClick": false,
@@ -163,7 +163,7 @@
       "gatekeeperAssess": false,
       "entitlements": "build/entitlements.mac.plist",
       "entitlementsInherit": "build/entitlements.mac.plist",
-      "artifactName": "${productName}-${version}-${arch}.${ext}"
+      "artifactName": "${name}-${version}-${arch}.${ext}"
     },
     "dmg": {
       "contents": [
@@ -216,7 +216,7 @@
           "MimeType": "text/markdown;text/x-markdown;"
         }
       },
-      "artifactName": "${productName}-${version}-${arch}.${ext}"
+      "artifactName": "${name}-${version}-${arch}.${ext}"
     }
   }
 }
