@@ -490,11 +490,227 @@
     margin: var(--space-4) 0;
 }
 
+.ai-settings-header {
+    margin-bottom: 16px;
+}
+
+.ai-settings-header h3 {
+    margin: 0 0 4px;
+    color: var(--text-primary);
+    font-size: 20px;
+}
+
+.ai-settings-hint {
+    font-size: 14px;
+    color: var(--text-tertiary);
+    margin: 0;
+}
+
+.ai-settings-section {
+    margin-bottom: 20px;
+}
+
 .ai-settings-section-title {
-    font-size: var(--font-size-sm);
+    font-size: 15px;
     font-weight: 600;
     color: var(--text-secondary);
-    margin: 0 0 var(--space-3);
+    margin: 0 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ai-section-icon {
+    font-size: 18px;
+}
+
+/* Provider Cards Grid */
+.ai-providers-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.ai-provider-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    transition: border-color 0.2s ease;
+}
+
+.ai-provider-card:hover {
+    border-color: var(--accent-color);
+}
+
+.ai-provider-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.ai-provider-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ai-provider-icon {
+    font-size: 22px;
+}
+
+.ai-provider-name {
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--text-primary);
+}
+
+.ai-provider-status {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: var(--radius-sm);
+}
+
+.ai-provider-status.configured {
+    background: rgba(34, 197, 94, 0.15);
+    color: var(--success-color, #22c55e);
+}
+
+.ai-provider-status.not-configured {
+    background: var(--bg-tertiary);
+    color: var(--text-tertiary);
+}
+
+.ai-status-icon {
+    font-size: 11px;
+}
+
+.ai-status-text {
+    font-size: 12px;
+}
+
+.ai-provider-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Key Input Wrapper */
+.ai-key-input-wrapper {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.ai-key-input-wrapper input {
+    flex: 1;
+    min-width: 0;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 14px;
+    height: 38px;
+}
+
+.ai-key-input-wrapper input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+}
+
+.ai-toggle-visibility {
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--bg-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+    min-width: 38px;
+    height: 38px;
+}
+
+.ai-toggle-visibility:hover {
+    background: var(--bg-hover);
+}
+
+.ai-eye-icon {
+    font-size: 16px;
+}
+
+.ai-test-key-btn {
+    padding: 8px 14px;
+    border: 1px solid var(--accent-color);
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--accent-color);
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    min-width: 60px;
+    height: 38px;
+}
+
+.ai-test-key-btn:hover:not(:disabled) {
+    background: var(--accent-color);
+    color: white;
+}
+
+.ai-test-key-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.ai-key-status {
+    font-size: 13px;
+    min-height: 16px;
+}
+
+.ai-get-key-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    color: var(--text-tertiary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.ai-get-key-link:hover {
+    color: var(--accent-color);
+}
+
+.ai-link-icon {
+    font-size: 12px;
+}
+
+/* Local Server Card */
+.local-server-card {
+    grid-column: 1 / -1;
+}
+
+.local-server-card .ai-chat-settings-field {
+    margin-bottom: 14px;
+}
+
+.local-server-card .ai-chat-settings-field:last-child {
+    margin-bottom: 0;
+}
+
+.local-server-card label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
 }
 
 .ai-key-row {
@@ -526,10 +742,10 @@
 .ai-chat-settings-content {
     background: var(--bg-primary);
     border-radius: var(--radius-lg);
-    padding: var(--space-5);
-    width: 500px;
-    max-width: 90vw;
-    max-height: 85vh;
+    padding: 24px 32px;
+    width: 900px;
+    max-width: 95vw;
+    max-height: 90vh;
     overflow-y: auto;
     box-shadow: var(--shadow-lg);
 }
@@ -541,7 +757,6 @@
 
 .ai-chat-settings-field a:hover {
     text-decoration: underline;
-}
 }
 
 .ai-chat-settings-url-row {

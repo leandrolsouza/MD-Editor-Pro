@@ -432,6 +432,9 @@ module.exports = {
     // AI Settings
     aiSettings: {
         title: 'AI Settings',
+        hint: 'Configure your API keys here. Switch provider/model directly in the chat.',
+        cloudProviders: 'Cloud Providers',
+        localServer: 'Local Server (LM Studio, Ollama)',
         provider: 'Provider',
         providerOpenAI: 'OpenAI',
         providerLocal: 'Local Server (LM Studio, Ollama, etc.)',
@@ -441,7 +444,7 @@ module.exports = {
         serverUrl: 'Server URL',
         apiKeyOptional: 'API Key (optional)',
         apiKeyOptionalHint: 'Required if your server has authentication enabled.',
-        testingConnection: 'Testing connection...',
+        testingConnection: 'Testing...',
         connectedSuccessfully: 'Connected successfully!',
         connectionFailed: 'Connection failed',
         defaultModel: 'Default Model',
@@ -450,7 +453,16 @@ module.exports = {
         gpt4oMini: 'GPT-4o Mini (Fast & Affordable)',
         gpt4o: 'GPT-4o (Most Capable)',
         gpt4Turbo: 'GPT-4 Turbo',
-        gpt35Turbo: 'GPT-3.5 Turbo (Legacy)'
+        gpt35Turbo: 'GPT-3.5 Turbo (Legacy)',
+        configured: 'Configured',
+        notConfigured: 'Not configured',
+        toggleVisibility: 'Show/hide',
+        getApiKey: 'Get API Key',
+        free: 'Free',
+        enterKeyFirst: 'Enter a key first',
+        keyValid: 'Key valid',
+        keyInvalid: 'Key invalid',
+        testFailed: 'Test failed'
     },
 
     // Panels

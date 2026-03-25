@@ -170,6 +170,7 @@ const electronAPI = {
     aiSetLocalApiKey: (apiKey) => ipcRenderer.invoke('ai:set-local-api-key', apiKey),
     aiFetchLocalModels: () => ipcRenderer.invoke('ai:fetch-local-models'),
     aiTestLocalConnection: () => ipcRenderer.invoke('ai:test-local-connection'),
+    aiTestApiKey: (apiKey, provider) => ipcRenderer.invoke('ai:test-api-key', apiKey, provider),
     aiGetSettings: () => ipcRenderer.invoke('ai:get-settings'),
     aiTransformText: (text, command, customPrompt, targetLanguage) => ipcRenderer.invoke('ai:transform-text', text, command, customPrompt, targetLanguage),
 

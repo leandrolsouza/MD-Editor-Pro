@@ -859,52 +859,97 @@ class AIChatPanel {
         const localUrl = settings?.local?.serverUrl || 'http://localhost:1234';
         const localApiKey = settings?.local?.apiKey || '';
 
+        const providers = [
+            { id: 'openai', name: 'OpenAI', key: openaiKey, placeholder: 'sk-...', url: 'https://platform.openai.com/api-keys', icon: '🤖' },
+            { id: 'anthropic', name: 'Claude', key: anthropicKey, placeholder: 'sk-ant-...', url: 'https://console.anthropic.com/settings/keys', icon: '🧠' },
+            { id: 'gemini', name: 'Gemini', key: geminiKey, placeholder: 'AIza...', url: 'https://aistudio.google.com/app/apikey', icon: '✨', free: true },
+            { id: 'groq', name: 'Groq', key: groqKey, placeholder: 'gsk_...', url: 'https://console.groq.com/keys', icon: '⚡', free: true }
+        ];
+
+        const providerCards = providers.map(p => {
+            const statusClass = p.key ? 'configured' : 'not-configured';
+            const statusIcon = p.key ? '✓' : '○';
+            const statusText = p.key ? i18n.t('aiSettings.configured') : i18n.t('aiSettings.notConfigured');
+
+            return `
+                <div class="ai-provider-card" data-provider="${p.id}">
+                    <div class="ai-provider-header">
+                        <div class="ai-provider-info">
+                            <span class="ai-provider-icon">${p.icon}</span>
+                            <span class="ai-provider-name">${p.name}</span>
+                            ${p.free ? `<span class="ai-badge-free">${i18n.t('aiSettings.free')}</span>` : ''}
+                        </div>
+                        <div class="ai-provider-status ${statusClass}">
+                            <span class="ai-status-icon">${statusIcon}</span>
+                            <span class="ai-status-text">${statusText}</span>
+                        </div>
+                    </div>
+                    <div class="ai-provider-body">
+                        <div class="ai-key-input-wrapper">
+                            <input type="password" 
+                                   id="ai-${p.id}-key" 
+                                   class="ai-key-input"
+                                   value="${p.key}" 
+                                   placeholder="${p.placeholder}">
+                            <button type="button" class="ai-toggle-visibility" data-target="ai-${p.id}-key" title="${i18n.t('aiSettings.toggleVisibility')}">
+                                <span class="ai-eye-icon">👁</span>
+                            </button>
+                            <button type="button" class="ai-test-key-btn" data-provider="${p.id}" title="${i18n.t('actions.test')}">
+                                ${i18n.t('actions.test')}
+                            </button>
+                        </div>
+                        <div class="ai-key-status" id="ai-${p.id}-status"></div>
+                        <a href="${p.url}" target="_blank" class="ai-get-key-link">
+                            <span class="ai-link-icon">🔗</span> ${i18n.t('aiSettings.getApiKey')}
+                        </a>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
         return `
             <div class="ai-chat-settings-content">
-                <h3>${i18n.t('aiSettings.title')}</h3>
-                <p class="ai-settings-hint">Configure suas API keys aqui. Troque de provedor/modelo diretamente no chat.</p>
+                <div class="ai-settings-header">
+                    <h3>${i18n.t('aiSettings.title')}</h3>
+                    <p class="ai-settings-hint">${i18n.t('aiSettings.hint')}</p>
+                </div>
                 
-                <div class="ai-settings-divider"></div>
-                <h4 class="ai-settings-section-title">🔑 API Keys</h4>
-
-                <div class="ai-chat-settings-field">
-                    <label for="ai-api-key">OpenAI</label>
-                    <input type="password" id="ai-api-key" value="${openaiKey}" placeholder="sk-...">
-                    <small><a href="https://platform.openai.com/api-keys" target="_blank">Obter API Key</a></small>
-                </div>
-
-                <div class="ai-chat-settings-field">
-                    <label for="ai-anthropic-key">Anthropic Claude</label>
-                    <input type="password" id="ai-anthropic-key" value="${anthropicKey}" placeholder="sk-ant-...">
-                    <small><a href="https://console.anthropic.com/settings/keys" target="_blank">Obter API Key</a></small>
-                </div>
-
-                <div class="ai-chat-settings-field">
-                    <label for="ai-gemini-key">Google Gemini <span class="ai-badge-free">Gratuito</span></label>
-                    <input type="password" id="ai-gemini-key" value="${geminiKey}" placeholder="AIza...">
-                    <small><a href="https://aistudio.google.com/app/apikey" target="_blank">Obter API Key</a></small>
-                </div>
-
-                <div class="ai-chat-settings-field">
-                    <label for="ai-groq-key">Groq <span class="ai-badge-free">Gratuito</span></label>
-                    <input type="password" id="ai-groq-key" value="${groqKey}" placeholder="gsk_...">
-                    <small><a href="https://console.groq.com/keys" target="_blank">Obter API Key</a></small>
-                </div>
-
-                <div class="ai-settings-divider"></div>
-                <h4 class="ai-settings-section-title">🖥️ Servidor Local (LM Studio, Ollama)</h4>
-
-                <div class="ai-chat-settings-field">
-                    <label for="ai-local-url">${i18n.t('aiSettings.serverUrl')}</label>
-                    <div class="ai-chat-settings-url-row">
-                        <input type="text" id="ai-local-url" value="${localUrl}" placeholder="http://localhost:1234">
-                        <button id="ai-test-connection" class="ai-chat-test-btn">${i18n.t('actions.test')}</button>
+                <div class="ai-settings-section">
+                    <h4 class="ai-settings-section-title">
+                        <span class="ai-section-icon">☁️</span>
+                        ${i18n.t('aiSettings.cloudProviders')}
+                    </h4>
+                    <div class="ai-providers-grid">
+                        ${providerCards}
                     </div>
-                    <small id="ai-connection-status"></small>
                 </div>
-                <div class="ai-chat-settings-field">
-                    <label for="ai-local-api-key">${i18n.t('aiSettings.apiKeyOptional')}</label>
-                    <input type="password" id="ai-local-api-key" value="${localApiKey}" placeholder="lm-studio-...">
+
+                <div class="ai-settings-section">
+                    <h4 class="ai-settings-section-title">
+                        <span class="ai-section-icon">🖥️</span>
+                        ${i18n.t('aiSettings.localServer')}
+                    </h4>
+                    <div class="ai-provider-card local-server-card">
+                        <div class="ai-provider-body">
+                            <div class="ai-chat-settings-field">
+                                <label for="ai-local-url">${i18n.t('aiSettings.serverUrl')}</label>
+                                <div class="ai-key-input-wrapper">
+                                    <input type="text" id="ai-local-url" value="${localUrl}" placeholder="http://localhost:1234">
+                                    <button id="ai-test-connection" class="ai-test-key-btn">${i18n.t('actions.test')}</button>
+                                </div>
+                                <div class="ai-key-status" id="ai-connection-status"></div>
+                            </div>
+                            <div class="ai-chat-settings-field">
+                                <label for="ai-local-api-key">${i18n.t('aiSettings.apiKeyOptional')}</label>
+                                <div class="ai-key-input-wrapper">
+                                    <input type="password" id="ai-local-api-key" value="${localApiKey}" placeholder="lm-studio-...">
+                                    <button type="button" class="ai-toggle-visibility" data-target="ai-local-api-key" title="${i18n.t('aiSettings.toggleVisibility')}">
+                                        <span class="ai-eye-icon">👁</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="ai-chat-settings-actions">
@@ -921,38 +966,93 @@ class AIChatPanel {
      * @param {string} currentProvider
  */
     setupSettingsEventListeners(modal, currentProvider) {
+        // Toggle visibility buttons
+        modal.querySelectorAll('.ai-toggle-visibility').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetId = btn.dataset.target;
+                const input = modal.querySelector(`#${targetId}`);
+                if (input) {
+                    const isPassword = input.type === 'password';
+                    input.type = isPassword ? 'text' : 'password';
+                    btn.querySelector('.ai-eye-icon').textContent = isPassword ? '🙈' : '👁';
+                }
+            });
+        });
+
+        // Test API key buttons for cloud providers
+        modal.querySelectorAll('.ai-test-key-btn[data-provider]').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const provider = btn.dataset.provider;
+                const input = modal.querySelector(`#ai-${provider}-key`);
+                const statusEl = modal.querySelector(`#ai-${provider}-status`);
+
+                if (!input || !statusEl) return;
+
+                const apiKey = input.value.trim();
+                if (!apiKey) {
+                    statusEl.textContent = '✗ ' + i18n.t('aiSettings.enterKeyFirst');
+                    statusEl.className = 'ai-key-status ai-chat-status-error';
+                    return;
+                }
+
+                statusEl.textContent = i18n.t('aiSettings.testingConnection');
+                statusEl.className = 'ai-key-status';
+                btn.disabled = true;
+
+                try {
+                    const result = await window.electronAPI.aiTestApiKey(apiKey, provider);
+                    if (result.success) {
+                        statusEl.textContent = '✓ ' + i18n.t('aiSettings.keyValid');
+                        statusEl.className = 'ai-key-status ai-chat-status-success';
+                        this.updateProviderCardStatus(modal, provider, true);
+                    } else {
+                        statusEl.textContent = '✗ ' + (result.error || i18n.t('aiSettings.keyInvalid'));
+                        statusEl.className = 'ai-key-status ai-chat-status-error';
+                    }
+                } catch (error) {
+                    statusEl.textContent = '✗ ' + i18n.t('aiSettings.testFailed');
+                    statusEl.className = 'ai-key-status ai-chat-status-error';
+                }
+
+                btn.disabled = false;
+            });
+        });
+
+        // Test local server connection
         const testBtn = modal.querySelector('#ai-test-connection');
+        if (testBtn) {
+            testBtn.addEventListener('click', async () => {
+                const statusEl = modal.querySelector('#ai-connection-status');
+
+                statusEl.textContent = i18n.t('aiSettings.testingConnection');
+                statusEl.className = 'ai-key-status';
+
+                const url = modal.querySelector('#ai-local-url').value.trim();
+                const apiKey = modal.querySelector('#ai-local-api-key').value.trim();
+
+                await window.electronAPI.aiSetLocalUrl(url);
+                await window.electronAPI.aiSetLocalApiKey(apiKey);
+
+                const result = await window.electronAPI.aiTestLocalConnection();
+
+                if (result.success) {
+                    statusEl.textContent = '✓ ' + i18n.t('aiSettings.connectedSuccessfully');
+                    statusEl.className = 'ai-key-status ai-chat-status-success';
+                } else {
+                    statusEl.textContent = '✗ ' + i18n.t('aiSettings.connectionFailed') + ': ' + result.error;
+                    statusEl.className = 'ai-key-status ai-chat-status-error';
+                }
+            });
+        }
+
         const cancelBtn = modal.querySelector('.ai-chat-settings-cancel');
         const saveBtn = modal.querySelector('.ai-chat-settings-save');
-
-        testBtn.addEventListener('click', async () => {
-            const statusEl = modal.querySelector('#ai-connection-status');
-
-            statusEl.textContent = i18n.t('aiSettings.testingConnection');
-            statusEl.className = '';
-
-            const url = modal.querySelector('#ai-local-url').value.trim();
-            const apiKey = modal.querySelector('#ai-local-api-key').value.trim();
-
-            await window.electronAPI.aiSetLocalUrl(url);
-            await window.electronAPI.aiSetLocalApiKey(apiKey);
-
-            const result = await window.electronAPI.aiTestLocalConnection();
-
-            if (result.success) {
-                statusEl.textContent = '✓ ' + i18n.t('aiSettings.connectedSuccessfully');
-                statusEl.className = 'ai-chat-status-success';
-            } else {
-                statusEl.textContent = '✗ ' + i18n.t('aiSettings.connectionFailed') + ': ' + result.error;
-                statusEl.className = 'ai-chat-status-error';
-            }
-        });
 
         cancelBtn.addEventListener('click', () => modal.remove());
 
         saveBtn.addEventListener('click', async () => {
             // Save ALL API keys
-            const openaiKey = modal.querySelector('#ai-api-key').value.trim();
+            const openaiKey = modal.querySelector('#ai-openai-key').value.trim();
             await window.electronAPI.aiSetApiKey(openaiKey, 'openai');
 
             const anthropicKey = modal.querySelector('#ai-anthropic-key').value.trim();
@@ -981,6 +1081,26 @@ class AIChatPanel {
                 modal.remove();
             }
         });
+    }
+
+    /**
+     * Update provider card status indicator
+     * @param {HTMLElement} modal
+     * @param {string} provider
+     * @param {boolean} isConfigured
+     */
+    updateProviderCardStatus(modal, provider, isConfigured) {
+        const card = modal.querySelector(`.ai-provider-card[data-provider="${provider}"]`);
+        if (!card) return;
+
+        const statusEl = card.querySelector('.ai-provider-status');
+        if (statusEl) {
+            statusEl.className = `ai-provider-status ${isConfigured ? 'configured' : 'not-configured'}`;
+            statusEl.querySelector('.ai-status-icon').textContent = isConfigured ? '✓' : '○';
+            statusEl.querySelector('.ai-status-text').textContent = isConfigured
+                ? i18n.t('aiSettings.configured')
+                : i18n.t('aiSettings.notConfigured');
+        }
     }
 
     /**

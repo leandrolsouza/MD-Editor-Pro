@@ -1106,6 +1106,15 @@ function registerIPCHandlers() {
         }
     });
 
+    ipcMain.handle('ai:test-api-key', async (event, apiKey, provider) => {
+        try {
+            return await aiChatManager.testApiKey(apiKey, provider);
+        } catch (error) {
+            console.error('Error testing API key:', error);
+            return { success: false, error: error.message };
+        }
+    });
+
     ipcMain.handle('ai:get-settings', async () => {
         try {
             return aiChatManager.getSettings();

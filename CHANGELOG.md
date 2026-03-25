@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.0] - 2026-03-25
+
+### ✨ Added
+
+#### AI Settings
+- New card-based layout for AI provider configuration
+- Status indicators showing which providers are configured (✓/○)
+- Toggle button to show/hide API keys
+- Test button for each cloud provider to validate API keys
+- Improved visual hierarchy with Cloud Providers and Local Server sections
+
+### 🔧 Changed
+
+#### AI Settings
+- Wider modal (900px) for better readability
+- Reorganized layout with 2x2 grid for cloud providers
+- More compact vertical spacing to fit content without scrolling
+
+---
+
 ## [1.3.6] - 2026-03-25
 
 ### 🐛 Fixed

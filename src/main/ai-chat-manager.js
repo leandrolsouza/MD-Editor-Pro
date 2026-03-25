@@ -782,6 +782,58 @@ Use this context to provide relevant assistance. When editing specific parts, pr
     }
 
     /**
+     * Test if an API key is valid for a given provider
+     * @param {string} apiKey - The API key to test
+     * @param {string} provider - The provider (openai, anthropic, gemini, groq)
+     * @returns {Promise<{success: boolean, error?: string}>}
+     */
+    async testApiKey(apiKey, provider) {
+        if (!apiKey) {
+            return { success: false, error: 'No API key provided' };
+        }
+
+        try {
+            const endpoints = {
+                openai: 'https://api.openai.com/v1/models',
+                anthropic: 'https://api.anthropic.com/v1/models',
+                gemini: `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`,
+                groq: 'https://api.groq.com/openai/v1/models'
+            };
+
+            const endpoint = endpoints[provider];
+            if (!endpoint) {
+                return { success: false, error: 'Unknown provider' };
+            }
+
+            const headers = { 'Content-Type': 'application/json' };
+
+            if (provider === 'openai' || provider === 'groq') {
+                headers['Authorization'] = `Bearer ${apiKey}`;
+            } else if (provider === 'anthropic') {
+                headers['x-api-key'] = apiKey;
+                headers['anthropic-version'] = '2023-06-01';
+            }
+            // Gemini uses key in URL
+
+            const response = await net.fetch(endpoint, {
+                method: 'GET',
+                headers
+            });
+
+            if (response.ok) {
+                return { success: true };
+            }
+
+            const data = await response.json().catch(() => ({}));
+            const errorMsg = data.error?.message || data.message || `HTTP ${response.status}`;
+
+            return { success: false, error: errorMsg };
+        } catch (error) {
+            return { success: false, error: error.message || 'Connection failed' };
+        }
+    }
+
+    /**
      * Get current settings
      * @returns {Object}
      */
