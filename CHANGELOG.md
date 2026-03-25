@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.3.4] - 2026-03-25
+
+### 🐛 Fixed
+
+#### Build Pipeline
+- Added `--publish never` to prevent electron-builder from uploading during build
+- Fixed Linux upload pattern (no blockmap files for AppImage/deb/rpm)
+
+---
+
 ## [1.3.3] - 2026-03-25
 
 ### 🐛 Fixed

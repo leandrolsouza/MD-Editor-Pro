@@ -61,14 +61,14 @@ jobs:
         run: npm ci
 
       - name: Build Windows
-        run: npm run build:win
+        run: npm run build:win -- --publish never
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Windows artifacts
         run: |
           $version = (Get-Content package.json | ConvertFrom-Json).version
-          gh release upload "v$version" dist/*.exe dist/*.blockmap dist/latest.yml --clobber
+          gh release upload "v$version" (Get-Item dist/*.exe) (Get-Item dist/*.blockmap) (Get-Item dist/latest.yml) --clobber
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -92,14 +92,14 @@ jobs:
         run: npm ci
 
       - name: Build macOS
-        run: npm run build:mac
+        run: npm run build:mac -- --publish never
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload macOS artifacts
         run: |
           VERSION=$(node -p "require('./package.json').version")
-          gh release upload "v$VERSION" dist/*.dmg dist/*.zip dist/*.blockmap dist/latest-mac.yml --clobber
+          gh release upload "v$VERSION" dist/*.dmg dist/*.zip dist/*-mac.yml --clobber
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -123,13 +123,13 @@ jobs:
         run: npm ci
 
       - name: Build Linux
-        run: npm run build:linux
+        run: npm run build:linux -- --publish never
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Linux artifacts
         run: |
           VERSION=$(node -p "require('./package.json').version")
-          gh release upload "v$VERSION" dist/*.AppImage dist/*.deb dist/*.rpm dist/*.blockmap dist/latest-linux.yml --clobber
+          gh release upload "v$VERSION" dist/*.AppImage dist/*.deb dist/*.rpm dist/*-linux.yml --clobber
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
