@@ -6,8 +6,8 @@ on:
       - "v*"
 
 env:
-  # Increase timeout for electron-builder uploads
-  ELECTRON_BUILDER_HTTP_TIMEOUT: 300000
+  # Increase timeout for electron-builder uploads (10 minutes)
+  ELECTRON_BUILDER_HTTP_TIMEOUT: 600000
   # Use Node.js 24 for GitHub Actions
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
