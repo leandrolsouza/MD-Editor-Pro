@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.3.6] - 2026-03-25
+
+### 🐛 Fixed
+
+#### Auto-Update
+- Removed portable build to fix checksum mismatch (NSIS and portable had same filename)
+
+---
+
 ## [1.3.5] - 2026-03-25
 
 ### 🐛 Fixed
