@@ -152,6 +152,30 @@ input:focus-visible {
     z-index: 100;
 }
 
+/* Status Bar Info (VS Code style) */
+.status-bar-info {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.status-bar-info__item {
+    white-space: nowrap;
+    cursor: default;
+    padding: 0 var(--space-1);
+    border-radius: var(--radius-sm);
+    line-height: var(--space-6);
+}
+
+.status-bar-info__item:hover {
+    background-color: var(--status-bar-border, #ddd);
+}
+
+.status-bar-info__selection {
+    opacity: 0.8;
+    font-style: italic;
+}
+
 .status-indicator {
     display: inline-block;
     padding: var(--space-1) var(--space-2);

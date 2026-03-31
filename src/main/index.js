@@ -17,6 +17,7 @@ const GlobalSearchManager = require('./global-search-manager');
 const AutoUpdater = require('./auto-updater');
 const AIChatManager = require('./ai-chat-manager');
 const AIAutocompleteManager = require('./ai-autocomplete-manager');
+const IssueReporterManager = require('./issue-reporter-manager');
 const { createApplicationMenu, updateMenuItemChecked } = require('./menu');
 
 // Sandbox disabled to allow nodeIntegration in renderer
@@ -58,6 +59,9 @@ const aiChatManager = new AIChatManager(configStore);
 
 // Create AI autocomplete manager instance
 const aiAutocompleteManager = new AIAutocompleteManager(configStore);
+
+// Create issue reporter manager instance
+const issueReporterManager = new IssueReporterManager(windowManager);
 
 // Create auto-updater instance
 let autoUpdater = null;
@@ -147,7 +151,7 @@ function registerIPCHandlers() {
 
             // Update menu to reflect new recent files
             if (result) {
-                createApplicationMenu(windowManager, fileManager, exporter, configStore);
+                createApplicationMenu(windowManager, fileManager, exporter, configStore, autoUpdater, issueReporterManager);
             }
 
             return result;
@@ -162,7 +166,7 @@ function registerIPCHandlers() {
             const result = await fileManager.openRecentFile(filePath);
 
             // Update menu to reflect updated recent files
-            createApplicationMenu(windowManager, fileManager, exporter, configStore);
+            createApplicationMenu(windowManager, fileManager, exporter, configStore, autoUpdater, issueReporterManager);
 
             return result;
         } catch (error) {
@@ -285,7 +289,7 @@ function registerIPCHandlers() {
             configStore.set('lineNumbers', newValue);
 
             // Update menu to reflect new state
-            createApplicationMenu(windowManager, fileManager, exporter, configStore);
+            createApplicationMenu(windowManager, fileManager, exporter, configStore, autoUpdater, issueReporterManager);
 
             return { success: true, enabled: newValue };
         } catch (error) {
@@ -1201,13 +1205,19 @@ app.whenReady().then(() => {
     // Register IPC handlers
     registerIPCHandlers();
 
-    // Create application menu
-    createApplicationMenu(windowManager, fileManager, exporter, configStore);
+    // Register issue reporter handlers
+    issueReporterManager.registerHandlers();
+
+    // Create application menu (autoUpdater passed as null initially, rebuilt after init)
+    createApplicationMenu(windowManager, fileManager, exporter, configStore, null, issueReporterManager);
 
     windowManager.createMainWindow();
 
     // Initialize auto-updater after window is created
     autoUpdater = new AutoUpdater(windowManager);
+
+    // Rebuild menu now that autoUpdater is available
+    createApplicationMenu(windowManager, fileManager, exporter, configStore, autoUpdater, issueReporterManager);
 
     // Check for updates 3 seconds after app starts
     setTimeout(() => {

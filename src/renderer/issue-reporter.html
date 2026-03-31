@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Issue Reporter</title>
+    <link rel="stylesheet" href="styles/design-tokens.css">
+    <link rel="stylesheet" href="styles/theme-dark.css">
+    <link rel="stylesheet" href="styles/inputs.css">
+    <link rel="stylesheet" href="styles/buttons.css">
+    <link rel="stylesheet" href="styles/issue-reporter.css">
+</head>
+
+<body class="theme-dark">
+    <div class="issue-reporter">
+        <div class="issue-reporter__form">
+            <div class="issue-reporter__field">
+                <label class="issue-reporter__label" for="issue-type">This is a</label>
+                <select id="issue-type" class="issue-reporter__select" aria-label="Issue type">
+                    <option value="bug">Bug Report</option>
+                    <option value="feature">Feature Request</option>
+                </select>
+            </div>
+
+            <div class="issue-reporter__field">
+                <label class="issue-reporter__label" for="issue-title">
+                    Title <span class="issue-reporter__required" aria-label="required">*</span>
+                </label>
+                <input type="text" id="issue-title" class="issue-reporter__input" placeholder="Please enter a title."
+                    required aria-required="true">
+            </div>
+
+            <div class="issue-reporter__field issue-reporter__field--grow">
+                <label class="issue-reporter__label" for="issue-description">
+                    Description <span class="issue-reporter__required" aria-label="required">*</span>
+                </label>
+                <p class="issue-reporter__hint" id="description-hint">
+                    Please describe the bug you encountered.... We support GitHub-flavored Markdown.
+                    You will be able to edit your issue and add screenshots when we preview it on GitHub.
+                </p>
+                <textarea id="issue-description" class="issue-reporter__textarea" placeholder="Please enter details."
+                    required aria-required="true" aria-describedby="description-hint"></textarea>
+            </div>
+
+            <div class="issue-reporter__actions">
+                <button id="submit-issue" class="button button-primary issue-reporter__submit" disabled>
+                    Create on GitHub
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="issue-reporter-ui.js"></script>
+</body>
+
+</html>

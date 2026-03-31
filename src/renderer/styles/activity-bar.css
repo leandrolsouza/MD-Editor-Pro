@@ -102,8 +102,8 @@
 }
 
 .sidebar-panel__action-btn {
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -112,9 +112,15 @@
     color: var(--sidebar-title-fg);
     cursor: pointer;
     border-radius: var(--radius-sm);
-    font-size: 16px;
-    padding: 0;
+    padding: 4px;
+    overflow: visible;
     transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+.sidebar-panel__action-btn svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
 }
 
 .sidebar-panel__action-btn:hover {

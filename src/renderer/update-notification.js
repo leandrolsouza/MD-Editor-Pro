@@ -39,6 +39,11 @@ class UpdateNotification {
             this.isDownloading = false;
             this.showUpdateError(error);
         });
+
+        // Listen for no updates available (manual check feedback)
+        window.electronAPI.onUpdateNotAvailable(() => {
+            this.showNoUpdatesAvailable();
+        });
     }
 
     showUpdateAvailable(info) {

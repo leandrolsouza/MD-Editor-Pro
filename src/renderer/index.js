@@ -44,6 +44,7 @@ const { ContextMenu } = require('./context-menu.js');
 const i18n = require('./i18n/index.js');
 const SettingsPanel = require('./settings-panel.js');
 const PanelResizer = require('./panel-resizer.js');
+const StatusBarInfo = require('./status-bar-info.js');
 
 // Application state
 let editor = null;
@@ -80,6 +81,7 @@ let aiEditCommands = null;
 let aiAutocomplete = null;
 let contextMenu = null;
 let panelResizer = null;
+let statusBarInfo = null;
 
 // Document state
 let currentFilePath = null;
@@ -215,6 +217,7 @@ async function initialize() {
         }
         formattingToolbar = new FormattingToolbar(editor);
         formattingToolbar.initialize(formattingToolbarContainer);
+        formattingToolbar.onMenuAction = (action) => handleMenuAction(action);
         console.log('FormattingToolbar initialized');
 
         // Initialize SearchManager
@@ -270,6 +273,11 @@ async function initialize() {
         statisticsCalculator = new StatisticsCalculator(editor);
         await statisticsCalculator.initialize();
         console.log('StatisticsCalculator initialized');
+
+        // Initialize StatusBarInfo (VS Code style cursor/encoding info)
+        statusBarInfo = new StatusBarInfo(editor);
+        statusBarInfo.initialize();
+        console.log('StatusBarInfo initialized');
 
         // Initialize TabBar
         const tabBarContainer = document.getElementById('tab-bar');
@@ -2070,6 +2078,9 @@ function cleanup() {
     }
     if (statisticsCalculator) {
         statisticsCalculator.destroy();
+    }
+    if (statusBarInfo) {
+        statusBarInfo.destroy();
     }
     if (tabBar) {
         tabBar.destroy();

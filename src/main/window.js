@@ -63,6 +63,7 @@ class WindowManager {
             width: 1200,
             height: 800,
             show: false, // Use ready-to-show event for graceful display
+            autoHideMenuBar: true, // Menu hidden by default, press Alt to show
             webPreferences: {
                 preload: path.join(__dirname, '../preload/index.js'),
                 contextIsolation: false,        // Disable to allow require in renderer

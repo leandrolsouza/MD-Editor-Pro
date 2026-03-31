@@ -12,7 +12,7 @@ const { Menu, app } = require('electron');
  * @param {Exporter} exporter - Exporter instance
  * @param {ConfigStore} configStore - Config store instance
  */
-function createApplicationMenu(windowManager, fileManager, exporter, configStore) {
+function createApplicationMenu(windowManager, fileManager, exporter, configStore, autoUpdater, issueReporterManager) {
     const isMac = process.platform === 'darwin';
 
     // Get recent files for menu
@@ -110,7 +110,7 @@ function createApplicationMenu(windowManager, fileManager, exporter, configStore
                                 if (configStore) {
                                     configStore.clearRecentFiles();
                                     // Rebuild menu to reflect changes
-                                    createApplicationMenu(windowManager, fileManager, exporter, configStore);
+                                    createApplicationMenu(windowManager, fileManager, exporter, configStore, autoUpdater, issueReporterManager);
                                 }
                             }
                         }
@@ -489,6 +489,41 @@ function createApplicationMenu(windowManager, fileManager, exporter, configStore
                             await shell.openExternal('https://github.github.com/gfm/');
                         } catch (error) {
                             console.error('Failed to open external link:', error);
+                        }
+                    }
+                },
+                { type: 'separator' },
+                {
+                    label: 'Report Issue...',
+                    click: () => {
+                        if (issueReporterManager) {
+                            issueReporterManager.openIssueReporter();
+                        }
+                    }
+                },
+                { type: 'separator' },
+                {
+                    label: 'Check for Updates...',
+                    click: async () => {
+                        if (autoUpdater) {
+                            const mainWindow = windowManager.getMainWindow();
+                            try {
+                                const result = await autoUpdater.checkForUpdates();
+                                // Se não houver atualização, notificar o usuário
+                                if (result && !autoUpdater.isUpdateAvailable()) {
+                                    if (mainWindow) {
+                                        mainWindow.webContents.send('update-not-available');
+                                    }
+                                }
+                            } catch (error) {
+                                console.error('Manual update check failed:', error);
+                                if (mainWindow) {
+                                    mainWindow.webContents.send('update-error', {
+                                        type: 'generic',
+                                        message: error.message
+                                    });
+                                }
+                            }
                         }
                     }
                 },

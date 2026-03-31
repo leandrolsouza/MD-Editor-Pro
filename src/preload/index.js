@@ -144,6 +144,17 @@ const electronAPI = {
         return () => ipcRenderer.removeListener('update-error', subscription);
     },
 
+    onUpdateNotAvailable: (callback) => {
+        const subscription = () => callback();
+        ipcRenderer.on('update-not-available', subscription);
+        return () => ipcRenderer.removeListener('update-not-available', subscription);
+    },
+
+    // Issue Reporter operations
+    openIssueReporter: () => ipcRenderer.invoke('issue-reporter:open'),
+    getIssueSystemInfo: () => ipcRenderer.invoke('issue-reporter:get-system-info'),
+    submitIssue: (type, title, description) => ipcRenderer.invoke('issue-reporter:submit', type, title, description),
+
     // System information
     getVersions: () => ({
         electron: process.versions.electron || 'N/A',

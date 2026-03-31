@@ -19,9 +19,25 @@ class FormattingToolbar {
         this.updateDebounceTimer = null;
         this.editorUpdateListener = null;
         this.removeLocaleListener = null;
+        this.onMenuAction = null; // Callback for menu actions (set externally)
 
         // Button configuration array with all formatting buttons
         this.buttonConfig = [
+            // Quick action buttons (file operations, view modes)
+            { id: 'quick-new', icon: 'filePlus', titleKey: 'quickActions.newFile', shortcut: 'Ctrl+N', action: 'menu-action', menuAction: 'new', group: 'quick' },
+            { id: 'quick-open', icon: 'folderOpen', titleKey: 'quickActions.openFile', shortcut: 'Ctrl+O', action: 'menu-action', menuAction: 'open', group: 'quick' },
+            { id: 'quick-save', icon: 'save', titleKey: 'quickActions.save', shortcut: 'Ctrl+S', action: 'menu-action', menuAction: 'save', group: 'quick' },
+            { id: 'separator-quick-1', type: 'separator' },
+            { id: 'quick-export-html', icon: 'export', titleKey: 'quickActions.exportHTML', action: 'menu-action', menuAction: 'export-html', group: 'quick', label: 'HTML' },
+            { id: 'quick-export-pdf', icon: 'download', titleKey: 'quickActions.exportPDF', action: 'menu-action', menuAction: 'export-pdf', group: 'quick', label: 'PDF' },
+            { id: 'separator-quick-2', type: 'separator' },
+            { id: 'quick-view-editor', icon: 'viewEditor', titleKey: 'quickActions.editorView', action: 'menu-action', menuAction: 'view-mode-editor', group: 'quick' },
+            { id: 'quick-view-split', icon: 'viewSplit', titleKey: 'quickActions.splitView', action: 'menu-action', menuAction: 'view-mode-split', group: 'quick' },
+            { id: 'quick-view-preview', icon: 'viewPreview', titleKey: 'quickActions.previewView', action: 'menu-action', menuAction: 'view-mode-preview', group: 'quick' },
+            { id: 'separator-quick-3', type: 'separator' },
+            { id: 'quick-focus-mode', icon: 'focusMode', titleKey: 'quickActions.focusMode', shortcut: 'F11', action: 'menu-action', menuAction: 'focus-mode', group: 'quick' },
+            { id: 'separator-quick-4', type: 'separator' },
+            // Formatting buttons
             { id: 'bold', icon: 'bold', titleKey: 'formatting.bold', shortcut: 'Ctrl+B', action: 'bold', group: 'inline' },
             { id: 'italic', icon: 'italic', titleKey: 'formatting.italic', shortcut: 'Ctrl+I', action: 'italic', group: 'inline' },
             { id: 'strikethrough', icon: 'strikethrough', titleKey: 'formatting.strikethrough', action: 'strikethrough', group: 'inline' },
@@ -171,7 +187,12 @@ class FormattingToolbar {
         }
 
         // Set button content (icon) - use SVG icon or label fallback
-        if (config.label) {
+        if (config.label && config.group === 'quick') {
+            // Quick action buttons with label show icon + text
+            const iconSvg = getIcon(config.icon);
+            button.innerHTML = `${iconSvg}<span class="toolbar-button__label">${config.label}</span>`;
+            button.classList.add('toolbar-button-with-icon');
+        } else if (config.label) {
             button.innerHTML = `<span class="toolbar-button__label">${config.label}</span>`;
         } else {
             const iconSvg = getIcon(config.icon);
@@ -193,6 +214,14 @@ class FormattingToolbar {
      * @param {Object} config - Button configuration
      */
     handleButtonClick(config) {
+        // Menu actions don't require the editor
+        if (config.action === 'menu-action') {
+            if (this.onMenuAction) {
+                this.onMenuAction(config.menuAction);
+            }
+            return;
+        }
+
         if (!this.editor) {
             console.error('Editor not available');
             return;
@@ -546,8 +575,20 @@ class FormattingToolbar {
             throw new Error('ViewModeManager instance is required');
         }
 
+        // Update active state on view mode buttons
+        const updateViewModeButtons = (mode) => {
+            const modeMap = { 'editor': 'quick-view-editor', 'split': 'quick-view-split', 'preview': 'quick-view-preview' };
+            Object.entries(modeMap).forEach(([m, btnId]) => {
+                const btn = this.buttons.get(btnId);
+                if (btn) {
+                    btn.classList.toggle('active', m === mode);
+                }
+            });
+        };
+
         // Listen for view mode changes
         const removeListener = viewModeManager.onViewModeChange((mode) => {
+            updateViewModeButtons(mode);
             // Show toolbar in editor-only and split-view modes
             // Hide toolbar in preview-only mode
             if (mode === 'preview') {
@@ -557,8 +598,9 @@ class FormattingToolbar {
             }
         });
 
-        // Set initial visibility based on current view mode
+        // Set initial state
         const currentMode = viewModeManager.getCurrentViewMode();
+        updateViewModeButtons(currentMode);
 
         if (currentMode === 'preview') {
             this.hide();

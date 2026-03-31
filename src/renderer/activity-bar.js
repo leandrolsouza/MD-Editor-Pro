@@ -67,11 +67,6 @@ class ActivityBar {
             }
         });
 
-        // Update close button tooltip
-        const closeBtn = this.sidebarPanel.querySelector('#sidebar-close-btn');
-        if (closeBtn) {
-            closeBtn.title = i18n.t('activityBar.closeSidebar');
-        }
 
         // Update sidebar title if a view is active
         if (this.activeView) {

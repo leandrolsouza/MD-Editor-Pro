@@ -7,6 +7,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.5.0] - 2026-03-31
+
+### ✨ Added
+
+#### Issue Reporter
+- New "Report Issue..." option in Help menu
+- Dedicated issue reporter window for submitting bug reports and feature requests
+- Auto-collects system information (OS, Electron, Node, Chrome versions)
+- Opens pre-filled GitHub issue in browser with proper labels
+
+#### Status Bar Info
+- VS Code-style status bar showing cursor position (Ln/Col)
+- Selection info display (characters and lines selected)
+- Indentation detection (Spaces/Tab size) from document content
+- Encoding (UTF-8) and line ending (LF/CRLF) indicators
+- Real-time updates as cursor moves
+
+#### Quick Actions Toolbar
+- New quick action buttons in the formatting toolbar: New File, Open, Save, Export HTML/PDF
+- View mode toggle buttons (Editor, Split, Preview) with active state highlighting
+- Focus Mode toggle button
+- Full i18n support for all quick action labels (EN and PT-BR)
+
+#### Manual Update Check
+- "Check for Updates..." option in Help menu for manual update verification
+- User feedback when no updates are available
+
+### 🔧 Changed
+
+#### Window
+- Menu bar is now auto-hidden by default (press Alt to show)
+
+#### UI Improvements
+- Sidebar panel action buttons resized for better click targets
+- Improved SVG icon styling in sidebar panels
+- Removed duplicate CSS rules for sidebar close button
+
+---
+
 ## [1.4.1] - 2026-03-31
 
 ### 🔧 Changed

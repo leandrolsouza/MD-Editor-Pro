@@ -102,6 +102,14 @@ module.exports = {
         minutes: '{count} min'
     },
 
+    // Status Bar Info
+    statusBarInfo: {
+        spaces: 'Espaços: {size}',
+        tabSize: 'Tab: {size}',
+        linesSelected: 'linhas selecionadas',
+        selected: 'selecionados'
+    },
+
     // Settings
     settings: {
         title: 'Configurações',
@@ -222,6 +230,19 @@ module.exports = {
         errorServer: 'Servidor de atualizações temporariamente indisponível. Tente novamente mais tarde.',
         upToDate: 'Atualizado',
         upToDateMessage: 'Você está usando a versão mais recente.'
+    },
+
+    // Quick Actions (toolbar)
+    quickActions: {
+        newFile: 'Novo Arquivo',
+        openFile: 'Abrir Arquivo',
+        save: 'Salvar',
+        exportHTML: 'Exportar HTML',
+        exportPDF: 'Exportar PDF',
+        editorView: 'Modo Editor',
+        splitView: 'Modo Dividido',
+        previewView: 'Visualização',
+        focusMode: 'Modo Foco',
     },
 
     // Focus Mode
