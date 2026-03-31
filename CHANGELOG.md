@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.1] - 2026-03-31
+
+### 🔧 Changed
+
+#### Table Rendering
+- Improved table styling in preview and exports with rounded borders, better spacing, and alternating row colors
+- Added responsive table wrapper with horizontal scroll for wide tables
+- Auto font-size adjustment for tables with many columns in HTML export
+- Added `preferCSSPageSize` for better PDF table rendering
+- Tables no longer break across pages in PDF exports (header group repeats)
+
+### 🐛 Fixed
+
+#### Table Parsing
+- Fixed tables with blank lines between rows not rendering correctly in preview and exports
+- Added markdown pre-processing to strip blank lines inside table blocks
+
+#### Layout
+- Fixed horizontal overflow in preview panel and editor container
+
+---
+
 ## [1.4.0] - 2026-03-25
 
 ### ✨ Added

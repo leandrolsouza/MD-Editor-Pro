@@ -46,6 +46,7 @@ body {
     min-width: 200px;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
 /* Editor Container */
@@ -63,6 +64,7 @@ body {
     flex: 1;
     padding: var(--space-5);
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 /* Resizable Divider */

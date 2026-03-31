@@ -51,6 +51,64 @@ class Exporter {
     }
 
     /**
+     * Pre-process markdown content to fix common formatting issues
+     * that break table rendering (blank lines inside tables, escaped separators)
+     * @param {string} content - Raw markdown content
+     * @returns {string} Cleaned markdown content
+     * @private
+     */
+    _preprocessMarkdown(content) {
+        if (!content) return content;
+
+        const lines = content.split('\n');
+        const result = [];
+        let i = 0;
+
+        while (i < lines.length) {
+            const trimmed = lines[i].trim();
+
+            // Detect potential table start: line with pipes
+            if (/^\|.*\|$/.test(trimmed)) {
+                // Collect all table-related lines, skipping blank lines between them
+                const tableLines = [lines[i]];
+                let j = i + 1;
+
+                while (j < lines.length) {
+                    const next = lines[j].trim();
+
+                    // Skip blank/whitespace-only lines between table rows
+                    if (next === '') {
+                        j++;
+                        continue;
+                    }
+
+                    // If next non-blank line is a table row, include it
+                    if (/^\|.*\|$/.test(next)) {
+                        tableLines.push(lines[j]);
+                        j++;
+                    } else {
+                        break;
+                    }
+                }
+
+                // Only treat as table if we have at least 2 lines (header + separator)
+                if (tableLines.length >= 2) {
+                    result.push(...tableLines);
+                } else {
+                    result.push(lines[i]);
+                }
+
+                i = j;
+            } else {
+                result.push(lines[i]);
+                i++;
+            }
+        }
+
+        return result.join('\n');
+    }
+
+    /**
      * Initialize advanced markdown plugins based on enabled features
      * @private
      */
@@ -359,27 +417,83 @@ class Exporter {
             
             table {
                 border-collapse: collapse;
+                border-spacing: 0;
                 width: 100%;
-                margin-bottom: 1em;
+                margin: 1em 0;
+                overflow: hidden;
+                border-radius: 6px;
+                border: 1px solid ${isDark ? '#404040' : '#d0d7de'};
+                font-size: 0.875em;
+                line-height: 1.5;
+                display: table;
+            }
+            
+            table thead {
+                background-color: ${isDark ? '#2d2d2d' : '#f6f8fa'};
             }
             
             table th,
             table td {
-                padding: 6px 13px;
-                border: 1px solid ${isDark ? '#404040' : '#dfe2e5'};
+                padding: 8px 16px;
+                border: 1px solid ${isDark ? '#404040' : '#d0d7de'};
+                text-align: left;
+                vertical-align: top;
+                word-wrap: break-word;
             }
             
             table th {
                 font-weight: 600;
                 background-color: ${isDark ? '#2d2d2d' : '#f6f8fa'};
+                color: ${isDark ? '#e0e0e0' : '#1f2328'};
+                white-space: nowrap;
             }
             
             table tr {
                 background-color: ${isDark ? '#1e1e1e' : '#ffffff'};
+                border-top: 1px solid ${isDark ? '#404040' : '#d0d7de'};
             }
             
             table tr:nth-child(2n) {
                 background-color: ${isDark ? '#252525' : '#f6f8fa'};
+            }
+            
+            table td:first-child,
+            table th:first-child {
+                border-left: none;
+            }
+            
+            table td:last-child,
+            table th:last-child {
+                border-right: none;
+            }
+            
+            table thead tr:first-child th {
+                border-top: none;
+            }
+            
+            /* Ensure tables don't break across pages in PDF */
+            @media print {
+                table {
+                    page-break-inside: auto;
+                }
+                table tr {
+                    page-break-inside: avoid;
+                    page-break-after: auto;
+                }
+                table thead {
+                    display: table-header-group;
+                }
+            }
+            
+            /* Responsive table wrapper for overflow */
+            .table-wrapper {
+                width: 100%;
+                overflow-x: auto;
+                margin: 1em 0;
+            }
+            
+            .table-wrapper table {
+                margin: 0;
             }
             
             img {
@@ -529,8 +643,11 @@ class Exporter {
         }
 
         try {
+            // Pre-process markdown to fix table formatting issues
+            const cleanedContent = this._preprocessMarkdown(content);
+
             // Render markdown to HTML
-            const htmlContent = this.md.render(content);
+            const htmlContent = this.md.render(cleanedContent);
 
             // Get KaTeX CSS if KaTeX is enabled
             let katexCSS = '';
@@ -640,8 +757,11 @@ class Exporter {
         }
 
         try {
+            // Pre-process markdown to fix table formatting issues
+            const cleanedContent = this._preprocessMarkdown(content);
+
             // Render markdown to HTML
-            const htmlContent = this.md.render(content);
+            const htmlContent = this.md.render(cleanedContent);
 
             // Get KaTeX CSS if KaTeX is enabled
             let katexCSS = '';
@@ -698,6 +818,22 @@ class Exporter {
             });
         });
     </script>` : ''}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('table').forEach(function(table) {
+                var wrapper = document.createElement('div');
+                wrapper.className = 'table-wrapper';
+                table.parentNode.insertBefore(wrapper, table);
+                wrapper.appendChild(table);
+                var cols = table.querySelectorAll('thead th, thead td');
+                if (cols.length >= 6) {
+                    table.style.fontSize = '0.75em';
+                } else if (cols.length >= 4) {
+                    table.style.fontSize = '0.85em';
+                }
+            });
+        });
+    </script>
 </head>
 <body>
     ${htmlContent}
@@ -746,6 +882,7 @@ class Exporter {
             // Generate PDF
             const pdfData = await pdfWindow.webContents.printToPDF({
                 printBackground: true,
+                preferCSSPageSize: true,
                 margins: {
                     top: 0.5,
                     bottom: 0.5,

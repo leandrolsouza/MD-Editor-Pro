@@ -107,6 +107,8 @@
     border-collapse: collapse;
     margin-bottom: var(--space-4);
     width: 100%;
+    max-width: 100%;
+    table-layout: auto;
 }
 
 .markdown-preview table th,

@@ -168,6 +168,59 @@ class MarkdownParser {
     }
 
     /**
+     * Pre-process markdown to fix table formatting issues
+     * Removes blank lines between table rows that break table parsing
+     * @param {string} content - Raw markdown content
+     * @returns {string} Cleaned markdown content
+     * @private
+     */
+    _preprocessMarkdown(content) {
+        if (!content) return content;
+
+        const lines = content.split('\n');
+        const result = [];
+        let i = 0;
+
+        while (i < lines.length) {
+            const trimmed = lines[i].trim();
+
+            if (/^\|.*\|$/.test(trimmed)) {
+                const tableLines = [lines[i]];
+                let j = i + 1;
+
+                while (j < lines.length) {
+                    const next = lines[j].trim();
+
+                    if (next === '') {
+                        j++;
+                        continue;
+                    }
+
+                    if (/^\|.*\|$/.test(next)) {
+                        tableLines.push(lines[j]);
+                        j++;
+                    } else {
+                        break;
+                    }
+                }
+
+                if (tableLines.length >= 2) {
+                    result.push(...tableLines);
+                } else {
+                    result.push(lines[i]);
+                }
+
+                i = j;
+            } else {
+                result.push(lines[i]);
+                i++;
+            }
+        }
+
+        return result.join('\n');
+    }
+
+    /**
      * Parse markdown to HTML
      * @param {string} markdown - The markdown content to render
      * @returns {string} Rendered HTML
@@ -179,12 +232,15 @@ class MarkdownParser {
         }
 
         try {
+            // Pre-process markdown to fix table formatting issues
+            const cleanedMarkdown = this._preprocessMarkdown(markdown);
+
             // Pass current file path in environment for image renderer
             const env = {
                 currentFilePath: this.currentFilePath
             };
 
-            const html = this.md.render(markdown, env);
+            const html = this.md.render(cleanedMarkdown, env);
 
             return html;
         } catch (error) {
