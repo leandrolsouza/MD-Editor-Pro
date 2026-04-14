@@ -1,0 +1,106 @@
+/* Connection Graph Panel Styles */
+
+.connection-graph-panel {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.connection-graph-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-2) var(--space-3);
+    border-bottom: 1px solid var(--sidebar-border);
+    flex-shrink: 0;
+}
+
+.connection-graph-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.connection-graph-refresh-btn {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    font-size: 16px;
+    transition: background-color var(--duration-fast) var(--ease-out),
+        color var(--duration-fast) var(--ease-out);
+}
+
+.connection-graph-refresh-btn:hover {
+    background-color: var(--sidebar-action-hover, rgba(255, 255, 255, 0.1));
+    color: var(--text-primary);
+}
+
+.connection-graph-refresh-btn:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+/* Canvas container — fills all remaining space */
+.connection-graph-canvas-container {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    min-height: 0;
+}
+
+.connection-graph-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: grab;
+}
+
+.connection-graph-canvas:active {
+    cursor: grabbing;
+}
+
+/* Tooltip */
+.connection-graph-tooltip {
+    position: absolute;
+    background: var(--bg-primary, #1e1e1e);
+    border: 1px solid var(--border-color, #444);
+    border-radius: var(--radius-sm, 4px);
+    padding: var(--space-1, 4px) var(--space-2, 8px);
+    font-size: 12px;
+    color: var(--text-primary);
+    pointer-events: none;
+    z-index: 10;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    line-height: 1.4;
+}
+
+/* Loading, no-workspace, error states */
+.connection-graph-loading,
+.connection-graph-no-workspace,
+.connection-graph-error {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: var(--space-4);
+    color: var(--text-secondary);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.connection-graph-error {
+    color: var(--error-color, #ff4444);
+}

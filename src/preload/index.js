@@ -108,6 +108,9 @@ const electronAPI = {
     getLineNumbers: () => ipcRenderer.invoke('config:get-line-numbers'),
     toggleLineNumbers: () => ipcRenderer.invoke('config:toggle-line-numbers'),
 
+    // Graph operations
+    getGraphData: () => ipcRenderer.invoke('graph:get-data'),
+
     // Global search operations
     globalSearch: (searchText, options) => ipcRenderer.invoke('global-search:search', searchText, options),
 

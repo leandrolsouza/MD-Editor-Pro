@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.6.0] - 2026-04-14
+
+### ✨ Added
+
+#### Document Connection Map
+- New "Connection Map" panel in the activity bar sidebar
+- Interactive force-directed graph visualization of document links
+- Scans all markdown files in the workspace for internal links (standard `[text](path.md)` and wiki-style `[[filename]]`)
+- Visual node types: normal (blue), active document (orange), orphan (gray dashed), missing target (red dashed)
+- Directed edges with arrowheads showing link direction between documents
+- Hover tooltip showing document path, inbound/outbound link counts, and orphan/missing status
+- Click a node to open the corresponding document
+- Zoom (mouse wheel) and pan (click + drag) controls
+- Refresh button to re-scan workspace links
+- Active document highlighting synced with the current editor tab
+- Full i18n support (EN and PT-BR)
+
+---
+
 ## [1.5.0] - 2026-03-31
 
 ### ✨ Added

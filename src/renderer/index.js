@@ -45,6 +45,7 @@ const i18n = require('./i18n/index.js');
 const SettingsPanel = require('./settings-panel.js');
 const PanelResizer = require('./panel-resizer.js');
 const StatusBarInfo = require('./status-bar-info.js');
+const ConnectionGraphPanel = require('./connection-graph-panel.js');
 
 // Application state
 let editor = null;
@@ -82,6 +83,7 @@ let aiAutocomplete = null;
 let contextMenu = null;
 let panelResizer = null;
 let statusBarInfo = null;
+let connectionGraphPanel = null;
 
 // Document state
 let currentFilePath = null;
@@ -165,6 +167,11 @@ async function initialize() {
         // Listen for locale changes to update static elements
         i18n.onLocaleChange(() => {
             updateStaticTranslations();
+
+            // Update connection graph panel texts (Requirement 8.3)
+            if (connectionGraphPanel) {
+                connectionGraphPanel.updateTranslations();
+            }
         });
 
         // Initialize Advanced Markdown Manager (client-side)
@@ -572,6 +579,41 @@ async function initialize() {
         activityBar.registerView('ai-chat', i18n.t('activityBar.aiAssistant').toUpperCase(), aiChatContainer);
 
         console.log('AIChatPanel initialized');
+
+        // Connection Graph view
+        connectionGraphPanel = new ConnectionGraphPanel();
+        const connectionGraphContainer = connectionGraphPanel.initialize();
+        activityBar.registerView('connection-graph', i18n.t('activityBar.connectionGraph').toUpperCase(), connectionGraphContainer);
+
+        // Wire node click to open document in editor tab
+        connectionGraphPanel.onNodeClick(async (filePath) => {
+            try {
+                // Check if file is already open in a tab
+                const allTabsResult = await window.electronAPI.getAllTabs();
+
+                if (allTabsResult.success && allTabsResult.tabs) {
+                    const existingTab = allTabsResult.tabs.find(tab => tab.filePath === filePath);
+
+                    if (existingTab) {
+                        // Switch to existing tab
+                        await switchToTab(existingTab.id);
+                        return;
+                    }
+                }
+
+                // Open file in new tab
+                const result = await window.electronAPI.readFile(filePath);
+
+                if (result && result.success) {
+                    await createNewTab(filePath, result.content);
+                }
+            } catch (error) {
+                console.error('Error opening file from connection graph:', error);
+                notificationManager.error(i18n.t('notifications.failedToOpenFile') + ': ' + error.message);
+            }
+        });
+
+        console.log('ConnectionGraphPanel initialized');
 
         // AI Edit Commands (Ctrl+Shift+E)
         aiEditCommands = new AIEditCommands(editor);
@@ -1055,6 +1097,11 @@ async function handleCloseFolder() {
         if (result.success) {
             fileTreeSidebar.clearWorkspace();
             console.log('Workspace closed');
+
+            // Clear connection graph on workspace close (Requirement 7.3)
+            if (connectionGraphPanel) {
+                connectionGraphPanel.clear();
+            }
         }
     } catch (error) {
         console.error('Error closing folder:', error);
@@ -1153,6 +1200,13 @@ async function handleSaveFile() {
             // Update auto-save manager
             if (autoSaveManager) {
                 autoSaveManager.setLastSavedContent(content);
+            }
+
+            // Refresh connection graph if visible (Requirement 7.1)
+            if (connectionGraphPanel && activityBar && activityBar.getActiveView() === 'connection-graph') {
+                connectionGraphPanel.refresh().catch(err => {
+                    console.error('Error refreshing connection graph after save:', err);
+                });
             }
 
             console.log('File saved:', currentFilePath);
@@ -1792,6 +1846,11 @@ async function switchToTab(tabId) {
                 markdownParser.setCurrentFilePath(tab.filePath);
             }
 
+            // Update connection graph active document highlight (Requirement 7.2)
+            if (connectionGraphPanel && activityBar && activityBar.getActiveView() === 'connection-graph') {
+                connectionGraphPanel.setActiveDocument(tab.filePath);
+            }
+
             // Restore scroll position
             if (tab.scrollPosition) {
                 editor.setScrollPosition(tab.scrollPosition);
@@ -2117,6 +2176,9 @@ function cleanup() {
     }
     if (contextMenu) {
         contextMenu.destroy();
+    }
+    if (connectionGraphPanel) {
+        connectionGraphPanel.destroy();
     }
 }
 

@@ -64,6 +64,9 @@ class ActivityBar {
                 case 'ai-chat':
                     item.title = i18n.t('activityBar.aiAssistant');
                     break;
+                case 'connection-graph':
+                    item.title = i18n.t('activityBar.connectionGraph');
+                    break;
             }
         });
 
@@ -107,6 +110,9 @@ class ActivityBar {
             </button>
             <button class="activity-bar__item" data-view="ai-chat" title="${i18n.t('activityBar.aiAssistant')}">
                 <span class="activity-bar__icon">${getIcon('ai')}</span>
+            </button>
+            <button class="activity-bar__item" data-view="connection-graph" title="${i18n.t('activityBar.connectionGraph')}">
+                <span class="activity-bar__icon">${getIcon('graph')}</span>
             </button>
         `;
         document.body.appendChild(this.container);

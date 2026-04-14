@@ -336,7 +336,25 @@ module.exports = {
         snippets: 'Snippets',
         settings: 'Configurações',
         aiAssistant: 'Assistente IA',
-        closeSidebar: 'Fechar Barra Lateral'
+        closeSidebar: 'Fechar Barra Lateral',
+        connectionGraph: 'Mapa de Conexões'
+    },
+
+    // Connection Graph
+    connectionGraph: {
+        title: 'Mapa de Conexões',
+        noWorkspace: 'Abra uma pasta para visualizar o mapa de conexões.',
+        loading: 'Carregando mapa de conexões...',
+        refresh: 'Atualizar',
+        zoomIn: 'Aproximar',
+        zoomOut: 'Afastar',
+        zoomReset: 'Resetar Zoom',
+        connections: '{count} conexão(ões)',
+        inbound: 'Entrada: {count}',
+        outbound: 'Saída: {count}',
+        orphanDocument: 'Documento órfão',
+        missingDocument: 'Documento não encontrado',
+        errorLoading: 'Erro ao carregar mapa de conexões'
     },
 
     // Keyboard Shortcuts

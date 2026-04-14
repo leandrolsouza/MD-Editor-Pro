@@ -14,6 +14,7 @@ const TemplateManager = require('./template-manager');
 const AdvancedMarkdownManager = require('./advanced-markdown-manager');
 const WorkspaceManager = require('./workspace-manager');
 const GlobalSearchManager = require('./global-search-manager');
+const LinkAnalyzerManager = require('./link-analyzer-manager');
 const AutoUpdater = require('./auto-updater');
 const AIChatManager = require('./ai-chat-manager');
 const AIAutocompleteManager = require('./ai-autocomplete-manager');
@@ -53,6 +54,9 @@ const workspaceManager = new WorkspaceManager(configStore);
 
 // Create global search manager instance
 const globalSearchManager = new GlobalSearchManager(workspaceManager);
+
+// Create link analyzer manager instance
+const linkAnalyzerManager = new LinkAnalyzerManager(workspaceManager);
 
 // Create AI chat manager instance
 const aiChatManager = new AIChatManager(configStore);
@@ -888,6 +892,16 @@ function registerIPCHandlers() {
         } catch (error) {
             console.error('Error performing global search:', error);
             throw error;
+        }
+    });
+
+    // Graph operations
+    ipcMain.handle('graph:get-data', async () => {
+        try {
+            return await linkAnalyzerManager.analyzeWorkspace();
+        } catch (error) {
+            console.error('Error getting graph data:', error);
+            return { success: false, error: error.message };
         }
     });
 

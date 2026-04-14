@@ -329,6 +329,18 @@ const icons = {
         <polyline points="23 4 23 10 17 10"/>
         <polyline points="1 20 1 14 7 14"/>
         <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+    </svg>`,
+
+    graph: () => `<svg width="${ICON_SIZE}" height="${ICON_SIZE}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${STROKE_WIDTH}" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="6" cy="6" r="3"/>
+        <circle cx="18" cy="6" r="3"/>
+        <circle cx="6" cy="18" r="3"/>
+        <circle cx="18" cy="18" r="3"/>
+        <circle cx="12" cy="12" r="3"/>
+        <line x1="8.5" y1="7.5" x2="9.5" y2="10.5"/>
+        <line x1="15.5" y1="7.5" x2="14.5" y2="10.5"/>
+        <line x1="8.5" y1="16.5" x2="9.5" y2="13.5"/>
+        <line x1="15.5" y1="16.5" x2="14.5" y2="13.5"/>
     </svg>`
 };
 
