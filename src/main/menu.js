@@ -503,6 +503,16 @@ function createApplicationMenu(windowManager, fileManager, exporter, configStore
                 },
                 { type: 'separator' },
                 {
+                    label: "What's New",
+                    click: () => {
+                        const mainWindow = windowManager.getMainWindow();
+                        if (mainWindow) {
+                            mainWindow.webContents.send('menu:action', 'whats-new');
+                        }
+                    }
+                },
+                { type: 'separator' },
+                {
                     label: 'Check for Updates...',
                     click: async () => {
                         if (autoUpdater) {

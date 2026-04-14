@@ -7,6 +7,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.7.0] - 2026-04-14
+
+### ✨ Added
+
+#### What's New Modal
+- New "What's New" modal that displays release notes on app launch when a new version is detected
+- Parses CHANGELOG.md automatically to extract version entries
+- Version dropdown to browse release notes from any previous version
+- Rendered markdown content with full formatting support (headings, lists, code blocks, etc.)
+- "What's New" menu item in Help menu for manual access
+- Persists last seen version via electron-store to avoid showing repeatedly
+- Full accessibility: focus trap, Escape to close, click outside to dismiss, ARIA attributes
+- Full i18n support (EN and PT-BR)
+
+#### UI Modernization (DaisyUI + Tailwind CSS)
+- Migrated entire UI styling from custom CSS to Tailwind CSS + DaisyUI component library
+- 7 custom DaisyUI themes matching existing themes (light, dark, solarized-light, solarized-dark, dracula, monokai, nord)
+- Theme variable bridge for backward compatibility with legacy CSS variables
+- Modernized Activity Bar with consistent icon sizing, hover transitions, and active indicators
+- Modernized Sidebar Panel with VS Code-style headers, file selection highlighting, and folder animations
+- Modernized Tab Bar with active tab indicators, hover effects, close button opacity transitions, and scroll support
+- Modernized Status Bar with compact layout and smooth status transitions
+- Modernized Formatting Toolbar with DaisyUI button components, grouped separators, and click feedback
+- Modernized Editor/Preview panes with Tailwind Typography plugin for consistent markdown rendering
+- Modernized Modals with DaisyUI modal component, overlay, and entry/exit animations
+- Modernized Context Menu with DaisyUI menu component, shadow, rounded borders, and fade-in animation
+- Modernized Notification System with DaisyUI alert variants (success, warning, error, info) and slide animations
+- Modernized form inputs with DaisyUI input, select, toggle, and checkbox components
+- `prefers-reduced-motion` support disabling all animations for accessibility
+- Preserved all existing ARIA attributes and keyboard navigation across migrated components
+- CSS build pipeline with automatic purging of unused classes
+
+---
+
 ## [1.6.0] - 2026-04-14
 
 ### ✨ Added

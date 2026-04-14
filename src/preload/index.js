@@ -202,7 +202,11 @@ const electronAPI = {
     aiAutocompleteSetEnabled: (enabled) => ipcRenderer.invoke('ai-autocomplete:set-enabled', enabled),
     aiAutocompleteSetDebounce: (ms) => ipcRenderer.invoke('ai-autocomplete:set-debounce', ms),
     aiAutocompleteSetMinChars: (chars) => ipcRenderer.invoke('ai-autocomplete:set-min-chars', chars),
-    aiAutocompleteSetMaxTokens: (tokens) => ipcRenderer.invoke('ai-autocomplete:set-max-tokens', tokens)
+    aiAutocompleteSetMaxTokens: (tokens) => ipcRenderer.invoke('ai-autocomplete:set-max-tokens', tokens),
+
+    // What's New operations
+    getWhatsNewData: () => ipcRenderer.invoke('whats-new:get-changelog'),
+    markWhatsNewSeen: (version) => ipcRenderer.invoke('whats-new:mark-seen', version)
 };
 
 // Expose API directly to window when contextIsolation is disabled

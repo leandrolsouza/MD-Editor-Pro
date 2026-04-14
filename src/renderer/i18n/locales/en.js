@@ -545,5 +545,14 @@ module.exports = {
         customPlaceholder: 'Enter your instruction for the AI...',
         cancel: 'Cancel',
         apply: 'Apply'
+    },
+
+    // What's New
+    whatsNew: {
+        title: "What's New",
+        version: 'Version',
+        versionDate: '{version} — {date}',
+        close: 'Close',
+        menuLabel: "What's New"
     }
 };

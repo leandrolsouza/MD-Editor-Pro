@@ -546,5 +546,14 @@ module.exports = {
         customPlaceholder: 'Digite sua instrução para a IA...',
         cancel: 'Cancelar',
         apply: 'Aplicar'
+    },
+
+    // What's New
+    whatsNew: {
+        title: 'O Que Há de Novo',
+        version: 'Versão',
+        versionDate: '{version} — {date}',
+        close: 'Fechar',
+        menuLabel: 'O Que Há de Novo'
     }
 };

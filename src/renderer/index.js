@@ -46,6 +46,7 @@ const SettingsPanel = require('./settings-panel.js');
 const PanelResizer = require('./panel-resizer.js');
 const StatusBarInfo = require('./status-bar-info.js');
 const ConnectionGraphPanel = require('./connection-graph-panel.js');
+const WhatsNewModal = require('./whats-new-modal.js');
 
 // Application state
 let editor = null;
@@ -84,6 +85,7 @@ let contextMenu = null;
 let panelResizer = null;
 let statusBarInfo = null;
 let connectionGraphPanel = null;
+let whatsNewModal = null;
 
 // Document state
 let currentFilePath = null;
@@ -172,6 +174,11 @@ async function initialize() {
             if (connectionGraphPanel) {
                 connectionGraphPanel.updateTranslations();
             }
+
+            // Update What's New modal texts (Requirement 7.3)
+            if (whatsNewModal) {
+                whatsNewModal.updateTranslations();
+            }
         });
 
         // Initialize Advanced Markdown Manager (client-side)
@@ -186,6 +193,11 @@ async function initialize() {
         // Initialize Markdown Parser with advanced features
         markdownParser = new MarkdownParser(advancedMarkdownManager, advancedMarkdownPostProcessor);
         console.log('MarkdownParser initialized');
+
+        // Initialize What's New Modal
+        whatsNewModal = new WhatsNewModal(markdownParser);
+        whatsNewModal.initialize();
+        console.log('WhatsNewModal initialized');
 
         // Initialize Editor
         const editorContainer = document.getElementById('editor-container');
@@ -988,6 +1000,11 @@ async function handleMenuAction(action, data) {
                 break;
             case 'about':
                 showAboutDialog();
+                break;
+            case 'whats-new':
+                if (whatsNewModal) {
+                    await whatsNewModal.show();
+                }
                 break;
             default:
                 console.warn('Unknown menu action:', action);

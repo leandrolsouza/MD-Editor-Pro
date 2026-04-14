@@ -1,0 +1,265 @@
+/**
+ * What's New Modal Styles
+ * Requirement 3.5: Modal with max-width 700px, max-height 80vh, internal scroll
+ */
+
+/* Overlay */
+.whats-new-overlay {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Modal container */
+.whats-new-modal {
+    background-color: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    width: 90%;
+    max-width: 700px;
+    height: 80vh;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+/* Header */
+.whats-new-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-5);
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+.whats-new-header h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+}
+
+/* Version selector */
+.whats-new-version-selector {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-left: auto;
+}
+
+.whats-new-version-selector label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.whats-new-version-selector select {
+    padding: var(--space-1) var(--space-3);
+    background-color: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: var(--radius-md);
+    color: var(--input-text);
+    font-size: 13px;
+    cursor: pointer;
+    transition: border-color var(--duration-normal) var(--ease-out);
+    appearance: auto;
+}
+
+.whats-new-version-selector select:hover {
+    border-color: var(--input-hover-border);
+}
+
+.whats-new-version-selector select:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px var(--accent-color-alpha, rgba(37, 99, 235, 0.1));
+}
+
+/* Close button (header X) */
+.whats-new-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 0;
+    width: var(--space-8);
+    height: var(--space-8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    transition: background-color var(--duration-normal) var(--ease-out);
+    flex-shrink: 0;
+    margin-left: var(--space-2);
+}
+
+.whats-new-close:hover {
+    background-color: var(--button-hover-bg);
+}
+
+.whats-new-close:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+/* Body — scrollable content area */
+.whats-new-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-5);
+    min-height: 0;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-primary);
+}
+
+/* Markdown content styling inside the body */
+.whats-new-body h1,
+.whats-new-body h2,
+.whats-new-body h3 {
+    margin-top: var(--space-5);
+    margin-bottom: var(--space-3);
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.whats-new-body h1:first-child,
+.whats-new-body h2:first-child,
+.whats-new-body h3:first-child {
+    margin-top: 0;
+}
+
+.whats-new-body h2 {
+    font-size: 18px;
+    padding-bottom: var(--space-2);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.whats-new-body h3 {
+    font-size: 15px;
+}
+
+.whats-new-body ul,
+.whats-new-body ol {
+    padding-left: var(--space-6);
+    margin: var(--space-2) 0;
+}
+
+.whats-new-body li {
+    margin-bottom: var(--space-1);
+}
+
+.whats-new-body code {
+    background-color: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-family: 'Courier New', monospace;
+}
+
+.whats-new-body pre {
+    background-color: var(--code-block-bg);
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+    overflow-x: auto;
+    margin: var(--space-3) 0;
+}
+
+.whats-new-body pre code {
+    background: none;
+    padding: 0;
+}
+
+.whats-new-body a {
+    color: var(--link-color, var(--accent-color));
+    text-decoration: none;
+}
+
+.whats-new-body a:hover {
+    text-decoration: underline;
+}
+
+.whats-new-body p {
+    margin: var(--space-2) 0;
+}
+
+/* Footer */
+.whats-new-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: var(--space-4) var(--space-5);
+    border-top: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+.whats-new-close-btn {
+    padding: var(--space-2) var(--space-6);
+    border: none;
+    border-radius: var(--radius-md);
+    background-color: var(--accent-color);
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity var(--duration-normal) var(--ease-out);
+}
+
+.whats-new-close-btn:hover {
+    opacity: 0.9;
+}
+
+.whats-new-close-btn:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+/* Scrollbar styling */
+.whats-new-body::-webkit-scrollbar {
+    width: var(--space-2);
+}
+
+.whats-new-body::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+.whats-new-body::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: var(--radius-sm);
+}
+
+.whats-new-body::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+
+    .whats-new-close,
+    .whats-new-close-btn,
+    .whats-new-version-selector select {
+        transition: none;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .whats-new-modal {
+        border: 2px solid currentColor;
+    }
+
+    .whats-new-close-btn {
+        border: 2px solid currentColor;
+    }
+}

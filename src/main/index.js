@@ -19,6 +19,8 @@ const AutoUpdater = require('./auto-updater');
 const AIChatManager = require('./ai-chat-manager');
 const AIAutocompleteManager = require('./ai-autocomplete-manager');
 const IssueReporterManager = require('./issue-reporter-manager');
+const WhatsNewManager = require('./whats-new-manager');
+const path = require('path');
 const { createApplicationMenu, updateMenuItemChecked } = require('./menu');
 
 // Sandbox disabled to allow nodeIntegration in renderer
@@ -66,6 +68,9 @@ const aiAutocompleteManager = new AIAutocompleteManager(configStore);
 
 // Create issue reporter manager instance
 const issueReporterManager = new IssueReporterManager(windowManager);
+
+// Create whats-new manager instance
+const whatsNewManager = new WhatsNewManager(configStore, app.getVersion(), path.join(app.getAppPath(), 'CHANGELOG.md'));
 
 // Create auto-updater instance
 let autoUpdater = null;
@@ -1207,6 +1212,26 @@ function registerIPCHandlers() {
         } catch (error) {
             console.error('Error setting autocomplete max tokens:', error);
             return { success: false, error: error.message };
+        }
+    });
+
+    // What's New operations
+    ipcMain.handle('whats-new:get-changelog', async () => {
+        try {
+            return await whatsNewManager.getChangelogData();
+        } catch (error) {
+            console.error('Error getting changelog data:', error);
+            throw error;
+        }
+    });
+
+    ipcMain.handle('whats-new:mark-seen', async (event, version) => {
+        try {
+            whatsNewManager.markVersionSeen(version);
+            return { success: true };
+        } catch (error) {
+            console.error('Error marking version as seen:', error);
+            throw error;
         }
     });
 }
