@@ -89,6 +89,14 @@ class SettingsPanel {
         this.createAIAutocompleteButton(aiAutocompleteSection.content);
         sections.appendChild(aiAutocompleteSection.element);
 
+        // Theme section
+        const themeSection = this.createSection(
+            i18n.t('settings.theme'),
+            'theme-section'
+        );
+        this.createThemeButton(themeSection.content);
+        sections.appendChild(themeSection.element);
+
         this.container.appendChild(sections);
     }
 
@@ -184,6 +192,21 @@ class SettingsPanel {
             const AIAutocompleteSettingsUI = require('./ai-autocomplete-settings-ui.js');
             const ui = new AIAutocompleteSettingsUI();
             ui.show();
+        });
+        container.appendChild(btn);
+    }
+
+    /**
+     * Create theme selector button
+     */
+    createThemeButton(container) {
+        const btn = document.createElement('button');
+        btn.className = 'settings-panel__button';
+        btn.textContent = i18n.t('themeSelector.title');
+        btn.addEventListener('click', () => {
+            if (window.themeSelector) {
+                window.themeSelector.open();
+            }
         });
         container.appendChild(btn);
     }

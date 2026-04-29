@@ -251,6 +251,8 @@ async function initialize() {
         // Initialize ThemeSelector
         themeSelector = new ThemeSelector(themeManager);
         themeSelector.initialize();
+        // Expose globally for settings panel access
+        window.themeSelector = themeSelector;
 
         // Connect theme manager to preview for advanced markdown theme updates
         themeManager.onThemeChange((theme) => {
@@ -543,7 +545,17 @@ async function initialize() {
 
         // Register views with activity bar
         if (fileTreeSidebar) {
-            activityBar.registerView('files', i18n.t('activityBar.explorer').toUpperCase(), fileTreeContainer);
+            activityBar.registerView('files', i18n.t('activityBar.explorer').toUpperCase(), fileTreeContainer, [
+                {
+                    icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                        <line x1="12" y1="11" x2="12" y2="17"/>
+                        <line x1="9" y1="14" x2="15" y2="14"/>
+                    </svg>`,
+                    title: 'Abrir Pasta',
+                    onClick: () => handleOpenFolder()
+                }
+            ]);
         }
 
         if (globalSearchUI) {
@@ -2200,13 +2212,26 @@ function cleanup() {
 }
 
 // Expose functions for main process to check unsaved changes
-window.hasUnsavedChanges = () => {
-    return isDirty;
+window.hasUnsavedChanges = async () => {
+    // Check current tab's dirty state
+    if (isDirty) {
+        return true;
+    }
+    // Also check other tabs that may have unsaved changes
+    try {
+        const result = await window.electronAPI.getModifiedTabs();
+        if (result.success && result.tabs && result.tabs.length > 0) {
+            return true;
+        }
+    } catch (error) {
+        console.error('Error checking modified tabs:', error);
+    }
+    return false;
 };
 
 window.saveBeforeClose = async () => {
     try {
-        await handleSaveFile();
+        await handleSaveAll();
         return true;
     } catch (error) {
         console.error('Error saving before close:', error);

@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.7.1] - 2026-04-28
+
+### 🐛 Fixed
+
+#### Window Close Behavior
+- Fixed window close handler calling `preventDefault()` synchronously to prevent Electron from closing the window before async unsaved-changes check completes
+- Window now properly destroys when there are no unsaved changes
+- Added fallback `destroy()` on error to avoid trapping the user in an unclosable window
+
+#### Unsaved Changes Detection
+- `hasUnsavedChanges` now checks all open tabs (not just the active one) for unsaved modifications
+- `saveBeforeClose` now calls `saveAll` instead of saving only the current file
+
+### ✨ Added
+
+#### File Tree Empty State
+- New empty state UI in the file tree sidebar when no workspace is open
+- "Abrir Pasta" button to open a folder directly from the empty state
+- Empty state is automatically replaced when a workspace is loaded
+
+#### Activity Bar View Actions
+- `registerView` now supports optional action buttons in the sidebar panel header
+- Explorer view includes an "Abrir Pasta" action button in the header
+
+#### Settings Panel - Theme Section
+- Added theme selection section to the settings panel
+- Button to open the theme selector directly from settings
+
+#### Toolbar Overflow Scrolling
+- Formatting toolbar and main toolbar now support horizontal scrolling when buttons overflow
+- Thin scrollbar styling for both Webkit and Firefox browsers
+- Toolbar buttons no longer shrink; they scroll instead
+
+---
+
 ## [1.7.0] - 2026-04-14
 
 ### ✨ Added

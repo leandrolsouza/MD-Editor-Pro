@@ -19,16 +19,19 @@ class WindowManager {
             return;
         }
 
+        // IMPORTANT: preventDefault must be called synchronously before any await,
+        // otherwise Electron will close the window before the async check completes.
+        e.preventDefault();
+
         try {
             const hasUnsaved = await this.mainWindow.webContents.executeJavaScript(
                 'window.hasUnsavedChanges ? window.hasUnsavedChanges() : false'
             );
 
             if (!hasUnsaved) {
+                this.mainWindow.destroy();
                 return;
             }
-
-            e.preventDefault();
 
             const choice = await dialog.showMessageBox(this.mainWindow, {
                 type: 'question',
@@ -48,8 +51,11 @@ class WindowManager {
             } else if (choice.response === 1) {
                 this.mainWindow.destroy();
             }
+            // response === 2 (Cancel): do nothing, window stays open
         } catch (error) {
             console.error('Error checking unsaved changes:', error);
+            // On error, allow the window to close to avoid trapping the user
+            this.mainWindow.destroy();
         }
     }
 

@@ -48,6 +48,10 @@ class FileTreeSidebar {
 
         // Set up toggle button
         this._setupToggleButton();
+
+        // Show empty state by default (no workspace open yet)
+        // Will be replaced when loadWorkspace() is called
+        this._renderEmptyState();
     }
 
     /**
@@ -171,6 +175,12 @@ class FileTreeSidebar {
 
             this.treeData = treeData;
 
+            // Clear empty state before rendering
+            const treeContainer = document.getElementById('file-tree-container');
+            if (treeContainer) {
+                treeContainer.innerHTML = '';
+            }
+
             // Performance optimization: Enable virtual scrolling for large trees
             const totalNodes = this._countTotalNodes(treeData);
             this.useVirtualScrolling = totalNodes > 500;
@@ -204,6 +214,8 @@ class FileTreeSidebar {
             if (treeContainer) {
                 treeContainer.innerHTML = '';
             }
+
+            this._renderEmptyState();
         } catch (error) {
             console.error('Error clearing workspace:', error);
             // Try to at least clear the data structures
@@ -214,6 +226,56 @@ class FileTreeSidebar {
             this.useVirtualScrolling = false;
             this.folderToggleDebounceTimers = new Map();
         }
+    }
+
+    /**
+     * Render empty state with an "Open Folder" button
+     * @private
+     */
+    _renderEmptyState() {
+        const treeContainer = document.getElementById('file-tree-container');
+        if (!treeContainer) return;
+
+        treeContainer.innerHTML = '';
+
+        const emptyState = document.createElement('div');
+        emptyState.className = 'file-tree-sidebar__empty';
+
+        const icon = document.createElement('div');
+        icon.className = 'file-tree-sidebar__empty-icon';
+        icon.setAttribute('aria-hidden', 'true');
+        icon.textContent = '📂';
+
+        const text = document.createElement('div');
+        text.className = 'file-tree-sidebar__empty-text';
+        text.textContent = 'Nenhuma pasta aberta';
+
+        const hint = document.createElement('div');
+        hint.className = 'file-tree-sidebar__empty-hint';
+        hint.textContent = 'Abra uma pasta para ver os arquivos aqui';
+
+        const openBtn = document.createElement('button');
+        openBtn.className = 'file-tree-sidebar__open-folder-btn';
+        openBtn.textContent = 'Abrir Pasta';
+        openBtn.setAttribute('aria-label', 'Abrir pasta de projeto');
+        openBtn.addEventListener('click', () => {
+            if (window.electronAPI && window.electronAPI.openWorkspace) {
+                window.electronAPI.openWorkspace().then(result => {
+                    if (result && result.success && result.tree) {
+                        this.loadWorkspace(result.tree);
+                        this.setVisibility(true);
+                    }
+                }).catch(err => {
+                    console.error('Error opening workspace from empty state button:', err);
+                });
+            }
+        });
+
+        emptyState.appendChild(icon);
+        emptyState.appendChild(text);
+        emptyState.appendChild(hint);
+        emptyState.appendChild(openBtn);
+        treeContainer.appendChild(emptyState);
     }
 
     /**

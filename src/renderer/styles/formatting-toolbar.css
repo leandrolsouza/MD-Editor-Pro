@@ -23,6 +23,30 @@
     align-items: center;
     gap: var(--space-1);
     height: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex: 1;
+    min-width: 0;
+    scrollbar-width: thin;
+    scrollbar-color: var(--toolbar-separator, #d1d5da) transparent;
+}
+
+/* Webkit scrollbar styling for toolbar */
+.formatting-toolbar-wrapper::-webkit-scrollbar {
+    height: 4px;
+}
+
+.formatting-toolbar-wrapper::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.formatting-toolbar-wrapper::-webkit-scrollbar-thumb {
+    background-color: var(--toolbar-separator, #d1d5da);
+    border-radius: 4px;
+}
+
+.formatting-toolbar-wrapper::-webkit-scrollbar-thumb:hover {
+    background-color: var(--toolbar-button-text, #24292e);
 }
 
 /* Toolbar Buttons */
@@ -44,6 +68,7 @@
     transition: all var(--duration-normal) var(--ease-out);
     user-select: none;
     white-space: nowrap;
+    flex-shrink: 0;
 }
 
 /* Button Hover State */

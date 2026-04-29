@@ -161,9 +161,10 @@ class ActivityBar {
      * @param {string} viewId - Unique view identifier
      * @param {string} title - View title
      * @param {HTMLElement|Function} content - View content element or function that returns content
+     * @param {Array<{icon: string, title: string, onClick: Function}>} [actions] - Optional header action buttons
      */
-    registerView(viewId, title, content) {
-        this.views.set(viewId, { title, content });
+    registerView(viewId, title, content, actions = []) {
+        this.views.set(viewId, { title, content, actions });
     }
 
     /**
@@ -205,8 +206,39 @@ class ActivityBar {
         // Update sidebar panel
         const titleEl = this.sidebarPanel.querySelector('.sidebar-panel__title');
         const contentEl = this.sidebarPanel.querySelector('.sidebar-panel__content');
+        const actionsEl = this.sidebarPanel.querySelector('.sidebar-panel__actions');
 
         titleEl.textContent = view.title;
+        contentEl.innerHTML = '';
+
+        // Rebuild action buttons: keep close button, add view-specific actions before it
+        const closeBtn = actionsEl.querySelector('#sidebar-close-btn');
+        actionsEl.innerHTML = '';
+
+        // Add view-specific action buttons
+        if (view.actions && view.actions.length > 0) {
+            view.actions.forEach(action => {
+                const btn = document.createElement('button');
+                btn.className = 'sidebar-panel__action-btn';
+                btn.title = action.title;
+                btn.innerHTML = action.icon;
+                btn.addEventListener('click', action.onClick);
+                actionsEl.appendChild(btn);
+            });
+        }
+
+        // Re-add close button
+        if (closeBtn) {
+            actionsEl.appendChild(closeBtn);
+        } else {
+            const newCloseBtn = document.createElement('button');
+            newCloseBtn.className = 'sidebar-panel__action-btn';
+            newCloseBtn.id = 'sidebar-close-btn';
+            newCloseBtn.title = i18n.t('activityBar.closeSidebar');
+            newCloseBtn.innerHTML = getIcon('close');
+            newCloseBtn.addEventListener('click', () => this.hide());
+            actionsEl.appendChild(newCloseBtn);
+        }
         contentEl.innerHTML = '';
 
         // Support both element and function content

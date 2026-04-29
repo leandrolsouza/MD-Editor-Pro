@@ -272,6 +272,38 @@
 }
 
 /* ============================================
+   Element: Open Folder Button (empty state)
+   ============================================ */
+
+.file-tree-sidebar__open-folder-btn {
+    display: inline-block;
+    margin-top: var(--space-4);
+    padding: var(--space-2) var(--space-4);
+    background: var(--accent-color);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color var(--duration-normal, 150ms) var(--ease-out, ease),
+        opacity var(--duration-normal, 150ms) var(--ease-out, ease);
+}
+
+.file-tree-sidebar__open-folder-btn:hover {
+    opacity: 0.85;
+}
+
+.file-tree-sidebar__open-folder-btn:active {
+    opacity: 0.7;
+}
+
+.file-tree-sidebar__open-folder-btn:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+/* ============================================
    Editor Area Adjustment (now handled by activity bar)
    ============================================ */
 
