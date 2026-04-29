@@ -114,6 +114,9 @@ class ActivityBar {
             <button class="activity-bar__item" data-view="connection-graph" title="${i18n.t('activityBar.connectionGraph')}">
                 <span class="activity-bar__icon">${getIcon('graph')}</span>
             </button>
+            <button class="activity-bar__item" data-view="backlinks" title="${i18n.t('activityBar.backlinks')}">
+                <span class="activity-bar__icon">${getIcon('backlinks')}</span>
+            </button>
         `;
         document.body.appendChild(this.container);
     }

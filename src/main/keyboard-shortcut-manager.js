@@ -59,7 +59,12 @@ class KeyboardShortcutManager {
             'search:find': 'Mod-F',
             'search:find-next': 'F3',
             'search:find-previous': 'Shift-F3',
-            'search:replace': 'Mod-H'
+            'search:replace': 'Mod-H',
+
+            // Tools operations
+            'tools:command-palette': 'Mod-Shift-P',
+            'tools:edit-table': 'Mod-Shift-M',
+            'tools:find-in-files': 'Mod-Shift-F'
         };
 
         // Action metadata for UI display
@@ -101,7 +106,11 @@ class KeyboardShortcutManager {
             'search:find': { name: 'Find', category: 'Search' },
             'search:find-next': { name: 'Find Next', category: 'Search' },
             'search:find-previous': { name: 'Find Previous', category: 'Search' },
-            'search:replace': { name: 'Replace', category: 'Search' }
+            'search:replace': { name: 'Replace', category: 'Search' },
+
+            'tools:command-palette': { name: 'Command Palette', category: 'Tools' },
+            'tools:edit-table': { name: 'Edit Table', category: 'Tools' },
+            'tools:find-in-files': { name: 'Find in Files', category: 'Tools' }
         };
     }
 

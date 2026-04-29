@@ -47,6 +47,10 @@ const PanelResizer = require('./panel-resizer.js');
 const StatusBarInfo = require('./status-bar-info.js');
 const ConnectionGraphPanel = require('./connection-graph-panel.js');
 const WhatsNewModal = require('./whats-new-modal.js');
+const CommandPalette = require('./command-palette.js');
+const { TableEditor } = require('./table-editor.js');
+const BacklinksPanel = require('./backlinks-panel.js');
+const { getIcon } = require('./icons.js');
 
 // Application state
 let editor = null;
@@ -86,6 +90,9 @@ let panelResizer = null;
 let statusBarInfo = null;
 let connectionGraphPanel = null;
 let whatsNewModal = null;
+let commandPalette = null;
+let tableEditor = null;
+let backlinksPanel = null;
 
 // Document state
 let currentFilePath = null;
@@ -179,6 +186,22 @@ async function initialize() {
             if (whatsNewModal) {
                 whatsNewModal.updateTranslations();
             }
+
+            // Update Command Palette texts
+            if (commandPalette) {
+                commandPalette.updateTranslations();
+                registerCommandPaletteCommands();
+            }
+
+            // Update Table Editor texts
+            if (tableEditor) {
+                tableEditor.updateTranslations();
+            }
+
+            // Update Backlinks Panel texts
+            if (backlinksPanel) {
+                backlinksPanel.updateTranslations();
+            }
         });
 
         // Initialize Advanced Markdown Manager (client-side)
@@ -225,7 +248,30 @@ async function initialize() {
             throw new Error('Preview container not found');
         }
         preview = new Preview(advancedMarkdownPostProcessor, markdownParser);
-        preview.initialize(previewContainer);
+        preview.initialize(previewContainer, {
+            onLinkClick: async (href) => {
+                try {
+                    const path = require('path');
+                    let resolvedPath = href;
+
+                    // Resolve relative paths based on current file location
+                    if (currentFilePath && !path.isAbsolute(href)) {
+                        const currentDir = path.dirname(currentFilePath);
+
+                        resolvedPath = path.resolve(currentDir, href);
+                    }
+
+                    const result = await window.electronAPI.openRecentFile(resolvedPath);
+
+                    if (result && result.filePath && result.content !== undefined) {
+                        await createNewTab(result.filePath, result.content);
+                    }
+                } catch (error) {
+                    console.error('Error opening linked file:', error);
+                    notificationManager.error(i18n.t('notifications.failedToOpenFile') + ': ' + error.message);
+                }
+            }
+        });
         console.log('Preview initialized');
 
         // Initialize FormattingToolbar
@@ -639,6 +685,53 @@ async function initialize() {
 
         console.log('ConnectionGraphPanel initialized');
 
+        // Backlinks Panel view
+        backlinksPanel = new BacklinksPanel();
+        const backlinksContainer = backlinksPanel.initialize();
+        backlinksPanel.onFileClicked(async (filePath) => {
+            try {
+                const allTabsResult = await window.electronAPI.getAllTabs();
+                if (allTabsResult.success && allTabsResult.tabs) {
+                    const existingTab = allTabsResult.tabs.find(tab => tab.filePath === filePath);
+                    if (existingTab) {
+                        await switchToTab(existingTab.id);
+                        return;
+                    }
+                }
+                const result = await window.electronAPI.readFile(filePath);
+                if (result && result.success) {
+                    await createNewTab(filePath, result.content);
+                }
+            } catch (error) {
+                console.error('Error opening file from backlinks:', error);
+                notificationManager.error(i18n.t('notifications.failedToOpenFile') + ': ' + error.message);
+            }
+        });
+        activityBar.registerView('backlinks', i18n.t('activityBar.backlinks').toUpperCase(), backlinksContainer, [
+            {
+                icon: getIcon('refresh'),
+                title: i18n.t('backlinks.refresh'),
+                onClick: () => {
+                    if (backlinksPanel) {
+                        backlinksPanel.invalidateCache();
+                        backlinksPanel.refresh();
+                    }
+                }
+            }
+        ]);
+        console.log('BacklinksPanel initialized');
+
+        // Initialize Table Editor
+        tableEditor = new TableEditor(editor);
+        tableEditor.initialize();
+        console.log('TableEditor initialized');
+
+        // Initialize Command Palette
+        commandPalette = new CommandPalette();
+        commandPalette.initialize();
+        registerCommandPaletteCommands();
+        console.log('CommandPalette initialized');
+
         // AI Edit Commands (Ctrl+Shift+E)
         aiEditCommands = new AIEditCommands(editor);
         aiEditCommands.initialize();
@@ -849,6 +942,82 @@ function attachTooltipToTabCloseButton(tabId, tabTitle) {
 }
 
 /**
+ * Register all commands for the Command Palette
+ */
+function registerCommandPaletteCommands() {
+    if (!commandPalette) return;
+
+    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+    const mod = isMac ? 'Cmd' : 'Ctrl';
+
+    const commands = [
+        // File commands
+        { id: 'new-file', label: i18n.t('menu.newFile'), category: i18n.t('commandPalette.categoryFile'), shortcut: `${mod}+N`, icon: 'filePlus', execute: () => handleNewFile() },
+        { id: 'open-file', label: i18n.t('menu.open'), category: i18n.t('commandPalette.categoryFile'), shortcut: `${mod}+O`, icon: 'file', execute: () => handleOpenFile() },
+        { id: 'open-folder', label: i18n.t('menu.openFolder'), category: i18n.t('commandPalette.categoryFile'), icon: 'folder', execute: () => handleOpenFolder() },
+        { id: 'save', label: i18n.t('menu.save'), category: i18n.t('commandPalette.categoryFile'), shortcut: `${mod}+S`, icon: 'save', execute: () => handleSaveFile() },
+        { id: 'save-as', label: i18n.t('menu.saveAs'), category: i18n.t('commandPalette.categoryFile'), icon: 'save', execute: () => handleSaveFileAs() },
+        { id: 'save-all', label: i18n.t('menu.saveAll'), category: i18n.t('commandPalette.categoryFile'), execute: () => handleSaveAll() },
+        { id: 'export-html', label: i18n.t('menu.exportHTML'), category: i18n.t('commandPalette.categoryFile'), icon: 'export', execute: () => handleExportHTML() },
+        { id: 'export-pdf', label: i18n.t('menu.exportPDF'), category: i18n.t('commandPalette.categoryFile'), icon: 'export', execute: () => handleExportPDF() },
+        { id: 'close-folder', label: i18n.t('menu.closeFolder'), category: i18n.t('commandPalette.categoryFile'), execute: () => handleCloseFolder() },
+
+        // Edit commands
+        { id: 'undo', label: i18n.t('contextMenu.undo'), category: i18n.t('commandPalette.categoryEdit'), shortcut: `${mod}+Z`, icon: 'undo', execute: () => editor && editor.undo() },
+        { id: 'redo', label: i18n.t('contextMenu.redo'), category: i18n.t('commandPalette.categoryEdit'), shortcut: `${mod}+Y`, icon: 'redo', execute: () => editor && editor.redo() },
+        { id: 'find', label: i18n.t('search.find'), category: i18n.t('commandPalette.categoryEdit'), shortcut: `${mod}+F`, icon: 'search', execute: () => searchManager && searchManager.show() },
+        { id: 'find-in-files', label: i18n.t('globalSearch.title'), category: i18n.t('commandPalette.categoryEdit'), shortcut: `${mod}+Shift+F`, icon: 'search', execute: () => activityBar && activityBar.toggleView('search') },
+
+        // View commands
+        { id: 'view-editor', label: i18n.t('quickActions.editorView'), category: i18n.t('commandPalette.categoryView'), icon: 'viewEditor', execute: () => viewModeManager && viewModeManager.setViewMode('editor') },
+        { id: 'view-split', label: i18n.t('quickActions.splitView'), category: i18n.t('commandPalette.categoryView'), icon: 'viewSplit', execute: () => viewModeManager && viewModeManager.setViewMode('split') },
+        { id: 'view-preview', label: i18n.t('quickActions.previewView'), category: i18n.t('commandPalette.categoryView'), icon: 'viewPreview', execute: () => viewModeManager && viewModeManager.setViewMode('preview') },
+        { id: 'focus-mode', label: i18n.t('quickActions.focusMode'), category: i18n.t('commandPalette.categoryView'), shortcut: 'F11', icon: 'focusMode', execute: () => focusMode && focusMode.toggle() },
+        { id: 'toggle-sidebar', label: i18n.t('activityBar.explorer'), category: i18n.t('commandPalette.categoryView'), shortcut: `${mod}+Shift+E`, icon: 'folder', execute: () => activityBar && activityBar.toggleView('files') },
+        { id: 'toggle-outline', label: i18n.t('activityBar.outline'), category: i18n.t('commandPalette.categoryView'), shortcut: `${mod}+Shift+O`, icon: 'outline', execute: () => activityBar && activityBar.toggleView('outline') },
+        { id: 'toggle-backlinks', label: i18n.t('activityBar.backlinks'), category: i18n.t('commandPalette.categoryView'), icon: 'backlinks', execute: () => activityBar && activityBar.toggleView('backlinks') },
+        { id: 'toggle-connection-graph', label: i18n.t('activityBar.connectionGraph'), category: i18n.t('commandPalette.categoryView'), icon: 'graph', execute: () => activityBar && activityBar.toggleView('connection-graph') },
+        { id: 'toggle-typewriter', label: i18n.t('typewriter.enabled'), category: i18n.t('commandPalette.categoryView'), shortcut: `${mod}+Shift+T`, execute: () => toggleTypewriterScrolling() },
+        { id: 'select-theme', label: i18n.t('themeSelector.title'), category: i18n.t('commandPalette.categoryView'), shortcut: `${mod}+K ${mod}+T`, icon: 'theme', execute: () => themeSelector && themeSelector.open() },
+        { id: 'toggle-theme', label: i18n.t('settings.theme'), category: i18n.t('commandPalette.categoryView'), shortcut: `${mod}+T`, icon: 'theme', execute: () => themeManager && themeManager.toggleTheme() },
+
+        // Insert commands
+        { id: 'insert-bold', label: i18n.t('formatting.bold'), category: i18n.t('commandPalette.categoryInsert'), shortcut: `${mod}+B`, icon: 'bold', execute: () => editor && editor.applyBold() },
+        { id: 'insert-italic', label: i18n.t('formatting.italic'), category: i18n.t('commandPalette.categoryInsert'), shortcut: `${mod}+I`, icon: 'italic', execute: () => editor && editor.applyItalic() },
+        { id: 'insert-strikethrough', label: i18n.t('formatting.strikethrough'), category: i18n.t('commandPalette.categoryInsert'), icon: 'strikethrough', execute: () => editor && editor.applyStrikethrough() },
+        { id: 'insert-code', label: i18n.t('formatting.code'), category: i18n.t('commandPalette.categoryInsert'), shortcut: `${mod}+\``, icon: 'code', execute: () => editor && editor.applyInlineCode() },
+        { id: 'insert-code-block', label: i18n.t('formatting.codeBlock'), category: i18n.t('commandPalette.categoryInsert'), icon: 'codeBlock', execute: () => editor && editor.applyCodeBlock() },
+        { id: 'insert-link', label: i18n.t('formatting.link'), category: i18n.t('commandPalette.categoryInsert'), icon: 'link', execute: () => editor && editor.insertLink() },
+        { id: 'insert-image', label: i18n.t('formatting.image'), category: i18n.t('commandPalette.categoryInsert'), icon: 'image', execute: () => editor && editor.insertImage() },
+        { id: 'insert-table', label: i18n.t('formatting.table'), category: i18n.t('commandPalette.categoryInsert'), icon: 'table', execute: () => editor && editor.insertTable() },
+        { id: 'insert-hr', label: i18n.t('formatting.horizontalRule'), category: i18n.t('commandPalette.categoryInsert'), icon: 'horizontalRule', execute: () => editor && editor.insertHorizontalRule() },
+        { id: 'insert-h1', label: i18n.t('formatting.heading', { level: 1 }), category: i18n.t('commandPalette.categoryInsert'), icon: 'heading1', execute: () => editor && editor.applyHeading(1) },
+        { id: 'insert-h2', label: i18n.t('formatting.heading', { level: 2 }), category: i18n.t('commandPalette.categoryInsert'), icon: 'heading2', execute: () => editor && editor.applyHeading(2) },
+        { id: 'insert-h3', label: i18n.t('formatting.heading', { level: 3 }), category: i18n.t('commandPalette.categoryInsert'), icon: 'heading3', execute: () => editor && editor.applyHeading(3) },
+        { id: 'insert-bullet-list', label: i18n.t('formatting.bulletList'), category: i18n.t('commandPalette.categoryInsert'), icon: 'listBullet', execute: () => editor && editor.applyUnorderedList() },
+        { id: 'insert-numbered-list', label: i18n.t('formatting.numberedList'), category: i18n.t('commandPalette.categoryInsert'), icon: 'listOrdered', execute: () => editor && editor.applyOrderedList() },
+        { id: 'insert-task-list', label: i18n.t('formatting.taskList'), category: i18n.t('commandPalette.categoryInsert'), icon: 'listTask', execute: () => editor && editor.applyTaskList() },
+        { id: 'insert-blockquote', label: i18n.t('formatting.blockquote'), category: i18n.t('commandPalette.categoryInsert'), icon: 'quote', execute: () => editor && editor.applyBlockquote() },
+        { id: 'insert-template', label: i18n.t('templates.insert'), category: i18n.t('commandPalette.categoryInsert'), icon: 'template', execute: () => templateUI && templateUI.showTemplateMenu() },
+
+        // Tools commands
+        { id: 'edit-table', label: i18n.t('tableEditor.editTable'), category: i18n.t('commandPalette.categoryTools'), icon: 'table', execute: () => { if (tableEditor && !tableEditor.openAtCursor()) { notificationManager.info(i18n.t('tableEditor.noTableFound')); } } },
+        { id: 'keyboard-shortcuts', label: i18n.t('shortcuts.title'), category: i18n.t('commandPalette.categoryTools'), icon: 'keyboard', execute: () => keyboardShortcutsUI && keyboardShortcutsUI.show() },
+        { id: 'auto-save-settings', label: i18n.t('autoSaveSettings.title'), category: i18n.t('commandPalette.categoryTools'), execute: () => autoSaveSettingsUI && autoSaveSettingsUI.show() },
+        { id: 'advanced-markdown', label: i18n.t('advancedMarkdown.title'), category: i18n.t('commandPalette.categoryTools'), execute: () => advancedMarkdownSettingsUI && advancedMarkdownSettingsUI.show() },
+        { id: 'image-paste-settings', label: i18n.t('imagePasteSettings.title'), category: i18n.t('commandPalette.categoryTools'), execute: () => imagePasteSettingsUI && imagePasteSettingsUI.show() },
+        { id: 'settings', label: i18n.t('settings.title'), category: i18n.t('commandPalette.categoryTools'), icon: 'settings', execute: () => activityBar && activityBar.toggleView('settings') },
+        { id: 'ai-chat', label: i18n.t('activityBar.aiAssistant'), category: i18n.t('commandPalette.categoryTools'), icon: 'ai', execute: () => activityBar && activityBar.toggleView('ai-chat') },
+
+        // Help commands
+        { id: 'whats-new', label: i18n.t('whatsNew.menuLabel'), category: i18n.t('commandPalette.categoryHelp'), execute: () => whatsNewModal && whatsNewModal.show() },
+        { id: 'about', label: i18n.t('about.title'), category: i18n.t('commandPalette.categoryHelp'), execute: () => showAboutDialog() },
+    ];
+
+    commandPalette.registerCommands(commands);
+}
+
+/**
  * Setup IPC event listeners for file operations and menu actions
  */
 function setupIPCListeners() {
@@ -1018,6 +1187,18 @@ async function handleMenuAction(action, data) {
                     await whatsNewModal.show();
                 }
                 break;
+            case 'command-palette':
+                if (commandPalette) {
+                    commandPalette.show();
+                }
+                break;
+            case 'edit-table':
+                if (tableEditor) {
+                    if (!tableEditor.openAtCursor()) {
+                        notificationManager.info(i18n.t('tableEditor.noTableFound'));
+                    }
+                }
+                break;
             default:
                 console.warn('Unknown menu action:', action);
         }
@@ -1103,6 +1284,11 @@ async function handleOpenFolder() {
             // Show sidebar when workspace is opened
             await fileTreeSidebar.setVisibility(true);
             console.log('Workspace opened:', result.workspacePath);
+
+            // Invalidate backlinks cache when workspace changes
+            if (backlinksPanel) {
+                backlinksPanel.invalidateCache();
+            }
         }
     } catch (error) {
         console.error('Error opening folder:', error);
@@ -1566,6 +1752,14 @@ function setupKeyboardShortcuts() {
                 e.preventDefault();
                 await toggleTypewriterScrolling();
             }
+
+            // Ctrl/Cmd + Shift + P: Command Palette
+            if (modifier && e.key === 'P' && e.shiftKey) {
+                e.preventDefault();
+                if (commandPalette) {
+                    commandPalette.show();
+                }
+            }
         } catch (error) {
             console.error('Keyboard shortcut error:', error);
         }
@@ -1878,6 +2072,13 @@ async function switchToTab(tabId) {
             // Update connection graph active document highlight (Requirement 7.2)
             if (connectionGraphPanel && activityBar && activityBar.getActiveView() === 'connection-graph') {
                 connectionGraphPanel.setActiveDocument(tab.filePath);
+            }
+
+            // Update backlinks panel for the new active document
+            if (backlinksPanel && tab.filePath) {
+                const wpResult = await window.electronAPI.getWorkspacePath();
+                const workspacePath = wpResult && wpResult.success ? wpResult.workspacePath : null;
+                backlinksPanel.setActiveDocument(tab.filePath, workspacePath);
             }
 
             // Restore scroll position

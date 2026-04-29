@@ -86,10 +86,14 @@ class ConfigStore {
     /**
      * Set a configuration value
      * @param {string} key - Configuration key
-     * @param {any} value - Configuration value
+     * @param {any} value - Configuration value (use undefined or null to delete)
      */
     set(key, value) {
-        this.store.set(key, value);
+        if (value === undefined || value === null) {
+            this.store.delete(key);
+        } else {
+            this.store.set(key, value);
+        }
     }
 
     /**
@@ -528,7 +532,8 @@ class ConfigStore {
      * @returns {string|null} Active tab ID
      */
     getActiveTabId() {
-        return this.store.get('tabs.activeTabId');
+        const value = this.store.get('tabs.activeTabId');
+        return value === undefined ? null : value;
     }
 
     /**
@@ -539,7 +544,11 @@ class ConfigStore {
         if (tabId !== null && typeof tabId !== 'string') {
             throw new Error(`Invalid tab ID: ${tabId}. Must be a string or null`);
         }
-        this.store.set('tabs.activeTabId', tabId);
+        if (tabId === null) {
+            this.store.delete('tabs.activeTabId');
+        } else {
+            this.store.set('tabs.activeTabId', tabId);
+        }
     }
 
     // ========== Recent Files Methods ==========
@@ -634,7 +643,11 @@ class ConfigStore {
         if (path !== null && typeof path !== 'string') {
             throw new Error(`Invalid workspace path: ${path}. Must be a string or null`);
         }
-        this.store.set('workspace.currentPath', path);
+        if (path === null) {
+            this.store.delete('workspace.currentPath');
+        } else {
+            this.store.set('workspace.currentPath', path);
+        }
     }
 
     /**

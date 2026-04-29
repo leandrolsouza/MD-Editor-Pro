@@ -337,7 +337,8 @@ module.exports = {
         settings: 'Configurações',
         aiAssistant: 'Assistente IA',
         closeSidebar: 'Fechar Barra Lateral',
-        connectionGraph: 'Mapa de Conexões'
+        connectionGraph: 'Mapa de Conexões',
+        backlinks: 'Backlinks'
     },
 
     // Connection Graph
@@ -546,6 +547,45 @@ module.exports = {
         customPlaceholder: 'Digite sua instrução para a IA...',
         cancel: 'Cancelar',
         apply: 'Aplicar'
+    },
+
+    // Command Palette
+    commandPalette: {
+        title: 'Paleta de Comandos',
+        placeholder: 'Digite um comando...',
+        noResults: 'Nenhum comando encontrado',
+        categoryFile: 'Arquivo',
+        categoryEdit: 'Editar',
+        categoryView: 'Visualizar',
+        categoryInsert: 'Inserir',
+        categoryTools: 'Ferramentas',
+        categoryHelp: 'Ajuda'
+    },
+
+    // Table Editor
+    tableEditor: {
+        title: 'Editor de Tabela',
+        header: 'Cabeçalho',
+        cell: 'Célula',
+        addColumn: 'Adicionar Coluna',
+        removeColumn: 'Remover Coluna',
+        addRow: 'Adicionar Linha',
+        removeRow: 'Remover Linha',
+        alignment: 'Alternar Alinhamento',
+        editTable: 'Editar Tabela',
+        noTableFound: 'Nenhuma tabela encontrada na posição do cursor'
+    },
+
+    // Backlinks
+    backlinks: {
+        title: 'Backlinks',
+        noDocument: 'Abra um documento para ver backlinks.',
+        noBacklinks: 'Nenhum documento aponta para este arquivo.',
+        count: '{count} documento(s) apontam aqui',
+        link: 'link',
+        links: 'links',
+        error: 'Erro ao carregar backlinks.',
+        refresh: 'Atualizar Backlinks'
     },
 
     // What's New

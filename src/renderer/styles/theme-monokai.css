@@ -128,6 +128,9 @@
     --sidebar-border: #3e3d32;
     --sidebar-header-bg: #1e1f1c;
     --sidebar-title-fg: #f8f8f2;
+
+    /* Hover/Selection */
+    --hover-bg: #49483e;
 }
 
 body.theme-monokai {

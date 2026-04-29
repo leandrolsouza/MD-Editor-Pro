@@ -15,6 +15,7 @@ class Editor {
     constructor() {
         this.view = null;
         this.contentChangeCallbacks = [];
+        this.cursorChangeCallbacks = [];
         this.customKeymapCompartment = new Compartment();
         this.snippetExtensionCompartment = new Compartment();
         this.lineNumbersCompartment = new Compartment();
@@ -88,6 +89,14 @@ class Editor {
                         this.contentChangeCallbacks.forEach(callback => {
                             if (callback) {
                                 callback(content);
+                            }
+                        });
+                    }
+                    if (update.selectionSet || update.docChanged) {
+                        const offset = update.state.selection.main.from;
+                        this.cursorChangeCallbacks.forEach(callback => {
+                            if (callback) {
+                                callback(offset);
                             }
                         });
                     }
@@ -327,6 +336,17 @@ class Editor {
             throw new Error('Callback must be a function');
         }
         this.contentChangeCallbacks.push(callback);
+    }
+
+    /**
+     * Register a callback for cursor position changes
+     * @param {Function} callback - Function called with cursor offset when cursor moves
+     */
+    onCursorChange(callback) {
+        if (typeof callback !== 'function') {
+            throw new Error('Callback must be a function');
+        }
+        this.cursorChangeCallbacks.push(callback);
     }
 
     /**

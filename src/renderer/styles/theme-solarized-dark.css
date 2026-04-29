@@ -128,6 +128,9 @@
     --sidebar-border: #0f4a5a;
     --sidebar-header-bg: #073642;
     --sidebar-title-fg: #839496;
+
+    /* Hover/Selection */
+    --hover-bg: #073642;
 }
 
 body.theme-solarized-dark {

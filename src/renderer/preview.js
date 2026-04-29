@@ -18,14 +18,72 @@ class Preview {
     /**
      * Initialize the preview container
      * @param {HTMLElement} element - The DOM element to use as preview container
+     * @param {Object} options - Configuration options
+     * @param {Function} options.onLinkClick - Callback for internal markdown link clicks (receives resolved file path)
      */
-    initialize(element) {
+    initialize(element, options = {}) {
         if (!element) {
             throw new Error('Preview element is required');
         }
 
         this.container = element;
         this.container.innerHTML = '';
+        this.onLinkClick = options.onLinkClick || null;
+
+        // Intercept link clicks in the preview
+        this.container.addEventListener('click', (e) => {
+            this._handleLinkClick(e);
+        });
+    }
+
+    /**
+     * Handle link clicks in the preview
+     * - Internal .md links: open in editor via callback
+     * - External http(s) links: open in system browser
+     * - Anchor links (#): scroll within preview
+     * - Other links: prevent navigation
+     * @param {MouseEvent} e - Click event
+     * @private
+     */
+    _handleLinkClick(e) {
+        const link = e.target.closest('a');
+
+        if (!link) {
+            return;
+        }
+
+        const href = link.getAttribute('href');
+
+        if (!href) {
+            return;
+        }
+
+        // Anchor links - allow default scroll behavior
+        if (href.startsWith('#')) {
+            return;
+        }
+
+        // Prevent default navigation for all other links
+        e.preventDefault();
+
+        // External links - open in system browser
+        if (href.startsWith('http://') || href.startsWith('https://')) {
+            if (window.electronAPI && window.electronAPI.openExternal) {
+                window.electronAPI.openExternal(href);
+            }
+            return;
+        }
+
+        // Internal markdown links - notify callback to open in editor
+        if (href.endsWith('.md') || href.endsWith('.markdown')) {
+            if (this.onLinkClick) {
+                this.onLinkClick(href);
+            }
+            return;
+        }
+
+        // All other links (relative paths, etc.) - do nothing to prevent white screen
+        console.warn('Preview: unhandled link type:', href);
     }
 
     /**

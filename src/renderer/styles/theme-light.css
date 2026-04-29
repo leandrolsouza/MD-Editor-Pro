@@ -132,6 +132,9 @@
     --sidebar-border: #e1e4e8;
     --sidebar-header-bg: #f6f8fa;
     --sidebar-title-fg: #24292e;
+
+    /* Hover/Selection */
+    --hover-bg: #f0f0f0;
 }
 
 body.theme-light {

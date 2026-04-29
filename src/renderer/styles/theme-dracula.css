@@ -128,6 +128,9 @@
     --sidebar-border: #44475a;
     --sidebar-header-bg: #21222c;
     --sidebar-title-fg: #f8f8f2;
+
+    /* Hover/Selection */
+    --hover-bg: #44475a;
 }
 
 body.theme-dracula {

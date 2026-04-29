@@ -1,0 +1,267 @@
+/* Table Editor Modal Styles */
+
+.table-editor-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+}
+
+.table-editor-modal.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.table-editor-modal__overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.table-editor-modal__content {
+    position: relative;
+    background: var(--bg-primary, #ffffff);
+    border: 1px solid var(--border-color, #e0e0e0);
+    border-radius: 8px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    width: min(800px, 90vw);
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.table-editor-modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color, #e0e0e0);
+}
+
+.table-editor-modal__title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary, #333);
+    margin: 0;
+}
+
+.table-editor-modal__close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-secondary, #666);
+    padding: 4px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+}
+
+.table-editor-modal__close:hover {
+    background: var(--bg-hover, #f0f0f0);
+}
+
+.table-editor-modal__close svg {
+    width: 16px;
+    height: 16px;
+}
+
+.table-editor-modal__toolbar {
+    display: flex;
+    gap: 4px;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border-color, #e0e0e0);
+    flex-wrap: wrap;
+}
+
+.table-editor-modal__toolbar-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border: 1px solid var(--border-color, #ddd);
+    border-radius: 4px;
+    background: var(--bg-secondary, #f5f5f5);
+    color: var(--text-primary, #333);
+    cursor: pointer;
+    font-size: 12px;
+    transition: background-color 0.1s ease;
+}
+
+.table-editor-modal__toolbar-btn:hover {
+    background: var(--bg-hover, #e8e8e8);
+}
+
+.table-editor-modal__toolbar-icon {
+    display: flex;
+    align-items: center;
+}
+
+.table-editor-modal__toolbar-icon svg {
+    width: 14px;
+    height: 14px;
+}
+
+.table-editor-modal__table-container {
+    overflow: auto;
+    padding: 16px;
+    flex: 1;
+    min-height: 0;
+}
+
+.table-editor__table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: auto;
+}
+
+.table-editor__cell {
+    border: 1px solid var(--border-color, #ddd);
+    padding: 0;
+    position: relative;
+}
+
+.table-editor__cell--header {
+    background: var(--bg-secondary, #f5f5f5);
+}
+
+.table-editor__cell-input {
+    width: 100%;
+    border: none;
+    outline: none;
+    padding: 6px 8px;
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--text-primary, #333);
+    background: transparent;
+    box-sizing: border-box;
+}
+
+.table-editor__cell-input:focus {
+    background: var(--bg-hover, rgba(0, 120, 212, 0.08));
+    outline: 2px solid var(--accent-color, #0078d4);
+    outline-offset: -2px;
+}
+
+.table-editor__cell-input--header {
+    font-weight: 600;
+    padding-right: 28px;
+}
+
+.table-editor__align-btn {
+    position: absolute;
+    right: 2px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 22px;
+    height: 22px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: var(--text-secondary, #888);
+    font-size: 12px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.table-editor__align-btn:hover {
+    background: var(--bg-hover, #e0e0e0);
+    color: var(--text-primary, #333);
+}
+
+.table-editor-modal__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--border-color, #e0e0e0);
+}
+
+.table-editor-modal__btn {
+    padding: 6px 16px;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+    border: 1px solid var(--border-color, #ddd);
+    transition: background-color 0.1s ease;
+}
+
+.table-editor-modal__btn--cancel {
+    background: var(--bg-secondary, #f5f5f5);
+    color: var(--text-primary, #333);
+}
+
+.table-editor-modal__btn--cancel:hover {
+    background: var(--bg-hover, #e8e8e8);
+}
+
+.table-editor-modal__btn--apply {
+    background: var(--accent-color, #0078d4);
+    color: #fff;
+    border-color: var(--accent-color, #0078d4);
+}
+
+.table-editor-modal__btn--apply:hover {
+    opacity: 0.9;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .table-editor-modal {
+        transition: none;
+    }
+}
+
+/* Floating Edit Button */
+
+.table-editor-float-btn {
+    position: fixed;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: var(--accent-color, #0078d4);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+    white-space: nowrap;
+}
+
+.table-editor-float-btn.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.table-editor-float-btn:hover {
+    opacity: 0.9;
+}
+
+.table-editor-float-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .table-editor-float-btn {
+        transition: none;
+    }
+}

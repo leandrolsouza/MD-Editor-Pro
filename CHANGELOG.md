@@ -7,6 +7,66 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.8.0] - 2026-04-29
+
+### ✨ Added
+
+#### Command Palette
+- VS Code-style command palette accessible via `Ctrl+Shift+P`
+- Fuzzy search across all application commands
+- Commands organized by category (File, Edit, View, Insert, Tools, Help)
+- Keyboard navigation (Arrow keys, Enter, Escape)
+- Shortcut badges displayed alongside each command
+- Icon support for visual command identification
+- Full i18n support (EN and PT-BR)
+
+#### Visual Table Editor
+- Inline visual editor for markdown tables (`Ctrl+Shift+M`)
+- Floating "Edit Table" button appears when cursor is inside a table
+- Add/remove rows and columns with toolbar buttons
+- Column alignment toggle (left, center, right)
+- Tab and arrow key navigation between cells
+- Enter on last row automatically adds a new row
+- Apply changes back to the editor with proper markdown formatting
+- Full i18n support (EN and PT-BR)
+
+#### Backlinks Panel
+- New "Backlinks" panel in the activity bar sidebar
+- Shows which documents link to the currently active document
+- Displays link count per source document
+- Click a backlink to open the source document
+- Refresh button to re-scan workspace links
+- Cache invalidation when workspace changes
+- Full keyboard navigation and accessibility support
+- Full i18n support (EN and PT-BR)
+
+#### Internal Link Navigation
+- Clicking `.md` / `.markdown` links in the preview now opens the target document in a new tab
+- External links (`http://`, `https://`) open in the system browser
+- Anchor links (`#`) scroll within the preview
+- Prevents accidental navigation away from the app (white screen protection)
+
+### 🔧 Changed
+
+#### Window Security
+- Blocked `will-navigate` events to prevent the app from navigating away from the renderer
+- Blocked `window.open` calls from the renderer (e.g., `target="_blank"` links)
+
+#### Editor
+- Added cursor change callback support (`onCursorChange`) for plugins that need cursor tracking
+
+#### Config Store
+- `set()` now deletes the key when value is `undefined` or `null` instead of storing null values
+- `setActiveTabId(null)` and `setWorkspacePath(null)` now properly delete the stored key
+
+#### Keyboard Shortcuts
+- Added new default shortcuts: Command Palette (`Ctrl+Shift+P`), Edit Table (`Ctrl+Shift+M`), Find in Files (`Ctrl+Shift+F`)
+
+#### Themes
+- Added `--hover-bg` CSS variable to all 7 themes for consistent hover styling
+
+---
+
 ## [1.7.1] - 2026-04-28
 
 ### 🐛 Fixed

@@ -336,7 +336,8 @@ module.exports = {
         settings: 'Settings',
         aiAssistant: 'AI Assistant',
         closeSidebar: 'Close Sidebar',
-        connectionGraph: 'Connection Map'
+        connectionGraph: 'Connection Map',
+        backlinks: 'Backlinks'
     },
 
     // Connection Graph
@@ -545,6 +546,45 @@ module.exports = {
         customPlaceholder: 'Enter your instruction for the AI...',
         cancel: 'Cancel',
         apply: 'Apply'
+    },
+
+    // Command Palette
+    commandPalette: {
+        title: 'Command Palette',
+        placeholder: 'Type a command...',
+        noResults: 'No matching commands',
+        categoryFile: 'File',
+        categoryEdit: 'Edit',
+        categoryView: 'View',
+        categoryInsert: 'Insert',
+        categoryTools: 'Tools',
+        categoryHelp: 'Help'
+    },
+
+    // Table Editor
+    tableEditor: {
+        title: 'Table Editor',
+        header: 'Header',
+        cell: 'Cell',
+        addColumn: 'Add Column',
+        removeColumn: 'Remove Column',
+        addRow: 'Add Row',
+        removeRow: 'Remove Row',
+        alignment: 'Toggle Alignment',
+        editTable: 'Edit Table',
+        noTableFound: 'No table found at cursor position'
+    },
+
+    // Backlinks
+    backlinks: {
+        title: 'Backlinks',
+        noDocument: 'Open a document to see backlinks.',
+        noBacklinks: 'No documents link to this file.',
+        count: '{count} document(s) link here',
+        link: 'link',
+        links: 'links',
+        error: 'Error loading backlinks.',
+        refresh: 'Refresh Backlinks'
     },
 
     // What's New

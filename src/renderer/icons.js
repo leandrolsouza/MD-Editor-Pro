@@ -341,6 +341,17 @@ const icons = {
         <line x1="15.5" y1="7.5" x2="14.5" y2="10.5"/>
         <line x1="8.5" y1="16.5" x2="9.5" y2="13.5"/>
         <line x1="15.5" y1="16.5" x2="14.5" y2="13.5"/>
+    </svg>`,
+
+    command: () => `<svg width="${ICON_SIZE}" height="${ICON_SIZE}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${STROKE_WIDTH}" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="4 17 10 11 4 5"/>
+        <line x1="12" y1="19" x2="20" y2="19"/>
+    </svg>`,
+
+    backlinks: () => `<svg width="${ICON_SIZE}" height="${ICON_SIZE}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${STROKE_WIDTH}" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 17H7A5 5 0 0 1 7 7h2"/>
+        <path d="M15 7h2a5 5 0 1 1 0 10h-2"/>
+        <line x1="8" y1="12" x2="16" y2="12"/>
     </svg>`
 };
 

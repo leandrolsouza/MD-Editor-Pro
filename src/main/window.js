@@ -91,6 +91,21 @@ class WindowManager {
             this.mainWindow.show();
         });
 
+        // Prevent navigation away from the app (e.g., clicking links in preview)
+        this.mainWindow.webContents.on('will-navigate', (e, url) => {
+            // Allow loading the app's own index.html
+            const appUrl = `file://${path.join(__dirname, '../renderer/index.html')}`;
+
+            if (!url.startsWith(appUrl)) {
+                e.preventDefault();
+            }
+        });
+
+        // Prevent new windows from opening (e.g., target="_blank" links)
+        this.mainWindow.webContents.setWindowOpenHandler(() => {
+            return { action: 'deny' };
+        });
+
         // Handle window close event (before closing)
         this.mainWindow.on('close', (e) => this.handleWindowClose(e));
 

@@ -128,6 +128,9 @@
     --sidebar-border: #d3cbb7;
     --sidebar-header-bg: #eee8d5;
     --sidebar-title-fg: #657b83;
+
+    /* Hover/Selection */
+    --hover-bg: #eee8d5;
 }
 
 body.theme-solarized-light {

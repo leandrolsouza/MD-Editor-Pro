@@ -128,6 +128,9 @@
     --sidebar-border: #4c566a;
     --sidebar-header-bg: #3b4252;
     --sidebar-title-fg: #eceff4;
+
+    /* Hover/Selection */
+    --hover-bg: #434c5e;
 }
 
 body.theme-nord {
