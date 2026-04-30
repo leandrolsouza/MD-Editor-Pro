@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.10.1] - 2026-04-30
+
+### 🐛 Fixed
+
+#### Log File Sink
+- Fixed `LogFileSink` not creating the log directory or writing any entries when instantiated before `app.whenReady()`
+- `app.getPath('userData')` throws if called before the app is ready; the previous `catch` silently fell back to `tmpdir` but the file descriptor was never opened, resulting in no logs being written anywhere
+- Replaced eager initialization in the constructor with lazy init: the log directory is now resolved and the file opened on the **first `write()` call**, when the app is guaranteed to be ready
+- Added `app.isReady()` guard in `getDefaultLogDirectory()` as an extra safety net
+
+---
+
 ## [1.10.0] - 2026-04-30
 
 ### ✨ Added

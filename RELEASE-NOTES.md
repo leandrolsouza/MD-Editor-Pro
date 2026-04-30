@@ -4,6 +4,14 @@ What's new in MD Editor Pro — written for you, the user.
 
 ---
 
+## [1.10.1] - 2026-04-30
+
+### 🐛 Bug Fixes
+
+- Fixed a bug where log files were not being created after installing the app — errors and warnings were silently lost instead of being written to `AppData\Roaming\MD Editor Pro\logs\`
+
+---
+
 ## [1.10.0] - 2026-04-30
 
 ### 🏗️ Under the Hood
