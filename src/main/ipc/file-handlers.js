@@ -4,6 +4,9 @@
  */
 
 const { createIPCHandler } = require('../utils/ipc-utils');
+const logger = require('../utils/logger');
+
+const log = logger.child('FileHandlers');
 
 /**
  * Registra IPC handlers para operações de arquivo
@@ -15,10 +18,10 @@ const { createIPCHandler } = require('../utils/ipc-utils');
  */
 function register({ fileManager, refreshMenu, openExternal, ipcMain }) {
     ipcMain.handle('file:open', createIPCHandler(async () => {
-        console.log('IPC handler file:open called');
+        log.debug('IPC handler file:open called');
         const result = await fileManager.openFile();
 
-        console.log('fileManager.openFile result:', result);
+        log.debug('fileManager.openFile result', { result });
 
         // Update menu to reflect new recent files
         if (result) {

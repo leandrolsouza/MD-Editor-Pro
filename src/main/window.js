@@ -1,5 +1,7 @@
 const { BrowserWindow, dialog } = require('electron');
 const path = require('path');
+const logger = require('./utils/logger');
+const log = logger.child('WindowManager');
 
 /**
  * WindowManager - Manages the main application window
@@ -53,7 +55,7 @@ class WindowManager {
             }
             // response === 2 (Cancel): do nothing, window stays open
         } catch (error) {
-            console.error('Error checking unsaved changes:', error);
+            log.error('Error checking unsaved changes', error);
             // On error, allow the window to close to avoid trapping the user
             this.mainWindow.destroy();
         }

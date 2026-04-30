@@ -8,6 +8,7 @@
 console.log('typeof require:', typeof require);
 console.log('typeof window.require:', typeof window.require);
 
+const RendererErrorBoundary = require('./error-boundary.js');
 const ComponentRegistry = require('./core/component-registry.js');
 const eventBus = require('./core/event-bus.js');
 const initCore = require('./core/init-core.js');
@@ -21,6 +22,26 @@ const { registerActivityBarViews, registerCommandPaletteCommands } = require('./
 const handlers = require('./handlers.js');
 const notificationManager = require('./ui/notification.js');
 const i18n = require('./i18n/index.js');
+
+/**
+ * Forward an error-level message to the main process Logger via IPC.
+ * Falls back to console.error if the IPC bridge is not available.
+ * @param {string} message - Human-readable error description
+ * @param {Error} [error] - Optional Error object for context
+ */
+function logErrorToMain(message, error) {
+    if (window.electronAPI && typeof window.electronAPI.logError === 'function') {
+        const context = {};
+        if (error) {
+            context.error = error.message || String(error);
+            if (error.stack) context.stack = error.stack;
+        }
+        window.electronAPI.logError({ level: 'error', message, context });
+    } else {
+        // Fallback when IPC bridge is unavailable (e.g., during early startup)
+        console.error(message, error);
+    }
+}
 
 // The single registry instance for all components
 const registry = new ComponentRegistry();
@@ -88,6 +109,11 @@ async function initialize() {
             if (bp) bp.updateTranslations();
         });
 
+        // Register renderer error boundary before any component initialization
+        // Requirement 4.5: handlers must be active before components initialize
+        const errorBoundary = new RendererErrorBoundary();
+        errorBoundary.register();
+
         // === Phase 1: Initialize all components via init modules ===
         await initCore.initialize(registry, eventBus);
         await initManagers.initialize(registry, eventBus);
@@ -139,7 +165,7 @@ async function initialize() {
                         await handlers.createNewTab(result.filePath, result.content);
                     }
                 } catch (error) {
-                    console.error('Error opening linked file:', error);
+                    logErrorToMain('Error opening linked file', error);
                     notificationManager.error(i18n.t('notifications.failedToOpenFile') + ': ' + error.message);
                 }
             }
@@ -186,7 +212,7 @@ async function initialize() {
         const templateUI = registry.get('templateUI');
         templateUI.onInsert(async (template, mode) => {
             try { await handlers.handleTemplateInsert(template, mode); }
-            catch (error) { console.error('Failed to insert template:', error); }
+            catch (error) { logErrorToMain('Failed to insert template', error); }
         });
         formattingToolbar.connectTemplateUI(templateUI);
 
@@ -252,7 +278,7 @@ async function initialize() {
                 }
                 if (editor && line) setTimeout(() => editor.goToLine(line), 100);
             } catch (error) {
-                console.error('Error opening file from global search:', error);
+                logErrorToMain('Error opening file from global search', error);
                 notificationManager.error('Failed to open file: ' + error.message);
             }
         });
@@ -307,7 +333,7 @@ async function initialize() {
         preview.render(editor.getValue(), true);
         console.log('Renderer process initialized successfully');
     } catch (error) {
-        console.error('Failed to initialize renderer process:', error);
+        logErrorToMain('Failed to initialize renderer process', error);
         notificationManager.error(i18n.t('notifications.failedToInitialize') + ': ' + error.message);
     }
 }
@@ -371,7 +397,7 @@ function attachTooltips() {
  */
 function cleanup() {
     if (window.electronAPI && window.electronAPI.saveTabs) {
-        window.electronAPI.saveTabs().catch(err => console.error('Error saving tabs on cleanup:', err));
+        window.electronAPI.saveTabs().catch(err => logErrorToMain('Error saving tabs on cleanup', err));
     }
 
     const refs = handlers.getCleanupRefs();
@@ -404,13 +430,13 @@ window.hasUnsavedChanges = async () => {
     try {
         const result = await window.electronAPI.getModifiedTabs();
         if (result.success && result.tabs && result.tabs.length > 0) return true;
-    } catch (error) { console.error('Error checking modified tabs:', error); }
+    } catch (error) { logErrorToMain('Error checking modified tabs', error); }
     return false;
 };
 
 window.saveBeforeClose = async () => {
     try { await handlers.handleSaveAll(); return true; }
-    catch (error) { console.error('Error saving before close:', error); return false; }
+    catch (error) { logErrorToMain('Error saving before close', error); return false; }
 };
 
 window.addEventListener('unload', cleanup);

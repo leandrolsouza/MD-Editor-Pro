@@ -1,5 +1,7 @@
 const { autoUpdater } = require('electron-updater');
 const { dialog } = require('electron');
+const logger = require('./utils/logger');
+const log = logger.child('AutoUpdater');
 
 class AutoUpdater {
     constructor(windowManager) {
@@ -17,34 +19,33 @@ class AutoUpdater {
     setupEventListeners() {
         // Quando encontrar uma atualização disponível
         autoUpdater.on('update-available', (info) => {
-            console.log('Update available:', info.version);
+            log.debug('Update available', { version: info.version });
             this.updateAvailable = true;
             this.notifyUpdateAvailable(info);
         });
 
         // Quando não houver atualizações
         autoUpdater.on('update-not-available', (info) => {
-            console.log('Update not available. Current version:', info.version);
+            log.debug('Update not available', { version: info.version });
             this.updateAvailable = false;
         });
 
         // Progresso do download
         autoUpdater.on('download-progress', (progressObj) => {
-            const message = `Download: ${Math.round(progressObj.percent)}%`;
-            console.log(message);
+            log.debug('Download progress', { percent: Math.round(progressObj.percent) });
             this.sendStatusToWindow('download-progress', progressObj);
         });
 
         // Download concluído
         autoUpdater.on('update-downloaded', (info) => {
-            console.log('Update downloaded:', info.version);
+            log.debug('Update downloaded', { version: info.version });
             this.updateDownloaded = true;
             this.notifyUpdateDownloaded(info);
         });
 
         // Erro durante atualização
         autoUpdater.on('error', (err) => {
-            console.error('Error in auto-updater:', err);
+            log.error('Error in auto-updater', err);
             const errorInfo = this.categorizeError(err);
             this.sendStatusToWindow('update-error', errorInfo);
         });
@@ -88,11 +89,11 @@ class AutoUpdater {
     // Verificar atualizações
     async checkForUpdates() {
         try {
-            console.log('Checking for updates...');
+            log.debug('Checking for updates');
             const result = await autoUpdater.checkForUpdates();
             return result;
         } catch (error) {
-            console.error('Error checking for updates:', error);
+            log.error('Error checking for updates', error);
             return null;
         }
     }
@@ -100,11 +101,11 @@ class AutoUpdater {
     // Baixar atualização
     async downloadUpdate() {
         try {
-            console.log('Downloading update...');
+            log.debug('Downloading update');
             await autoUpdater.downloadUpdate();
             return { success: true };
         } catch (error) {
-            console.error('Error downloading update:', error);
+            log.error('Error downloading update', error);
             return { success: false, error: error.message };
         }
     }

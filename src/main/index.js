@@ -23,13 +23,23 @@ const WhatsNewManager = require('./whats-new-manager');
 const SnippetManager = require('./snippet-manager');
 const path = require('path');
 const { createApplicationMenu, updateMenuItemChecked } = require('./menu');
+const logger = require('./utils/logger');
+const LogFileSink = require('./utils/log-file-sink');
+const MainErrorBoundary = require('./error-boundary');
+const MetricsCollector = require('./metrics-collector');
 
 // Sandbox disabled to allow nodeIntegration in renderer
 // Note: This is less secure and should be replaced with a bundler in production
 // app.enableSandbox();
 
-// Create manager instances
+// ── Observability: Initialize file sink early so all subsequent logs are persisted ──
+const fileSink = new LogFileSink();
+logger.addSink(fileSink);
+
+// ── Observability: Register error boundary before other initialization ──
 const windowManager = new WindowManager();
+const errorBoundary = new MainErrorBoundary(logger, windowManager);
+errorBoundary.register();
 const configStore = new ConfigStore();
 const fileManager = new FileManager(windowManager, configStore);
 const advancedMarkdownManager = new AdvancedMarkdownManager(configStore);
@@ -43,9 +53,10 @@ const linkAnalyzerManager = new LinkAnalyzerManager(workspaceManager);
 const aiChatManager = new AIChatManager(configStore);
 const aiAutocompleteManager = new AIAutocompleteManager(configStore);
 const issueReporterManager = new IssueReporterManager(windowManager);
-const whatsNewManager = new WhatsNewManager(configStore, app.getVersion(), path.join(app.getAppPath(), 'CHANGELOG.md'));
+const whatsNewManager = new WhatsNewManager(configStore, app.getVersion(), path.join(app.getAppPath(), 'RELEASE-NOTES.md'));
 const snippetManager = new SnippetManager(configStore);
 let autoUpdater = null;
+let metricsCollector = null;
 
 /**
  * Helper to refresh the application menu
@@ -79,6 +90,8 @@ function registerIPCHandlers() {
         windowManager,
         autoUpdater,
         snippetManager,
+        logger,
+        metricsCollector,
         refreshMenu,
         updateMenuItemChecked,
         openExternal: shell.openExternal.bind(shell),
@@ -102,6 +115,7 @@ function registerIPCHandlers() {
     require('./ipc/issue-reporter-handlers').register(deps);
     require('./ipc/image-handlers').register(deps);
     require('./ipc/snippet-handlers').register(deps);
+    require('./ipc/observability-handlers').register(deps);
 }
 
 /**
@@ -118,6 +132,10 @@ app.whenReady().then(() => {
 
     // Initialize auto-updater after window is created
     autoUpdater = new AutoUpdater(windowManager);
+
+    // Initialize metrics collector after window creation and start collection
+    metricsCollector = new MetricsCollector(logger, windowManager);
+    metricsCollector.start();
 
     // Rebuild menu now that autoUpdater is available
     refreshMenu();

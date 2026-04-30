@@ -206,7 +206,11 @@ const electronAPI = {
 
     // What's New operations
     getWhatsNewData: () => ipcRenderer.invoke('whats-new:get-changelog'),
-    markWhatsNewSeen: (version) => ipcRenderer.invoke('whats-new:mark-seen', version)
+    markWhatsNewSeen: (version) => ipcRenderer.invoke('whats-new:mark-seen', version),
+
+    // Observability operations
+    logError: (data) => ipcRenderer.invoke('log:error', data),
+    getHealthMetrics: () => ipcRenderer.invoke('get-health-metrics')
 };
 
 // Expose API directly to window when contextIsolation is disabled

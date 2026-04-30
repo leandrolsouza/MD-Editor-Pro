@@ -1,6 +1,6 @@
 {
   "name": "md-editor-pro",
-  "version": "1.9.0",
+  "version": "1.10.0",
   "description": "A cross-platform markdown editor built with Electron",
   "main": "src/main/index.js",
   "scripts": {
@@ -78,6 +78,7 @@
     "files": [
       "src/**/*",
       "package.json",
+      "RELEASE-NOTES.md",
       "!**/*.test.js",
       "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
       "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",

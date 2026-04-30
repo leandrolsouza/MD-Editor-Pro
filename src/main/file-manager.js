@@ -1,6 +1,8 @@
 const { dialog } = require('electron');
 const fs = require('fs').promises;
 const path = require('path');
+const logger = require('./utils/logger');
+const log = logger.child('FileManager');
 
 /**
  * FileManager - Handles file operations (open, save, saveAs)
@@ -216,7 +218,7 @@ class FileManager {
 
             return filePath;
         } catch (error) {
-            console.error('Error in saveFileAs:', error);
+            log.error('Error in saveFileAs', error);
             throw error;
         }
     }
@@ -245,7 +247,7 @@ class FileManager {
 
             return result.response;
         } catch (error) {
-            console.error('Error in showUnsavedChangesDialog:', error);
+            log.error('Error in showUnsavedChangesDialog', error);
             throw error;
         }
     }

@@ -7,6 +7,68 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.10.0] - 2026-04-30
+
+### ✨ Added
+
+#### Structured Logger
+- New centralized `Logger` class (`src/main/utils/logger.js`) replacing scattered `console.log`/`console.error` calls
+- Level-aware logging: `debug`, `info`, `warn`, `error`, `fatal`
+- Child loggers with preset category labels (e.g., `logger.child('IPC')`)
+- Multiple sink support: console sink (default) and file sink
+- Safe JSON serialization with circular reference detection
+- Auto-detects production vs. development mode to set default log level
+
+#### Log File Sink
+- Persistent log file writer (`src/main/utils/log-file-sink.js`) with rotation and retention
+- Writes newline-delimited JSON (NDJSON) to date-based log files in the user data directory
+- Rotates when a file exceeds 5 MB; retains up to 7 log files
+- Falls back to console-only output on write failure
+
+#### IPC Error Codes
+- New `src/main/utils/ipc-error-codes.js` mapping system errors (`ENOENT`, `EACCES`, `ENOSPC`, etc.) to structured IPC error codes
+- Error codes: `FILE_NOT_FOUND`, `PERMISSION_DENIED`, `DISK_FULL`, `READ_ONLY_FS`, `VALIDATION_ERROR`, `INTERNAL_ERROR`
+- `createIPCHandler` now enriches thrown errors with `errorCode` for structured error handling in the renderer
+
+#### Main Process Error Boundary
+- New `MainErrorBoundary` class (`src/main/error-boundary.js`) registered at startup
+- Catches `uncaughtException` (fatal — shows native error dialog and exits) and `unhandledRejection` (non-fatal — logs and continues)
+- Attaches `render-process-gone` listener to the main window to detect renderer crashes and offer a reload dialog
+
+#### Renderer Error Boundary
+- New `RendererErrorBoundary` (`src/renderer/error-boundary.js`) registered before component initialization
+- Catches unhandled errors and promise rejections in the renderer process
+
+#### Metrics Collector
+- New `MetricsCollector` class (`src/main/metrics-collector.js`) collecting runtime health snapshots every 30 seconds
+- Tracks heap memory usage (`heapUsed`, `heapTotal`, `rss`, `external`) and active window count
+- Exposes `getLatest()` for on-demand snapshot access
+
+#### Observability IPC Handlers
+- New `src/main/ipc/observability-handlers.js` exposing `log:error` and `get-health-metrics` IPC channels
+- Renderer can forward errors to the main process logger via `window.electronAPI.logError()`
+- Renderer can query current health metrics via `window.electronAPI.getHealthMetrics()`
+
+### 🔧 Changed
+
+#### IPC Utilities
+- `createIPCHandler` now uses the structured logger instead of `console.error`
+- Added duration tracking: logs a warning for IPC calls that take longer than 1 second
+- Errors are now enriched with `errorCode` before being re-thrown
+
+#### Renderer Error Logging
+- Replaced `console.error` calls in `src/renderer/index.js` with `logErrorToMain()`, forwarding errors to the main process logger via IPC
+
+#### What's New Modal
+- Now reads from `RELEASE-NOTES.md` (user-facing release notes) instead of `CHANGELOG.md` (developer changelog)
+
+### 🧪 Tests
+
+- Added comprehensive tests for `Logger`, `LogFileSink`, `IPC_ERROR_CODES`, `MainErrorBoundary`, `RendererErrorBoundary`, and `MetricsCollector`
+- Updated `ipc-utils.test.js` with coverage for duration tracking, structured error codes, and slow-call warnings
+
+---
+
 ## [1.9.0] - 2026-04-30
 
 ### 🏗️ Refactored
