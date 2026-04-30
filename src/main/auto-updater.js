@@ -1,50 +1,56 @@
-const { autoUpdater } = require('electron-updater');
-const { dialog } = require('electron');
 const logger = require('./utils/logger');
 const log = logger.child('AutoUpdater');
 
 class AutoUpdater {
-    constructor(windowManager) {
+    /**
+     * @param {Object} windowManager - Instância do WindowManager
+     * @param {Object} [electronUpdater] - Instância do autoUpdater do electron-updater.
+     *   Opcional: se não fornecido, carrega o módulo real. Permite injeção em testes.
+     */
+    constructor(windowManager, electronUpdater) {
         this.windowManager = windowManager;
         this.updateAvailable = false;
         this.updateDownloaded = false;
 
+        // Usa a instância injetada ou carrega o módulo real
+        this._updater = electronUpdater || require('electron-updater').autoUpdater;
+
         // Configurações
-        autoUpdater.autoDownload = false; // Não baixar automaticamente
-        autoUpdater.autoInstallOnAppQuit = true; // Instalar ao fechar o app
+        this._updater.autoDownload = false; // Não baixar automaticamente
+        this._updater.autoInstallOnAppQuit = true; // Instalar ao fechar o app
 
         this.setupEventListeners();
     }
 
     setupEventListeners() {
         // Quando encontrar uma atualização disponível
-        autoUpdater.on('update-available', (info) => {
+        this._updater.on('update-available', (info) => {
             log.debug('Update available', { version: info.version });
             this.updateAvailable = true;
             this.notifyUpdateAvailable(info);
         });
 
         // Quando não houver atualizações
-        autoUpdater.on('update-not-available', (info) => {
+        this._updater.on('update-not-available', (info) => {
             log.debug('Update not available', { version: info.version });
             this.updateAvailable = false;
         });
 
         // Progresso do download
-        autoUpdater.on('download-progress', (progressObj) => {
+        this._updater.on('download-progress', (progressObj) => {
             log.debug('Download progress', { percent: Math.round(progressObj.percent) });
             this.sendStatusToWindow('download-progress', progressObj);
         });
 
         // Download concluído
-        autoUpdater.on('update-downloaded', (info) => {
+        this._updater.on('update-downloaded', (info) => {
             log.debug('Update downloaded', { version: info.version });
             this.updateDownloaded = true;
             this.notifyUpdateDownloaded(info);
         });
 
         // Erro durante atualização
-        autoUpdater.on('error', (err) => {
+        this._updater.on('error', (err) => {
             log.error('Error in auto-updater', err);
             const errorInfo = this.categorizeError(err);
             this.sendStatusToWindow('update-error', errorInfo);
@@ -90,7 +96,7 @@ class AutoUpdater {
     async checkForUpdates() {
         try {
             log.debug('Checking for updates');
-            const result = await autoUpdater.checkForUpdates();
+            const result = await this._updater.checkForUpdates();
             return result;
         } catch (error) {
             log.error('Error checking for updates', error);
@@ -102,7 +108,7 @@ class AutoUpdater {
     async downloadUpdate() {
         try {
             log.debug('Downloading update');
-            await autoUpdater.downloadUpdate();
+            await this._updater.downloadUpdate();
             return { success: true };
         } catch (error) {
             log.error('Error downloading update', error);
@@ -113,7 +119,7 @@ class AutoUpdater {
     // Instalar e reiniciar
     quitAndInstall() {
         if (this.updateDownloaded) {
-            autoUpdater.quitAndInstall(false, true);
+            this._updater.quitAndInstall(false, true);
         }
     }
 
@@ -149,7 +155,7 @@ class AutoUpdater {
 
     // Obter informações da versão atual
     getCurrentVersion() {
-        return autoUpdater.currentVersion.version;
+        return this._updater.currentVersion.version;
     }
 
     // Verificar se há atualização disponível

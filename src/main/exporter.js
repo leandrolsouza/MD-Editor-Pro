@@ -215,12 +215,12 @@ class Exporter {
         }
 
         return `
-            <script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js" integrity="sha384-Yz4MHpGMK5FYmVMJiUgBMWXsKsJfBOVJwFkqOKBMELRbDDRMiOGhCMnGGMdxzOp" crossorigin="anonymous"></script>
             <script>
                 mermaid.initialize({ 
                     startOnLoad: true,
                     theme: 'default',
-                    securityLevel: 'loose'
+                    securityLevel: 'strict'
                 });
             </script>
         `;
@@ -455,13 +455,15 @@ class Exporter {
 
             const filePath = result.filePath;
 
-            // Create a hidden window for PDF generation
+            // Create a hidden window for PDF generation with minimal privileges
             const pdfWindow = new BrowserWindow({
                 show: false,
                 webPreferences: {
-                    nodeIntegration: true,
-                    contextIsolation: false,
-                    sandbox: false
+                    nodeIntegration: false,
+                    contextIsolation: true,
+                    sandbox: true,
+                    webSecurity: true,
+                    allowRunningInsecureContent: false
                 }
             });
 

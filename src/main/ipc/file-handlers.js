@@ -9,6 +9,38 @@ const logger = require('../utils/logger');
 const log = logger.child('FileHandlers');
 
 /**
+ * Allowed URL protocols for shell:open-external
+ * Only http and https are permitted to prevent javascript:, file://, vbscript:, etc.
+ */
+const ALLOWED_EXTERNAL_PROTOCOLS = ['http:', 'https:'];
+
+/**
+ * Validates a URL for safe external opening
+ * @param {string} url - The URL to validate
+ * @returns {string} The validated URL
+ * @throws {Error} If URL is invalid or uses a disallowed protocol
+ */
+function validateExternalUrl(url) {
+    if (!url || typeof url !== 'string') {
+        throw new Error('Invalid URL: must be a non-empty string');
+    }
+
+    let parsed;
+
+    try {
+        parsed = new URL(url);
+    } catch {
+        throw new Error(`Invalid URL format: ${url}`);
+    }
+
+    if (!ALLOWED_EXTERNAL_PROTOCOLS.includes(parsed.protocol)) {
+        throw new Error(`Blocked URL with disallowed protocol "${parsed.protocol}". Only HTTP and HTTPS are allowed.`);
+    }
+
+    return url;
+}
+
+/**
  * Registra IPC handlers para operações de arquivo
  * @param {Object} deps - Dependências
  * @param {import('../file-manager')} deps.fileManager - Instância do FileManager
@@ -58,7 +90,9 @@ function register({ fileManager, refreshMenu, openExternal, ipcMain }) {
     }, 'saving file as'));
 
     ipcMain.handle('shell:open-external', createIPCHandler(async (event, url) => {
-        await openExternal(url);
+        const safeUrl = validateExternalUrl(url);
+
+        await openExternal(safeUrl);
         return { success: true };
     }, 'opening external URL'));
 }

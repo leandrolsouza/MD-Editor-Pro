@@ -9,6 +9,18 @@ const log = logger.child('FileManager');
  * Implements secure file handling with path validation
  */
 class FileManager {
+    /**
+     * Maximum file size allowed for reading (50 MB)
+     * Prevents out-of-memory conditions from loading extremely large files
+     */
+    static MAX_FILE_SIZE = 50 * 1024 * 1024;
+
+    /**
+     * Maximum image buffer size allowed (20 MB)
+     * Prevents abuse via oversized clipboard pastes
+     */
+    static MAX_IMAGE_SIZE = 20 * 1024 * 1024;
+
     constructor(windowManager, configStore = null) {
         this.windowManager = windowManager;
         this.configStore = configStore;
@@ -52,6 +64,32 @@ class FileManager {
     }
 
     /**
+     * Checks that a file is not a symbolic link and enforces size limits
+     * Prevents symlink attacks that could escape intended directories
+     * @param {string} filePath - The resolved file path to check
+     * @param {Object} [options] - Options
+     * @param {number} [options.maxSize] - Maximum allowed file size in bytes
+     * @throws {Error} If file is a symlink or exceeds size limit
+     * @private
+     */
+    async _validateFileAccess(filePath, options = {}) {
+        const maxSize = options.maxSize ?? FileManager.MAX_FILE_SIZE;
+
+        const stats = await fs.lstat(filePath);
+
+        if (stats.isSymbolicLink()) {
+            throw new Error('Symbolic links are not allowed for security reasons');
+        }
+
+        if (maxSize > 0 && stats.size > maxSize) {
+            const sizeMB = (stats.size / (1024 * 1024)).toFixed(1);
+            const limitMB = (maxSize / (1024 * 1024)).toFixed(0);
+
+            throw new Error(`File too large (${sizeMB} MB). Maximum allowed size is ${limitMB} MB.`);
+        }
+    }
+
+    /**
      * Opens a file dialog and reads the selected markdown file
      * @returns {Promise<{filePath: string, content: string}>} The file path and content
      * @throws {Error} If file reading fails
@@ -84,6 +122,9 @@ class FileManager {
         const safePath = this._validateFilePath(filePath);
 
         try {
+            // Verify file is not a symlink and check size limits
+            await this._validateFileAccess(safePath);
+
             // Read file content
             const content = await fs.readFile(safePath, 'utf-8');
 
@@ -120,6 +161,9 @@ class FileManager {
         const safePath = this._validateFilePath(filePath);
 
         try {
+            // Verify file is not a symlink and check size limits
+            await this._validateFileAccess(safePath);
+
             // Read file content
             const content = await fs.readFile(safePath, 'utf-8');
 
@@ -279,6 +323,9 @@ class FileManager {
         const safePath = this._validateFilePath(filePath);
 
         try {
+            // Verify file is not a symlink and check size limits
+            await this._validateFileAccess(safePath);
+
             // Read file content
             const content = await fs.readFile(safePath, 'utf-8');
 
@@ -323,6 +370,25 @@ class FileManager {
             } else {
                 throw new Error('Invalid image data: must be a Buffer, Uint8Array, or Array');
             }
+        }
+
+        // Validate image buffer size
+        if (imageBuffer.length === 0) {
+            throw new Error('Invalid image data: buffer is empty');
+        }
+
+        if (imageBuffer.length > FileManager.MAX_IMAGE_SIZE) {
+            const sizeMB = (imageBuffer.length / (1024 * 1024)).toFixed(1);
+            const limitMB = (FileManager.MAX_IMAGE_SIZE / (1024 * 1024)).toFixed(0);
+
+            throw new Error(`Image too large (${sizeMB} MB). Maximum allowed size is ${limitMB} MB.`);
+        }
+
+        // Validate PNG signature (first 8 bytes)
+        const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
+
+        if (imageBuffer.length < 8 || !imageBuffer.subarray(0, 8).equals(PNG_SIGNATURE)) {
+            throw new Error('Invalid image data: not a valid PNG file');
         }
 
         try {

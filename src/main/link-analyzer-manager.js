@@ -86,6 +86,15 @@ class LinkAnalyzerManager {
         // Resolve the absolute path from the source directory
         const absolutePath = path.resolve(sourceDir, linkPath);
 
+        // Security: ensure resolved path stays within the workspace
+        const normalizedWorkspace = path.normalize(workspacePath) + path.sep;
+        const normalizedAbsolute = path.normalize(absolutePath);
+
+        if (!normalizedAbsolute.startsWith(normalizedWorkspace) && normalizedAbsolute !== path.normalize(workspacePath)) {
+            // Link points outside workspace — return a safe relative indicator
+            return null;
+        }
+
         // Return workspace-relative path with forward slashes
         const relativePath = path.relative(workspacePath, absolutePath);
         return relativePath.replace(/\\/g, '/');
@@ -207,6 +216,11 @@ class LinkAnalyzerManager {
 
                 for (const link of links) {
                     const targetId = this.resolveLinkPath(link.target, sourceDir, workspacePath);
+
+                    // Skip links that resolve outside the workspace
+                    if (targetId === null) {
+                        continue;
+                    }
 
                     // Create target node if it doesn't exist yet
                     if (!nodesMap.has(targetId)) {

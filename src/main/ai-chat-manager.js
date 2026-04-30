@@ -10,6 +10,47 @@
 
 const { net } = require('electron');
 
+/**
+ * Default timeout for AI API requests (30 seconds)
+ */
+const API_REQUEST_TIMEOUT_MS = 30000;
+
+/**
+ * Creates an AbortSignal that times out after the specified duration
+ * @param {number} ms - Timeout in milliseconds
+ * @returns {AbortSignal}
+ */
+function createTimeoutSignal(ms = API_REQUEST_TIMEOUT_MS) {
+    return AbortSignal.timeout(ms);
+}
+
+/**
+ * Validates a URL string for safe network requests
+ * @param {string} url - The URL to validate
+ * @param {string[]} allowedProtocols - Allowed protocols
+ * @returns {string} The validated URL
+ * @throws {Error} If URL is invalid or uses a disallowed protocol
+ */
+function validateUrl(url, allowedProtocols = ['http:', 'https:']) {
+    if (!url || typeof url !== 'string') {
+        throw new Error('Invalid URL: must be a non-empty string');
+    }
+
+    let parsed;
+
+    try {
+        parsed = new URL(url);
+    } catch {
+        throw new Error(`Invalid URL format: ${url}`);
+    }
+
+    if (!allowedProtocols.includes(parsed.protocol)) {
+        throw new Error(`Blocked URL with disallowed protocol "${parsed.protocol}"`);
+    }
+
+    return url;
+}
+
 class AIChatManager {
     constructor(configStore) {
         this.configStore = configStore;
@@ -127,8 +168,10 @@ class AIChatManager {
     /**
      * Set local server URL
      * @param {string} url
+     * @throws {Error} If URL is invalid
      */
     setLocalServerUrl(url) {
+        validateUrl(url, ['http:', 'https:']);
         this.configStore.set('ai.local.serverUrl', url);
     }
 
@@ -311,6 +354,7 @@ class AIChatManager {
         return net.fetch(this.getApiEndpoint(), {
             method: 'POST',
             headers: this.buildHeaders(),
+            signal: createTimeoutSignal(),
             body: JSON.stringify({
                 model: this.getModel(),
                 messages: messages,
@@ -341,6 +385,7 @@ class AIChatManager {
         return net.fetch(this.getApiEndpoint(), {
             method: 'POST',
             headers: this.buildHeaders(),
+            signal: createTimeoutSignal(),
             body: JSON.stringify(body)
         });
     }
@@ -358,6 +403,7 @@ class AIChatManager {
         return net.fetch(endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            signal: createTimeoutSignal(),
             body: JSON.stringify(body)
         });
     }
@@ -663,7 +709,7 @@ Use this context to provide relevant assistance. When editing specific parts, pr
      */
     async tryFetchEndpoint(endpoint, headers) {
         try {
-            return await net.fetch(endpoint, { headers });
+            return await net.fetch(endpoint, { headers, signal: createTimeoutSignal(10000) });
         } catch (error) {
             console.log(`Endpoint ${endpoint} failed:`, error.message);
 
@@ -817,7 +863,8 @@ Use this context to provide relevant assistance. When editing specific parts, pr
 
             const response = await net.fetch(endpoint, {
                 method: 'GET',
-                headers
+                headers,
+                signal: createTimeoutSignal(10000)
             });
 
             if (response.ok) {

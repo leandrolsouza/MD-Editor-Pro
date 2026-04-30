@@ -91,7 +91,7 @@ module.exports = [
 
             // Electron security rules (Requirements 5.1, 5.2, 5.3, 5.4, 5.5)
             'custom/ipc-handler-pattern': 'error',
-            'custom/contextbridge-usage': 'warn',
+            'custom/contextbridge-usage': 'error',
             'custom/renderer-node-api': 'error',
             'custom/electronapi-interface': 'error',
 

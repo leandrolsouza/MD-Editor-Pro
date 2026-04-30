@@ -251,8 +251,15 @@ describe('FileManager - File save-load round trip', () => {
 
     // Tests for saveImageFromClipboard
     describe('saveImageFromClipboard', () => {
+        // Valid PNG signature (8 bytes) + minimal IHDR chunk for test data
+        const PNG_HEADER = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52];
+
+        function createTestPngBuffer() {
+            return Buffer.from(PNG_HEADER);
+        }
+
         it('should save image buffer to assets folder', async () => {
-            const imageBuffer = Buffer.from('fake-image-data');
+            const imageBuffer = createTestPngBuffer();
             const currentFilePath = path.join(testDir, 'document.md');
 
             const result = await fileManager.saveImageFromClipboard(imageBuffer, currentFilePath);
@@ -268,7 +275,7 @@ describe('FileManager - File save-load round trip', () => {
         });
 
         it('should create assets folder if it does not exist', async () => {
-            const imageBuffer = Buffer.from('fake-image-data');
+            const imageBuffer = createTestPngBuffer();
             const currentFilePath = path.join(testDir, 'document.md');
 
             const result = await fileManager.saveImageFromClipboard(imageBuffer, currentFilePath);
@@ -282,7 +289,7 @@ describe('FileManager - File save-load round trip', () => {
         });
 
         it('should generate unique filenames with timestamp', async () => {
-            const imageBuffer = Buffer.from('fake-image-data');
+            const imageBuffer = createTestPngBuffer();
             const currentFilePath = path.join(testDir, 'document.md');
 
             const result1 = await fileManager.saveImageFromClipboard(imageBuffer, currentFilePath);
@@ -304,8 +311,26 @@ describe('FileManager - File save-load round trip', () => {
             ).rejects.toThrow('Invalid image data: must be a Buffer, Uint8Array, or Array');
         });
 
+        it('should throw error for non-PNG data', async () => {
+            const notPng = Buffer.from([0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08]);
+            const currentFilePath = path.join(testDir, 'document.md');
+
+            await expect(
+                fileManager.saveImageFromClipboard(notPng, currentFilePath)
+            ).rejects.toThrow('Invalid image data: not a valid PNG file');
+        });
+
+        it('should throw error for empty buffer', async () => {
+            const emptyBuffer = Buffer.alloc(0);
+            const currentFilePath = path.join(testDir, 'document.md');
+
+            await expect(
+                fileManager.saveImageFromClipboard(emptyBuffer, currentFilePath)
+            ).rejects.toThrow('Invalid image data: buffer is empty');
+        });
+
         it('should accept Uint8Array as input', async () => {
-            const uint8Array = new Uint8Array([1, 2, 3, 4]);
+            const uint8Array = new Uint8Array(PNG_HEADER);
             const currentFilePath = path.join(testDir, 'document.md');
 
             const result = await fileManager.saveImageFromClipboard(uint8Array, currentFilePath);
@@ -315,7 +340,7 @@ describe('FileManager - File save-load round trip', () => {
         });
 
         it('should accept Array as input', async () => {
-            const array = [1, 2, 3, 4];
+            const array = Array.from(PNG_HEADER);
             const currentFilePath = path.join(testDir, 'document.md');
 
             const result = await fileManager.saveImageFromClipboard(array, currentFilePath);
@@ -325,7 +350,7 @@ describe('FileManager - File save-load round trip', () => {
         });
 
         it('should use current working directory when no file path provided', async () => {
-            const imageBuffer = Buffer.from('fake-image-data');
+            const imageBuffer = createTestPngBuffer();
 
             const result = await fileManager.saveImageFromClipboard(imageBuffer, null);
 

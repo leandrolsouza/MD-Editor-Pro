@@ -4,6 +4,26 @@ What's new in MD Editor Pro — written for you, the user.
 
 ---
 
+## [1.11.0] - 2026-04-30
+
+### 🔒 Security Improvements
+
+- **Safer PDF exports**: the hidden window used to generate PDFs no longer has full system access, reducing risk if a document contains malicious content
+- **Stricter Mermaid diagrams**: exported HTML now renders Mermaid charts in strict security mode
+- **External link protection**: clicking links in the app now only allows HTTP/HTTPS URLs — potentially dangerous protocols are blocked
+- **File size limits**: the editor now refuses to open files larger than 50 MB and clipboard images larger than 20 MB, preventing freezes with extremely large content
+- **Image paste validation**: pasted images are verified to be valid PNG files before saving
+- **Symbolic link protection**: the app no longer follows symbolic links when opening files, preventing unintended access to files outside your project
+- **Link analyzer safety**: the backlinks panel now ignores links that point outside your workspace folder
+- **AI request timeouts**: API calls to AI providers now have timeouts (15–30 seconds), so the app won't hang if a server stops responding
+- **Tighter Content Security Policy**: the editor window now restricts which external services can be contacted, adding another layer of protection
+
+### 🔧 Improvements
+
+- **AutoUpdater reliability**: internal improvements to the update system make it more robust and easier to diagnose issues
+
+---
+
 ## [1.10.1] - 2026-04-30
 
 ### 🐛 Bug Fixes

@@ -6,6 +6,11 @@
 
 const { net } = require('electron');
 
+/**
+ * Timeout for autocomplete API requests (15 seconds — shorter than chat)
+ */
+const AUTOCOMPLETE_TIMEOUT_MS = 15000;
+
 class AIAutocompleteManager {
     constructor(configStore) {
         this.configStore = configStore;
@@ -228,6 +233,7 @@ RULES:
                 response = await net.fetch(this.getApiEndpoint(), {
                     method: 'POST',
                     headers: this.buildHeaders(),
+                    signal: AbortSignal.timeout(AUTOCOMPLETE_TIMEOUT_MS),
                     body: JSON.stringify({
                         model: this.getModel(),
                         messages: messages,
@@ -295,6 +301,7 @@ RULES:
         return net.fetch(this.getApiEndpoint(), {
             method: 'POST',
             headers: this.buildHeaders(),
+            signal: AbortSignal.timeout(AUTOCOMPLETE_TIMEOUT_MS),
             body: JSON.stringify(body)
         });
     }
@@ -335,6 +342,7 @@ RULES:
         return net.fetch(endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            signal: AbortSignal.timeout(AUTOCOMPLETE_TIMEOUT_MS),
             body: JSON.stringify(body)
         });
     }

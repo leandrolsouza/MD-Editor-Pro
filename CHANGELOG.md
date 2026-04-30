@@ -7,6 +7,61 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.11.0] - 2026-04-30
+
+### 🔧 Changed
+
+#### ESLint Security Rules
+- Elevated `custom/contextbridge-usage` rule from `warn` to `error` — violations now break the build
+
+#### Content Security Policy (CSP)
+- Tightened CSP in `src/renderer/index.html`: added explicit `connect-src` whitelist for AI provider APIs (OpenAI, Anthropic, Google, Groq), restricted `img-src` to `self`, `data:`, and `file:`, and added `object-src 'none'`, `base-uri 'self'`, `form-action 'self'`
+
+#### Exporter — PDF Window Hardening
+- PDF generation window now runs with `nodeIntegration: false`, `contextIsolation: true`, `sandbox: true`, `webSecurity: true`, and `allowRunningInsecureContent: false` (previously had full Node access)
+
+#### Exporter — Mermaid Security
+- Changed Mermaid `securityLevel` from `'loose'` to `'strict'` in exported HTML
+- Added `integrity` and `crossorigin` attributes to the Mermaid CDN script tag (SRI)
+
+#### AI Chat Manager — URL Validation
+- `setLocalServerUrl()` now validates the URL format and rejects non-HTTP(S) protocols before persisting
+
+#### AI Request Timeouts
+- All `net.fetch` calls in `AIChatManager` now use a 30-second `AbortSignal.timeout` (10 s for health-check endpoints)
+- All `net.fetch` calls in `AIAutocompleteManager` now use a 15-second `AbortSignal.timeout`
+- Prevents hung connections from blocking the main process indefinitely
+
+### ✨ Added
+
+#### FileManager — Symlink & Size Guards
+- New `_validateFileAccess()` method rejects symbolic links and enforces a 50 MB file-size limit on read operations
+- Applied to `readFile`, `readFileContent`, and `readFileForTree` code paths
+- New `MAX_FILE_SIZE` (50 MB) and `MAX_IMAGE_SIZE` (20 MB) static constants
+
+#### FileManager — Clipboard Image Validation
+- `saveImageFromClipboard` now validates PNG magic bytes before writing to disk
+- Rejects empty buffers and images exceeding 20 MB
+
+#### File Handlers — External URL Validation
+- `shell:open-external` IPC handler now validates URLs and blocks non-HTTP(S) protocols (prevents `javascript:`, `file://`, `vbscript:` etc.)
+
+#### Link Analyzer — Path Traversal Protection
+- `resolveLinkPath` now verifies the resolved path stays within the workspace directory
+- Links that escape the workspace (e.g., `../../etc/passwd`) are silently ignored
+
+### 🏗️ Refactored
+
+#### AutoUpdater — Dependency Injection
+- Constructor now accepts an optional `electronUpdater` parameter, removing the hard dependency on `require('electron-updater')` at module load time
+- Internal references changed from the global `autoUpdater` to `this._updater`
+
+#### AutoUpdater Tests — Full Coverage
+- Replaced the previous `describe.skip` test suite with 25+ real tests covering initialization, all 5 event handlers, `categorizeError` (10 error patterns), `checkForUpdates`, `downloadUpdate`, `quitAndInstall`, `getCurrentVersion`, and status helpers
+- Tests use dependency injection — no Electron environment required
+
+---
+
 ## [1.10.1] - 2026-04-30
 
 ### 🐛 Fixed
