@@ -22,12 +22,16 @@ const LOG_FILE_EXT = '.log';
 
 /**
  * Get the default log directory using Electron's app.getPath('userData').
- * Falls back to a temp directory if Electron is not available.
+ * Falls back to a temp directory if Electron is not available or not ready yet.
  * @returns {string}
  */
 function getDefaultLogDirectory() {
     try {
         const { app } = require('electron');
+        // app.getPath() throws if called before app is ready
+        if (!app.isReady()) {
+            return path.join(require('os').tmpdir(), 'md-editor-pro-logs');
+        }
         return path.join(app.getPath('userData'), 'logs');
     } catch {
         return path.join(require('os').tmpdir(), 'md-editor-pro-logs');
@@ -64,7 +68,7 @@ class LogFileSink {
      * @param {string}  [options.minLevel]     - Minimum level to write to file (default: 'info')
      */
     constructor(options = {}) {
-        this._directory = options.directory || getDefaultLogDirectory();
+        this._directoryOverride = options.directory || null;
         this._maxFileSize = options.maxFileSize || DEFAULT_MAX_FILE_SIZE;
         this._maxFiles = options.maxFiles || DEFAULT_MAX_FILES;
         this._minLevel = options.minLevel || 'info';
@@ -72,9 +76,28 @@ class LogFileSink {
         this._currentFilePath = null;
         this._currentSize = 0;
         this._closed = false;
+        this._initialized = false;
 
+        // Only initialize eagerly if a directory was explicitly provided,
+        // otherwise defer until first write so app.getPath('userData') is available.
+        if (this._directoryOverride) {
+            this._directory = this._directoryOverride;
+            this._ensureDirectory();
+            this._openCurrentFile();
+            this._initialized = true;
+        }
+    }
+
+    /**
+     * Lazily resolve the log directory and open the file on first write.
+     * This handles the case where the sink is created before app.whenReady().
+     */
+    _lazyInit() {
+        if (this._initialized) return;
+        this._directory = this._directoryOverride || getDefaultLogDirectory();
         this._ensureDirectory();
         this._openCurrentFile();
+        this._initialized = true;
     }
 
     /**
@@ -91,6 +114,9 @@ class LogFileSink {
         if (LOG_LEVELS[entry.level] < LOG_LEVELS[this._minLevel]) {
             return;
         }
+
+        // Resolve log directory on first write (app may not be ready at construction time)
+        this._lazyInit();
 
         try {
             const line = LoggerClass.serialize(entry) + '\n';
