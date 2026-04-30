@@ -22,53 +22,39 @@ class GlobalSearchManager {
      * @returns {Promise<Object>} Search results
      */
     async searchInWorkspace(searchText, options = {}) {
-        try {
-            const workspacePath = this.workspaceManager.getWorkspacePath();
+        const workspacePath = this.workspaceManager.getWorkspacePath();
 
-            if (!workspacePath) {
-                return {
-                    success: false,
-                    error: 'No workspace is currently open'
-                };
-            }
-
-            if (!searchText || searchText.trim() === '') {
-                return {
-                    success: false,
-                    error: 'Search text cannot be empty'
-                };
-            }
-
-            const results = [];
-            const files = await this.getAllMarkdownFiles(workspacePath);
-
-            for (const filePath of files) {
-                const fileResults = await this.searchInFile(filePath, searchText, options);
-
-                if (fileResults.length > 0) {
-                    results.push({
-                        filePath,
-                        relativePath: path.relative(workspacePath, filePath),
-                        matches: fileResults
-                    });
-                }
-            }
-
-            return {
-                success: true,
-                results,
-                totalMatches: results.reduce((sum, file) => sum + file.matches.length, 0),
-                totalFiles: results.length,
-                searchText,
-                options
-            };
-        } catch (error) {
-            console.error('Error searching in workspace:', error);
-            return {
-                success: false,
-                error: error.message
-            };
+        if (!workspacePath) {
+            throw new Error('No workspace is currently open');
         }
+
+        if (!searchText || searchText.trim() === '') {
+            throw new Error('Search text cannot be empty');
+        }
+
+        const results = [];
+        const files = await this.getAllMarkdownFiles(workspacePath);
+
+        for (const filePath of files) {
+            const fileResults = await this.searchInFile(filePath, searchText, options);
+
+            if (fileResults.length > 0) {
+                results.push({
+                    filePath,
+                    relativePath: path.relative(workspacePath, filePath),
+                    matches: fileResults
+                });
+            }
+        }
+
+        return {
+            success: true,
+            results,
+            totalMatches: results.reduce((sum, file) => sum + file.matches.length, 0),
+            totalFiles: results.length,
+            searchText,
+            options
+        };
     }
 
     /**

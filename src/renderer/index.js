@@ -1,160 +1,63 @@
 /**
  * Renderer Process Entry Point
- * Initializes all components and sets up event listeners
+ * Orchestrates initialization via ComponentRegistry and init modules.
+ * Delegates event wiring, IPC listeners, keyboard shortcuts, and handlers to modules.
  * Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 2.1, 3.4, 3.5, 7.1
  */
 
 console.log('typeof require:', typeof require);
 console.log('typeof window.require:', typeof window.require);
 
-const Editor = require('./editor.js');
-const Preview = require('./preview.js');
-const SearchManager = require('./search.js');
-const ThemeManager = require('./theme.js');
-const ThemeSelector = require('./theme-selector.js');
-const ViewModeManager = require('./view-mode.js');
-const AutoSaveManager = require('./auto-save.js');
-const StatisticsCalculator = require('./statistics.js');
-const TabBar = require('./tab-bar.js');
-const FocusMode = require('./focus-mode.js');
-const TemplateUI = require('./template-ui.js');
-const SnippetManager = require('./snippet-manager.js');
-const SnippetUI = require('./snippet-ui.js');
-const FormattingToolbar = require('./formatting-toolbar.js');
-const AdvancedMarkdownSettingsUI = require('./advanced-markdown-settings-ui.js');
-const AdvancedMarkdownManagerClient = require('./advanced-markdown-manager-client.js');
-const { MarkdownParser } = require('./markdown-parser.js');
-const AdvancedMarkdownPostProcessor = require('./advanced-markdown/post-processor.js');
-const KeyboardShortcutsUI = require('./keyboard-shortcuts-ui.js');
-const AutoSaveSettingsUI = require('./auto-save-settings-ui.js');
-const TooltipManager = require('./tooltip.js');
-const FileTreeSidebar = require('./file-tree-sidebar.js');
-const OutlinePanel = require('./outline-panel.js');
-const TypewriterScrolling = require('./typewriter-scrolling.js');
-const notificationManager = require('./notification.js');
-const GlobalSearchUI = require('./global-search-ui.js');
-const ActivityBar = require('./activity-bar.js');
-const ImagePaste = require('./image-paste.js');
-const ImagePasteSettingsUI = require('./image-paste-settings-ui.js');
-const UpdateNotification = require('./update-notification.js');
-const AIChatPanel = require('./ai-chat-panel.js');
-const AIEditCommands = require('./ai-edit-commands.js');
-const AIAutocomplete = require('./ai-autocomplete.js');
-const { ContextMenu } = require('./context-menu.js');
+const ComponentRegistry = require('./core/component-registry.js');
+const eventBus = require('./core/event-bus.js');
+const initCore = require('./core/init-core.js');
+const initManagers = require('./init-managers.js');
+const initPanels = require('./init-panels.js');
+const initAI = require('./init-ai.js');
+const initSettings = require('./init-settings.js');
+const initFeatures = require('./init-features.js');
+const initUI = require('./init-ui.js');
+const { registerActivityBarViews, registerCommandPaletteCommands } = require('./init-activity-bar.js');
+const handlers = require('./handlers.js');
+const notificationManager = require('./ui/notification.js');
 const i18n = require('./i18n/index.js');
-const SettingsPanel = require('./settings-panel.js');
-const PanelResizer = require('./panel-resizer.js');
-const StatusBarInfo = require('./status-bar-info.js');
-const ConnectionGraphPanel = require('./connection-graph-panel.js');
-const WhatsNewModal = require('./whats-new-modal.js');
-const CommandPalette = require('./command-palette.js');
-const { TableEditor } = require('./table-editor.js');
-const BacklinksPanel = require('./backlinks-panel.js');
-const { getIcon } = require('./icons.js');
 
-// Application state
-let editor = null;
-let preview = null;
-let searchManager = null;
-let themeManager = null;
-let themeSelector = null;
-let viewModeManager = null;
-let autoSaveManager = null;
-let statisticsCalculator = null;
-let tabBar = null;
-let focusMode = null;
-let templateUI = null;
-let snippetManager = null;
-let snippetUI = null;
-let formattingToolbar = null;
-let advancedMarkdownSettingsUI = null;
-let advancedMarkdownManager = null;
-let advancedMarkdownPostProcessor = null;
-let markdownParser = null;
-let keyboardShortcutsUI = null;
-let autoSaveSettingsUI = null;
-let tooltipManager = null;
-let fileTreeSidebar = null;
-let outlinePanel = null;
-let typewriterScrolling = null;
-let globalSearchUI = null;
-let activityBar = null;
-let imagePaste = null;
-let imagePasteSettingsUI = null;
-let updateNotification = null;
-let aiChatPanel = null;
-let aiEditCommands = null;
-let aiAutocomplete = null;
-let contextMenu = null;
-let panelResizer = null;
-let statusBarInfo = null;
-let connectionGraphPanel = null;
-let whatsNewModal = null;
-let commandPalette = null;
-let tableEditor = null;
-let backlinksPanel = null;
+// The single registry instance for all components
+const registry = new ComponentRegistry();
 
-// Document state
-let currentFilePath = null;
-let isDirty = false;
-let lastSavedContent = '';
-let currentTabId = null;
-
-// Event listener cleanup functions
-let removeFileDroppedListener = null;
-let removeMenuActionListener = null;
+// Shared document state (passed to handlers module)
+const state = {
+    currentFilePath: null,
+    isDirty: false,
+    lastSavedContent: '',
+    currentTabId: null
+};
 
 /**
  * Update static HTML elements with translations
  */
 function updateStaticTranslations() {
-    // Search panel
-    const searchInput = document.getElementById('search-input');
-    const replaceInput = document.getElementById('replace-input');
-    const searchPanel = document.getElementById('search-panel');
-    const searchPrev = document.getElementById('search-prev');
-    const searchNext = document.getElementById('search-next');
-    const searchClose = document.getElementById('search-close');
-    const replaceCurrent = document.getElementById('replace-current');
-    const replaceAll = document.getElementById('replace-all');
+    const elements = {
+        'search-input': { placeholder: 'search.findPlaceholder', ariaLabel: 'search.find' },
+        'replace-input': { placeholder: 'search.replacePlaceholder', ariaLabel: 'search.replace' },
+        'search-panel': { ariaLabel: () => i18n.t('search.find') + ' & ' + i18n.t('search.replace') },
+        'search-prev': { title: 'search.previous', ariaLabel: 'search.previous' },
+        'search-next': { title: 'search.next', ariaLabel: 'search.next' },
+        'search-close': { title: 'actions.close', ariaLabel: 'actions.close' },
+        'replace-current': { textContent: 'search.replace', ariaLabel: 'search.replace' },
+        'replace-all': { textContent: 'search.replaceAll', ariaLabel: 'search.replaceAll' }
+    };
 
-    if (searchInput) {
-        searchInput.placeholder = i18n.t('search.findPlaceholder');
-        searchInput.setAttribute('aria-label', i18n.t('search.find'));
-    }
-
-    if (replaceInput) {
-        replaceInput.placeholder = i18n.t('search.replacePlaceholder');
-        replaceInput.setAttribute('aria-label', i18n.t('search.replace'));
-    }
-
-    if (searchPanel) {
-        searchPanel.setAttribute('aria-label', i18n.t('search.find') + ' & ' + i18n.t('search.replace'));
-    }
-
-    if (searchPrev) {
-        searchPrev.title = i18n.t('search.previous') || 'Previous';
-        searchPrev.setAttribute('aria-label', i18n.t('search.previous') || 'Previous match');
-    }
-
-    if (searchNext) {
-        searchNext.title = i18n.t('search.next') || 'Next';
-        searchNext.setAttribute('aria-label', i18n.t('search.next') || 'Next match');
-    }
-
-    if (searchClose) {
-        searchClose.title = i18n.t('actions.close');
-        searchClose.setAttribute('aria-label', i18n.t('actions.close'));
-    }
-
-    if (replaceCurrent) {
-        replaceCurrent.textContent = i18n.t('search.replace');
-        replaceCurrent.setAttribute('aria-label', i18n.t('search.replace'));
-    }
-
-    if (replaceAll) {
-        replaceAll.textContent = i18n.t('search.replaceAll');
-        replaceAll.setAttribute('aria-label', i18n.t('search.replaceAll'));
+    for (const [id, attrs] of Object.entries(elements)) {
+        const el = document.getElementById(id);
+        if (!el) continue;
+        if (attrs.placeholder) el.placeholder = i18n.t(attrs.placeholder);
+        if (attrs.title) el.title = i18n.t(attrs.title) || el.title;
+        if (attrs.textContent) el.textContent = i18n.t(attrs.textContent);
+        if (attrs.ariaLabel) {
+            const val = typeof attrs.ariaLabel === 'function' ? attrs.ariaLabel() : i18n.t(attrs.ariaLabel);
+            el.setAttribute('aria-label', val || '');
+        }
     }
 }
 
@@ -164,107 +67,76 @@ function updateStaticTranslations() {
 async function initialize() {
     try {
         console.log('=== Initializing renderer process ===');
-        console.log('window.electronAPI available:', !!window.electronAPI);
 
-        // Initialize i18n (internationalization)
+        // Initialize i18n
         await i18n.initialize();
         console.log('i18n initialized with locale:', i18n.getLocale());
-
-        // Update static HTML elements with translations
         updateStaticTranslations();
 
-        // Listen for locale changes to update static elements
+        // Listen for locale changes
         i18n.onLocaleChange(() => {
             updateStaticTranslations();
-
-            // Update connection graph panel texts (Requirement 8.3)
-            if (connectionGraphPanel) {
-                connectionGraphPanel.updateTranslations();
-            }
-
-            // Update What's New modal texts (Requirement 7.3)
-            if (whatsNewModal) {
-                whatsNewModal.updateTranslations();
-            }
-
-            // Update Command Palette texts
-            if (commandPalette) {
-                commandPalette.updateTranslations();
-                registerCommandPaletteCommands();
-            }
-
-            // Update Table Editor texts
-            if (tableEditor) {
-                tableEditor.updateTranslations();
-            }
-
-            // Update Backlinks Panel texts
-            if (backlinksPanel) {
-                backlinksPanel.updateTranslations();
-            }
+            const cg = registry.get('connectionGraphPanel');
+            if (cg) cg.updateTranslations();
+            const wn = registry.get('whatsNewModal');
+            if (wn) wn.updateTranslations();
+            const cp = registry.get('commandPalette');
+            if (cp) { cp.updateTranslations(); registerCommandPaletteCommands(registry, handlers); }
+            const te = registry.get('tableEditor');
+            if (te) te.updateTranslations();
+            const bp = registry.get('backlinksPanel');
+            if (bp) bp.updateTranslations();
         });
 
-        // Initialize Advanced Markdown Manager (client-side)
-        advancedMarkdownManager = new AdvancedMarkdownManagerClient();
-        await advancedMarkdownManager.loadSettings();
-        console.log('AdvancedMarkdownManager initialized');
+        // === Phase 1: Initialize all components via init modules ===
+        await initCore.initialize(registry, eventBus);
+        await initManagers.initialize(registry, eventBus);
+        await initPanels.initialize(registry, eventBus);
+        await initFeatures.initialize(registry, eventBus);
+        await initSettings.initialize(registry, eventBus);
+        await initUI.initialize(registry, eventBus);
+        await initAI.initialize(registry, eventBus);
 
-        // Initialize Advanced Markdown Post-Processor
-        advancedMarkdownPostProcessor = new AdvancedMarkdownPostProcessor();
-        console.log('AdvancedMarkdownPostProcessor initialized');
+        // Initialize handlers module with registry and shared state
+        handlers.init(registry, state);
 
-        // Initialize Markdown Parser with advanced features
-        markdownParser = new MarkdownParser(advancedMarkdownManager, advancedMarkdownPostProcessor);
-        console.log('MarkdownParser initialized');
+        // === Phase 2: Component-specific initialization & wiring ===
+        const editor = registry.get('editor');
+        const preview = registry.get('preview');
+        const markdownParser = registry.get('markdownParser');
+        const advancedMarkdownManager = registry.get('advancedMarkdownManager');
+        const formattingToolbar = registry.get('formattingToolbar');
+        const viewModeManager = registry.get('viewModeManager');
+        const themeSelector = registry.get('themeSelector');
+        const aiAutocomplete = registry.get('aiAutocomplete');
+        const aiEditCommands = registry.get('aiEditCommands');
 
         // Initialize What's New Modal
-        whatsNewModal = new WhatsNewModal(markdownParser);
-        whatsNewModal.initialize();
-        console.log('WhatsNewModal initialized');
+        registry.get('whatsNewModal').initialize();
 
         // Initialize Editor
         const editorContainer = document.getElementById('editor-container');
-
-        if (!editorContainer) {
-            throw new Error('Editor container not found');
-        }
-
-        // Get line numbers preference
+        if (!editorContainer) throw new Error('Editor container not found');
         const lineNumbersEnabled = await window.electronAPI.getLineNumbers();
-
-        editor = new Editor();
         editor.initialize(editorContainer, [], lineNumbersEnabled);
-        console.log('Editor initialized with line numbers:', lineNumbersEnabled);
 
         // Initialize Context Menu
-        contextMenu = new ContextMenu(editor);
-        contextMenu.initialize(editorContainer);
-        console.log('ContextMenu initialized');
+        registry.get('contextMenu').initialize(editorContainer);
 
-        // Initialize Preview with post-processor and markdown parser
+        // Initialize Preview
         const previewContainer = document.getElementById('preview-container');
-
-        if (!previewContainer) {
-            throw new Error('Preview container not found');
-        }
-        preview = new Preview(advancedMarkdownPostProcessor, markdownParser);
+        if (!previewContainer) throw new Error('Preview container not found');
         preview.initialize(previewContainer, {
             onLinkClick: async (href) => {
                 try {
                     const path = require('path');
                     let resolvedPath = href;
-
-                    // Resolve relative paths based on current file location
-                    if (currentFilePath && !path.isAbsolute(href)) {
-                        const currentDir = path.dirname(currentFilePath);
-
-                        resolvedPath = path.resolve(currentDir, href);
+                    if (state.currentFilePath && !path.isAbsolute(href)) {
+                        resolvedPath = path.resolve(path.dirname(state.currentFilePath), href);
                     }
-
                     const result = await window.electronAPI.openRecentFile(resolvedPath);
-
                     if (result && result.filePath && result.content !== undefined) {
-                        await createNewTab(result.filePath, result.content);
+                        await handlers.createNewTab(result.filePath, result.content);
                     }
                 } catch (error) {
                     console.error('Error opening linked file:', error);
@@ -272,551 +144,167 @@ async function initialize() {
                 }
             }
         });
-        console.log('Preview initialized');
 
         // Initialize FormattingToolbar
-        const formattingToolbarContainer = document.getElementById('formatting-toolbar');
-
-        if (!formattingToolbarContainer) {
-            throw new Error('Formatting toolbar container not found');
-        }
-        formattingToolbar = new FormattingToolbar(editor);
-        formattingToolbar.initialize(formattingToolbarContainer);
-        formattingToolbar.onMenuAction = (action) => handleMenuAction(action);
-        console.log('FormattingToolbar initialized');
+        const ftContainer = document.getElementById('formatting-toolbar');
+        if (!ftContainer) throw new Error('Formatting toolbar container not found');
+        formattingToolbar.initialize(ftContainer);
+        formattingToolbar.onMenuAction = (action) => handlers.handleMenuAction(action);
 
         // Initialize SearchManager
-        searchManager = new SearchManager(editor);
-        searchManager.initialize();
-        console.log('SearchManager initialized');
+        registry.get('searchManager').initialize();
 
-        // Initialize ThemeManager
-        themeManager = new ThemeManager();
-        await themeManager.initialize();
-
-        // Initialize ThemeSelector
-        themeSelector = new ThemeSelector(themeManager);
-        themeSelector.initialize();
-        // Expose globally for settings panel access
+        // ThemeSelector
         window.themeSelector = themeSelector;
+        themeSelector.initialize();
 
-        // Connect theme manager to preview for advanced markdown theme updates
-        themeManager.onThemeChange((theme) => {
-            if (preview) {
-                preview.updateTheme(theme);
-            }
-        });
-
-        console.log('ThemeManager initialized');
-
-        // Initialize ViewModeManager
-        viewModeManager = new ViewModeManager();
-        await viewModeManager.initialize();
-        console.log('ViewModeManager initialized');
-
-        // Connect FormattingToolbar to ViewModeManager for visibility control
+        // Connect FormattingToolbar to ViewModeManager
         viewModeManager.onViewModeChange((mode) => {
-            if (mode === 'preview') {
-                formattingToolbar.hide();
-            } else {
-                formattingToolbar.show();
-            }
+            if (mode === 'preview') formattingToolbar.hide();
+            else formattingToolbar.show();
         });
-        // Set initial visibility based on current view mode
-        const currentViewMode = viewModeManager.getCurrentViewMode();
+        if (viewModeManager.getCurrentViewMode() === 'preview') formattingToolbar.hide();
 
-        if (currentViewMode === 'preview') {
-            formattingToolbar.hide();
-        } else {
-            formattingToolbar.show();
-        }
-
-        // Initialize AutoSaveManager
-        autoSaveManager = new AutoSaveManager(editor);
-        await autoSaveManager.initialize();
-        console.log('AutoSaveManager initialized');
-
-        // Initialize StatisticsCalculator
-        statisticsCalculator = new StatisticsCalculator(editor);
-        await statisticsCalculator.initialize();
-        console.log('StatisticsCalculator initialized');
-
-        // Initialize StatusBarInfo (VS Code style cursor/encoding info)
-        statusBarInfo = new StatusBarInfo(editor);
-        statusBarInfo.initialize();
-        console.log('StatusBarInfo initialized');
+        // Initialize remaining components
+        await registry.get('autoSaveManager').initialize();
+        await registry.get('statisticsCalculator').initialize();
+        registry.get('statusBarInfo').initialize();
 
         // Initialize TabBar
         const tabBarContainer = document.getElementById('tab-bar');
-
-        if (!tabBarContainer) {
-            throw new Error('Tab bar container not found');
-        }
-        tabBar = new TabBar(tabBarContainer);
+        if (!tabBarContainer) throw new Error('Tab bar container not found');
+        const TabBar = require('./core/tab-bar.js');
+        const tabBar = new TabBar(tabBarContainer);
+        registry.register('tabBar', tabBar);
         tabBar.initialize();
-        console.log('TabBar initialized');
-
-        // Setup tab bar event handlers
-        setupTabBarHandlers();
+        handlers.setupTabBarHandlers();
 
         // Initialize FocusMode
-        focusMode = new FocusMode(editor);
-        focusMode.initialize();
-        console.log('FocusMode initialized');
+        registry.get('focusMode').initialize();
 
-        // Initialize TemplateUI
-        templateUI = new TemplateUI();
+        // TemplateUI wiring
+        const templateUI = registry.get('templateUI');
         templateUI.onInsert(async (template, mode) => {
-            try {
-                await handleTemplateInsert(template, mode);
-            } catch (error) {
-                console.error('Failed to insert template:', error);
-            }
+            try { await handlers.handleTemplateInsert(template, mode); }
+            catch (error) { console.error('Failed to insert template:', error); }
         });
-        // Connect TemplateUI to FormattingToolbar
         formattingToolbar.connectTemplateUI(templateUI);
-        console.log('TemplateUI initialized');
 
-        // Initialize SnippetManager (Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6)
-        snippetManager = new SnippetManager(editor, {
-            getCustomSnippets: async () => {
-                try {
-                    const result = await window.electronAPI.getConfig('customSnippets');
-
-                    return result?.value || [];
-                } catch (error) {
-                    console.error('Failed to get custom snippets:', error);
-                    return [];
-                }
-            },
-            addCustomSnippet: async (snippet) => {
-                try {
-                    const result = await window.electronAPI.getConfig('customSnippets');
-                    const snippets = result?.value || [];
-
-                    snippets.push(snippet);
-                    await window.electronAPI.setConfig('customSnippets', snippets);
-                } catch (error) {
-                    console.error('Failed to add custom snippet:', error);
-                    throw error;
-                }
-            },
-            deleteCustomSnippet: async (trigger) => {
-                try {
-                    const result = await window.electronAPI.getConfig('customSnippets');
-                    const snippets = result?.value || [];
-                    const filtered = snippets.filter(s => s.trigger !== trigger);
-
-                    await window.electronAPI.setConfig('customSnippets', filtered);
-                } catch (error) {
-                    console.error('Failed to delete custom snippet:', error);
-                    throw error;
-                }
-            },
-            updateCustomSnippet: async (trigger, updates) => {
-                try {
-                    const result = await window.electronAPI.getConfig('customSnippets');
-                    const snippets = result?.value || [];
-                    const index = snippets.findIndex(s => s.trigger === trigger);
-
-                    if (index !== -1) {
-                        snippets[index] = { ...snippets[index], ...updates };
-                        await window.electronAPI.setConfig('customSnippets', snippets);
-                    }
-                } catch (error) {
-                    console.error('Failed to update custom snippet:', error);
-                    throw error;
-                }
-            }
-        });
-        // Enable snippet extensions in the editor
-        const snippetExtensions = snippetManager.createSnippetExtension();
-
-        editor.enableSnippetExtensions(snippetExtensions);
-        console.log('SnippetManager initialized');
+        // SnippetManager wiring
+        const snippetManager = registry.get('snippetManager');
+        editor.enableSnippetExtensions(snippetManager.createSnippetExtension());
 
         // Initialize ImagePaste
-        imagePaste = new ImagePaste(editor);
-        await imagePaste.initialize();
-        console.log('ImagePaste initialized');
+        await registry.get('imagePaste').initialize();
 
-        // Initialize ImagePaste Settings UI
-        imagePasteSettingsUI = new ImagePasteSettingsUI();
-        imagePasteSettingsUI.onChange(async (enabled, assetsFolder) => {
-            if (imagePaste) {
-                await imagePaste.setEnabled(enabled);
-                console.log(`Image paste ${enabled ? 'enabled' : 'disabled'}, assets folder: ${assetsFolder}`);
-            }
+        // ImagePasteSettingsUI wiring
+        registry.get('imagePasteSettingsUI').onChange(async (enabled, assetsFolder) => {
+            const ip = registry.get('imagePaste');
+            if (ip) await ip.setEnabled(enabled);
         });
-        console.log('ImagePasteSettingsUI initialized');
 
-        // Initialize Advanced Markdown Settings UI
-        advancedMarkdownSettingsUI = new AdvancedMarkdownSettingsUI();
-        advancedMarkdownSettingsUI.onChange(async (featureName, enabled) => {
-            // Update local manager
+        // AdvancedMarkdownSettingsUI wiring
+        registry.get('advancedMarkdownSettingsUI').onChange(async (featureName, enabled) => {
             advancedMarkdownManager.updateFeature(featureName, enabled);
-
-            // Reinitialize parser with new settings
             markdownParser.reinitialize();
-
-            // Re-render preview immediately
-            const content = editor.getValue();
-
-            preview.render(content, true);
-
-            console.log(`Advanced markdown feature '${featureName}' ${enabled ? 'enabled' : 'disabled'}, preview updated`);
+            preview.render(editor.getValue(), true);
         });
-        console.log('AdvancedMarkdownSettingsUI initialized');
 
-        // Initialize Update Notification
-        updateNotification = new UpdateNotification();
-        console.log('UpdateNotification initialized');
-
-        // Initialize Keyboard Shortcuts UI
-        keyboardShortcutsUI = new KeyboardShortcutsUI();
-        keyboardShortcutsUI.onChange((actionId, keyBinding) => {
+        // KeyboardShortcutsUI wiring
+        registry.get('keyboardShortcutsUI').onChange((actionId, keyBinding) => {
             console.log(`Keyboard shortcut changed: ${actionId} -> ${keyBinding}`);
         });
-        console.log('KeyboardShortcutsUI initialized');
 
-        // Initialize Auto-Save Settings UI
-        autoSaveSettingsUI = new AutoSaveSettingsUI();
-        autoSaveSettingsUI.onChange(async (enabled, delay) => {
-            if (autoSaveManager) {
-                if (enabled) {
-                    await autoSaveManager.enable();
-                    await autoSaveManager.setDelay(delay);
-                    console.log(`Auto-save enabled with ${delay}s delay`);
-                } else {
-                    await autoSaveManager.disable();
-                    console.log('Auto-save disabled');
-                }
+        // AutoSaveSettingsUI wiring
+        registry.get('autoSaveSettingsUI').onChange(async (enabled, delay) => {
+            const asm = registry.get('autoSaveManager');
+            if (asm) {
+                if (enabled) { await asm.enable(); await asm.setDelay(delay); }
+                else await asm.disable();
             }
         });
-        console.log('AutoSaveSettingsUI initialized');
 
-        // Initialize Tooltip Manager
-        tooltipManager = new TooltipManager();
-        tooltipManager.initialize();
-        console.log('TooltipManager initialized');
+        // Initialize TooltipManager, FileTreeSidebar, OutlinePanel, TypewriterScrolling
+        registry.get('tooltipManager').initialize();
+        registry.get('fileTreeSidebar').initialize();
+        handlers.setupSidebarIntegration();
+        await handlers.restoreWorkspace();
+        registry.get('outlinePanel').initialize(registry.get('outlinePanelContainer'));
 
-        // Initialize File Tree Sidebar (will be integrated into Activity Bar)
-        const fileTreeContainer = document.createElement('div');
-        fileTreeContainer.className = 'file-tree-sidebar';
-        const fileTreeContent = document.createElement('div');
-        fileTreeContent.className = 'file-tree-sidebar__tree';
-        fileTreeContent.id = 'file-tree-container';
-        fileTreeContainer.appendChild(fileTreeContent);
-
-        fileTreeSidebar = new FileTreeSidebar(fileTreeContainer);
-        fileTreeSidebar.initialize();
-
-        // Setup sidebar integration with tab system
-        setupSidebarIntegration();
-
-        // Restore workspace on application start (Requirement 1.4)
-        await restoreWorkspace();
-
-        console.log('FileTreeSidebar initialized');
-
-        // Initialize Outline Panel (will be integrated into Activity Bar)
-        const outlinePanelContainer = document.createElement('div');
-        outlinePanelContainer.className = 'outline-panel';
-        const outlineTreeContainer = document.createElement('div');
-        outlineTreeContainer.className = 'outline-panel__tree';
-        outlineTreeContainer.id = 'outline-tree-container';
-        outlineTreeContainer.setAttribute('role', 'tree');
-        outlinePanelContainer.appendChild(outlineTreeContainer);
-
-        outlinePanel = new OutlinePanel(editor);
-        outlinePanel.initialize(outlinePanelContainer);
-
-        console.log('OutlinePanel initialized');
-
-        // Initialize Typewriter Scrolling (Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7)
-        typewriterScrolling = new TypewriterScrolling(editor);
+        const typewriterScrolling = registry.get('typewriterScrolling');
         typewriterScrolling.initialize();
+        const twResult = await window.electronAPI.getConfig('typewriter.enabled');
+        if (twResult?.value) typewriterScrolling.enable();
 
-        // Restore typewriter scrolling state from config (Requirement: 2.6, 5.6)
-        const typewriterEnabledResult = await window.electronAPI.getConfig('typewriter.enabled');
-        if (typewriterEnabledResult?.value) {
-            typewriterScrolling.enable();
-        }
-
-        console.log('TypewriterScrolling initialized');
-
-        // Initialize Global Search UI
-        globalSearchUI = new GlobalSearchUI();
+        // Initialize GlobalSearchUI
+        const globalSearchUI = registry.get('globalSearchUI');
         globalSearchUI.initialize();
-
-        // Setup global search file click handler
         globalSearchUI.onFileClick(async (filePath, line) => {
             try {
-                // Check if file is already open in a tab
                 const allTabsResult = await window.electronAPI.getAllTabs();
-
                 if (allTabsResult.success && allTabsResult.tabs) {
                     const existingTab = allTabsResult.tabs.find(tab => tab.filePath === filePath);
-
-                    if (existingTab) {
-                        // Switch to existing tab
-                        await switchToTab(existingTab.id);
-                    } else {
-                        // Open file in new tab
+                    if (existingTab) await handlers.switchToTab(existingTab.id);
+                    else {
                         const result = await window.electronAPI.readFile(filePath);
-
-                        if (result && result.success) {
-                            await createNewTab(filePath, result.content);
-                        }
+                        if (result && result.success) await handlers.createNewTab(filePath, result.content);
                     }
                 }
-
-                // Jump to line
-                if (editor && line) {
-                    setTimeout(() => {
-                        editor.goToLine(line);
-                    }, 100);
-                }
+                if (editor && line) setTimeout(() => editor.goToLine(line), 100);
             } catch (error) {
                 console.error('Error opening file from global search:', error);
                 notificationManager.error('Failed to open file: ' + error.message);
             }
         });
 
-        console.log('GlobalSearchUI initialized');
+        // Initialize ActivityBar and register views
+        registry.get('activityBar').initialize();
+        registerActivityBarViews(registry, handlers);
 
-        // Initialize Activity Bar (VS Code style sidebar)
-        activityBar = new ActivityBar();
-        activityBar.initialize();
+        // Initialize TableEditor, CommandPalette
+        registry.get('tableEditor').initialize();
+        registry.get('commandPalette').initialize();
+        registerCommandPaletteCommands(registry, handlers);
 
-        // Register views with activity bar
-        if (fileTreeSidebar) {
-            activityBar.registerView('files', i18n.t('activityBar.explorer').toUpperCase(), fileTreeContainer, [
-                {
-                    icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
-                        <line x1="12" y1="11" x2="12" y2="17"/>
-                        <line x1="9" y1="14" x2="15" y2="14"/>
-                    </svg>`,
-                    title: 'Abrir Pasta',
-                    onClick: () => handleOpenFolder()
-                }
-            ]);
-        }
-
-        if (globalSearchUI) {
-            // Register global search panel with Activity Bar
-            // Use the container reference directly from globalSearchUI
-            const searchPanel = globalSearchUI.container;
-            if (searchPanel) {
-                searchPanel.classList.remove('hidden');
-                activityBar.registerView('search', i18n.t('activityBar.search').toUpperCase(), searchPanel);
-            }
-        }
-
-        if (outlinePanel) {
-            activityBar.registerView('outline', i18n.t('activityBar.outline').toUpperCase(), outlinePanelContainer);
-        }
-
-        if (templateUI) {
-            activityBar.registerView('templates', i18n.t('activityBar.templates').toUpperCase(), () => templateUI.createSidebarPanel());
-        }
-
-        if (snippetManager) {
-            snippetUI = new SnippetUI(snippetManager);
-            snippetUI.onInsert((snippet) => {
-                if (editor && editor.view) {
-                    snippetManager.insertSnippetContent(snippet);
-                    editor.view.focus();
-                }
-            });
-            activityBar.registerView('snippets', i18n.t('activityBar.snippets').toUpperCase(), () => snippetUI.createSidebarPanel());
-        }
-
-        // Settings view
-        const settingsContent = document.createElement('div');
-        settingsContent.id = 'settings-container';
-        const settingsPanel = new SettingsPanel();
-        settingsPanel.initialize(settingsContent);
-        activityBar.registerView('settings', i18n.t('activityBar.settings').toUpperCase(), settingsContent);
-
-        // AI Chat view
-        const aiChatContainer = document.createElement('div');
-        aiChatContainer.id = 'ai-chat-container';
-        aiChatContainer.className = 'ai-chat-container';
-        aiChatPanel = new AIChatPanel(editor);
-        aiChatPanel.initialize(aiChatContainer);
-        activityBar.registerView('ai-chat', i18n.t('activityBar.aiAssistant').toUpperCase(), aiChatContainer);
-
-        console.log('AIChatPanel initialized');
-
-        // Connection Graph view
-        connectionGraphPanel = new ConnectionGraphPanel();
-        const connectionGraphContainer = connectionGraphPanel.initialize();
-        activityBar.registerView('connection-graph', i18n.t('activityBar.connectionGraph').toUpperCase(), connectionGraphContainer);
-
-        // Wire node click to open document in editor tab
-        connectionGraphPanel.onNodeClick(async (filePath) => {
-            try {
-                // Check if file is already open in a tab
-                const allTabsResult = await window.electronAPI.getAllTabs();
-
-                if (allTabsResult.success && allTabsResult.tabs) {
-                    const existingTab = allTabsResult.tabs.find(tab => tab.filePath === filePath);
-
-                    if (existingTab) {
-                        // Switch to existing tab
-                        await switchToTab(existingTab.id);
-                        return;
-                    }
-                }
-
-                // Open file in new tab
-                const result = await window.electronAPI.readFile(filePath);
-
-                if (result && result.success) {
-                    await createNewTab(filePath, result.content);
-                }
-            } catch (error) {
-                console.error('Error opening file from connection graph:', error);
-                notificationManager.error(i18n.t('notifications.failedToOpenFile') + ': ' + error.message);
-            }
-        });
-
-        console.log('ConnectionGraphPanel initialized');
-
-        // Backlinks Panel view
-        backlinksPanel = new BacklinksPanel();
-        const backlinksContainer = backlinksPanel.initialize();
-        backlinksPanel.onFileClicked(async (filePath) => {
-            try {
-                const allTabsResult = await window.electronAPI.getAllTabs();
-                if (allTabsResult.success && allTabsResult.tabs) {
-                    const existingTab = allTabsResult.tabs.find(tab => tab.filePath === filePath);
-                    if (existingTab) {
-                        await switchToTab(existingTab.id);
-                        return;
-                    }
-                }
-                const result = await window.electronAPI.readFile(filePath);
-                if (result && result.success) {
-                    await createNewTab(filePath, result.content);
-                }
-            } catch (error) {
-                console.error('Error opening file from backlinks:', error);
-                notificationManager.error(i18n.t('notifications.failedToOpenFile') + ': ' + error.message);
-            }
-        });
-        activityBar.registerView('backlinks', i18n.t('activityBar.backlinks').toUpperCase(), backlinksContainer, [
-            {
-                icon: getIcon('refresh'),
-                title: i18n.t('backlinks.refresh'),
-                onClick: () => {
-                    if (backlinksPanel) {
-                        backlinksPanel.invalidateCache();
-                        backlinksPanel.refresh();
-                    }
-                }
-            }
-        ]);
-        console.log('BacklinksPanel initialized');
-
-        // Initialize Table Editor
-        tableEditor = new TableEditor(editor);
-        tableEditor.initialize();
-        console.log('TableEditor initialized');
-
-        // Initialize Command Palette
-        commandPalette = new CommandPalette();
-        commandPalette.initialize();
-        registerCommandPaletteCommands();
-        console.log('CommandPalette initialized');
-
-        // AI Edit Commands (Ctrl+Shift+E)
-        aiEditCommands = new AIEditCommands(editor);
+        // AI Edit Commands & Autocomplete
         aiEditCommands.initialize();
-        // Expose globally for context menu access
         window.aiEditCommands = aiEditCommands;
-        console.log('AIEditCommands initialized');
-
-        // AI Autocomplete - inline suggestions while typing
-        aiAutocomplete = new AIAutocomplete(editor);
         await aiAutocomplete.initialize();
-        // Expose globally for settings UI to update
         window.aiAutocomplete = aiAutocomplete;
-        console.log('AIAutocomplete initialized');
 
-        console.log('ActivityBar initialized');
+        // Initialize PanelResizer
+        registry.get('panelResizer').initialize();
 
-        // Initialize Panel Resizer for resizable editor/preview and sidebar
-        panelResizer = new PanelResizer();
-        panelResizer.initialize();
-        console.log('PanelResizer initialized');
-
-        // Attach tooltips to formatting toolbar buttons
-        attachFormattingToolbarTooltips();
-
-        // Attach tooltips to search panel buttons
-        attachSearchPanelTooltips();
-
-        // Attach tooltips to status indicators
-        attachStatusIndicatorTooltips();
+        // Attach tooltips
+        attachTooltips();
 
         // Listen for settings changes from main process
         window.electronAPI.onAdvancedMarkdownSettingsChanged((featureName, enabled) => {
-            // Update local manager
             advancedMarkdownManager.updateFeature(featureName, enabled);
-
-            // Reinitialize parser
             markdownParser.reinitialize();
-
-            // Re-render preview
-            const content = editor.getValue();
-
-            preview.render(content, true);
+            preview.render(editor.getValue(), true);
         });
 
-        // Try to restore tabs from previous session
-        await restoreTabsFromSession();
+        // Restore tabs from previous session
+        await handlers.restoreTabsFromSession();
 
         // Connect editor changes to preview updates
         editor.onContentChange((content) => {
-            // Update markdown parser with current file path for image resolution
-            if (markdownParser && currentFilePath) {
-                markdownParser.setCurrentFilePath(currentFilePath);
-            }
-
+            if (markdownParser && state.currentFilePath) markdownParser.setCurrentFilePath(state.currentFilePath);
             preview.render(content);
-            updateDirtyState(content);
-
-            // Update current tab content
-            if (currentTabId) {
-                window.electronAPI.updateTabContent(currentTabId, content);
-            }
-
-            // Trigger AI autocomplete
-            if (aiAutocomplete) {
-                const cursorPos = editor.getCursorPosition();
-                aiAutocomplete.onContentChange(content, cursorPos);
-            }
+            handlers.updateDirtyState(content);
+            if (state.currentTabId) window.electronAPI.updateTabContent(state.currentTabId, content);
+            if (aiAutocomplete) aiAutocomplete.onContentChange(content, editor.getCursorPosition());
         });
 
-        // Setup editor scroll synchronization with preview
+        // Setup scroll sync, IPC listeners, keyboard shortcuts, drag-and-drop
         setupScrollSynchronization();
+        handlers.setupIPCListeners();
+        handlers.setupKeyboardShortcuts();
+        handlers.setupDragAndDrop();
 
-        // Setup IPC event listeners
-        setupIPCListeners();
-
-        // Setup keyboard shortcuts
-        setupKeyboardShortcuts();
-
-        // Setup file drag-and-drop
-        setupDragAndDrop();
-
-        // Render current editor content (handles both restored tabs and new empty documents)
-        const currentContent = editor.getValue();
-        preview.render(currentContent, true);
-
+        // Render current editor content
+        preview.render(editor.getValue(), true);
         console.log('Renderer process initialized successfully');
     } catch (error) {
         console.error('Failed to initialize renderer process:', error);
@@ -828,17 +316,11 @@ async function initialize() {
  * Setup scroll synchronization between editor and preview
  */
 function setupScrollSynchronization() {
-    if (!editor || !preview) {
-        return;
-    }
-
-    // Listen to editor scroll events
-    const editorScrollDOM = editor.view.scrollDOM;
-
-    editorScrollDOM.addEventListener('scroll', () => {
+    const editor = registry.get('editor');
+    const preview = registry.get('preview');
+    if (!editor || !preview) return;
+    editor.view.scrollDOM.addEventListener('scroll', () => {
         const scrollPercent = editor.getScrollPosition();
-
-        // Validate scroll percent before syncing
         if (!isNaN(scrollPercent) && scrollPercent >= 0 && scrollPercent <= 1) {
             preview.syncScroll(scrollPercent);
         }
@@ -846,1490 +328,41 @@ function setupScrollSynchronization() {
 }
 
 /**
- * Attach tooltips to formatting toolbar buttons
+ * Attach tooltips to toolbar, search panel, and status indicators
  */
-function attachFormattingToolbarTooltips() {
-    if (!tooltipManager || !formattingToolbar) {
-        return;
-    }
+function attachTooltips() {
+    const tooltipManager = registry.get('tooltipManager');
+    if (!tooltipManager) return;
 
-    // Get all toolbar buttons
-    const toolbarButtons = document.querySelectorAll('.toolbar-button');
-
-    toolbarButtons.forEach(button => {
+    // Formatting toolbar buttons
+    document.querySelectorAll('.toolbar-button').forEach(button => {
         const title = button.getAttribute('title');
-        if (title) {
-            tooltipManager.attach(button, title);
-            // Remove native title to prevent duplicate tooltip
-            button.removeAttribute('title');
-        }
+        if (title) { tooltipManager.attach(button, title); button.removeAttribute('title'); }
     });
-}
 
-/**
- * Attach tooltips to search panel buttons
- */
-function attachSearchPanelTooltips() {
-    if (!tooltipManager) {
-        return;
-    }
-
-    const searchButtons = [
+    // Search panel buttons
+    [
         { id: 'search-prev', text: 'Previous match' },
         { id: 'search-next', text: 'Next match' },
         { id: 'search-close', text: 'Close search panel' },
         { id: 'replace-current', text: 'Replace current match' },
         { id: 'replace-all', text: 'Replace all matches' },
         { id: 'toggle-replace', text: 'Toggle replace controls' }
-    ];
-
-    searchButtons.forEach(({ id, text }) => {
+    ].forEach(({ id, text }) => {
         const button = document.getElementById(id);
-        if (button) {
-            tooltipManager.attach(button, text);
-        }
+        if (button) tooltipManager.attach(button, text);
     });
-}
 
-/**
- * Attach tooltips to status indicators
- */
-function attachStatusIndicatorTooltips() {
-    if (!tooltipManager) {
-        return;
-    }
-
+    // Status indicator
     const statusIndicator = document.getElementById('auto-save-status');
     if (statusIndicator) {
-        // Dynamic tooltip based on status
         tooltipManager.attach(statusIndicator, () => {
             const text = statusIndicator.textContent;
-            if (text.includes('Saving')) {
-                return 'Auto-save in progress...';
-            } else if (text.includes('Saved')) {
-                return 'All changes saved';
-            } else if (text.includes('Error')) {
-                return 'Error saving file';
-            }
+            if (text.includes('Saving')) return 'Auto-save in progress...';
+            if (text.includes('Saved')) return 'All changes saved';
+            if (text.includes('Error')) return 'Error saving file';
             return 'Auto-save status';
         });
-    }
-}
-
-/**
- * Attach tooltip to a tab's close button
- * @param {string} tabId - The tab ID
- * @param {string} tabTitle - The tab title
- */
-function attachTooltipToTabCloseButton(tabId, tabTitle) {
-    if (!tooltipManager) {
-        return;
-    }
-
-    // Find the tab element and its close button
-    const tabElement = document.querySelector(`[data-tab-id="${tabId}"]`);
-    if (!tabElement) {
-        return;
-    }
-
-    const closeButton = tabElement.querySelector('.tab-close-button');
-    if (!closeButton) {
-        return;
-    }
-
-    const tooltipText = `Close ${tabTitle} <span class="tooltip-shortcut">Ctrl+W</span>`;
-    tooltipManager.attach(closeButton, tooltipText);
-}
-
-/**
- * Register all commands for the Command Palette
- */
-function registerCommandPaletteCommands() {
-    if (!commandPalette) return;
-
-    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-    const mod = isMac ? 'Cmd' : 'Ctrl';
-
-    const commands = [
-        // File commands
-        { id: 'new-file', label: i18n.t('menu.newFile'), category: i18n.t('commandPalette.categoryFile'), shortcut: `${mod}+N`, icon: 'filePlus', execute: () => handleNewFile() },
-        { id: 'open-file', label: i18n.t('menu.open'), category: i18n.t('commandPalette.categoryFile'), shortcut: `${mod}+O`, icon: 'file', execute: () => handleOpenFile() },
-        { id: 'open-folder', label: i18n.t('menu.openFolder'), category: i18n.t('commandPalette.categoryFile'), icon: 'folder', execute: () => handleOpenFolder() },
-        { id: 'save', label: i18n.t('menu.save'), category: i18n.t('commandPalette.categoryFile'), shortcut: `${mod}+S`, icon: 'save', execute: () => handleSaveFile() },
-        { id: 'save-as', label: i18n.t('menu.saveAs'), category: i18n.t('commandPalette.categoryFile'), icon: 'save', execute: () => handleSaveFileAs() },
-        { id: 'save-all', label: i18n.t('menu.saveAll'), category: i18n.t('commandPalette.categoryFile'), execute: () => handleSaveAll() },
-        { id: 'export-html', label: i18n.t('menu.exportHTML'), category: i18n.t('commandPalette.categoryFile'), icon: 'export', execute: () => handleExportHTML() },
-        { id: 'export-pdf', label: i18n.t('menu.exportPDF'), category: i18n.t('commandPalette.categoryFile'), icon: 'export', execute: () => handleExportPDF() },
-        { id: 'close-folder', label: i18n.t('menu.closeFolder'), category: i18n.t('commandPalette.categoryFile'), execute: () => handleCloseFolder() },
-
-        // Edit commands
-        { id: 'undo', label: i18n.t('contextMenu.undo'), category: i18n.t('commandPalette.categoryEdit'), shortcut: `${mod}+Z`, icon: 'undo', execute: () => editor && editor.undo() },
-        { id: 'redo', label: i18n.t('contextMenu.redo'), category: i18n.t('commandPalette.categoryEdit'), shortcut: `${mod}+Y`, icon: 'redo', execute: () => editor && editor.redo() },
-        { id: 'find', label: i18n.t('search.find'), category: i18n.t('commandPalette.categoryEdit'), shortcut: `${mod}+F`, icon: 'search', execute: () => searchManager && searchManager.show() },
-        { id: 'find-in-files', label: i18n.t('globalSearch.title'), category: i18n.t('commandPalette.categoryEdit'), shortcut: `${mod}+Shift+F`, icon: 'search', execute: () => activityBar && activityBar.toggleView('search') },
-
-        // View commands
-        { id: 'view-editor', label: i18n.t('quickActions.editorView'), category: i18n.t('commandPalette.categoryView'), icon: 'viewEditor', execute: () => viewModeManager && viewModeManager.setViewMode('editor') },
-        { id: 'view-split', label: i18n.t('quickActions.splitView'), category: i18n.t('commandPalette.categoryView'), icon: 'viewSplit', execute: () => viewModeManager && viewModeManager.setViewMode('split') },
-        { id: 'view-preview', label: i18n.t('quickActions.previewView'), category: i18n.t('commandPalette.categoryView'), icon: 'viewPreview', execute: () => viewModeManager && viewModeManager.setViewMode('preview') },
-        { id: 'focus-mode', label: i18n.t('quickActions.focusMode'), category: i18n.t('commandPalette.categoryView'), shortcut: 'F11', icon: 'focusMode', execute: () => focusMode && focusMode.toggle() },
-        { id: 'toggle-sidebar', label: i18n.t('activityBar.explorer'), category: i18n.t('commandPalette.categoryView'), shortcut: `${mod}+Shift+E`, icon: 'folder', execute: () => activityBar && activityBar.toggleView('files') },
-        { id: 'toggle-outline', label: i18n.t('activityBar.outline'), category: i18n.t('commandPalette.categoryView'), shortcut: `${mod}+Shift+O`, icon: 'outline', execute: () => activityBar && activityBar.toggleView('outline') },
-        { id: 'toggle-backlinks', label: i18n.t('activityBar.backlinks'), category: i18n.t('commandPalette.categoryView'), icon: 'backlinks', execute: () => activityBar && activityBar.toggleView('backlinks') },
-        { id: 'toggle-connection-graph', label: i18n.t('activityBar.connectionGraph'), category: i18n.t('commandPalette.categoryView'), icon: 'graph', execute: () => activityBar && activityBar.toggleView('connection-graph') },
-        { id: 'toggle-typewriter', label: i18n.t('typewriter.enabled'), category: i18n.t('commandPalette.categoryView'), shortcut: `${mod}+Shift+T`, execute: () => toggleTypewriterScrolling() },
-        { id: 'select-theme', label: i18n.t('themeSelector.title'), category: i18n.t('commandPalette.categoryView'), shortcut: `${mod}+K ${mod}+T`, icon: 'theme', execute: () => themeSelector && themeSelector.open() },
-        { id: 'toggle-theme', label: i18n.t('settings.theme'), category: i18n.t('commandPalette.categoryView'), shortcut: `${mod}+T`, icon: 'theme', execute: () => themeManager && themeManager.toggleTheme() },
-
-        // Insert commands
-        { id: 'insert-bold', label: i18n.t('formatting.bold'), category: i18n.t('commandPalette.categoryInsert'), shortcut: `${mod}+B`, icon: 'bold', execute: () => editor && editor.applyBold() },
-        { id: 'insert-italic', label: i18n.t('formatting.italic'), category: i18n.t('commandPalette.categoryInsert'), shortcut: `${mod}+I`, icon: 'italic', execute: () => editor && editor.applyItalic() },
-        { id: 'insert-strikethrough', label: i18n.t('formatting.strikethrough'), category: i18n.t('commandPalette.categoryInsert'), icon: 'strikethrough', execute: () => editor && editor.applyStrikethrough() },
-        { id: 'insert-code', label: i18n.t('formatting.code'), category: i18n.t('commandPalette.categoryInsert'), shortcut: `${mod}+\``, icon: 'code', execute: () => editor && editor.applyInlineCode() },
-        { id: 'insert-code-block', label: i18n.t('formatting.codeBlock'), category: i18n.t('commandPalette.categoryInsert'), icon: 'codeBlock', execute: () => editor && editor.applyCodeBlock() },
-        { id: 'insert-link', label: i18n.t('formatting.link'), category: i18n.t('commandPalette.categoryInsert'), icon: 'link', execute: () => editor && editor.insertLink() },
-        { id: 'insert-image', label: i18n.t('formatting.image'), category: i18n.t('commandPalette.categoryInsert'), icon: 'image', execute: () => editor && editor.insertImage() },
-        { id: 'insert-table', label: i18n.t('formatting.table'), category: i18n.t('commandPalette.categoryInsert'), icon: 'table', execute: () => editor && editor.insertTable() },
-        { id: 'insert-hr', label: i18n.t('formatting.horizontalRule'), category: i18n.t('commandPalette.categoryInsert'), icon: 'horizontalRule', execute: () => editor && editor.insertHorizontalRule() },
-        { id: 'insert-h1', label: i18n.t('formatting.heading', { level: 1 }), category: i18n.t('commandPalette.categoryInsert'), icon: 'heading1', execute: () => editor && editor.applyHeading(1) },
-        { id: 'insert-h2', label: i18n.t('formatting.heading', { level: 2 }), category: i18n.t('commandPalette.categoryInsert'), icon: 'heading2', execute: () => editor && editor.applyHeading(2) },
-        { id: 'insert-h3', label: i18n.t('formatting.heading', { level: 3 }), category: i18n.t('commandPalette.categoryInsert'), icon: 'heading3', execute: () => editor && editor.applyHeading(3) },
-        { id: 'insert-bullet-list', label: i18n.t('formatting.bulletList'), category: i18n.t('commandPalette.categoryInsert'), icon: 'listBullet', execute: () => editor && editor.applyUnorderedList() },
-        { id: 'insert-numbered-list', label: i18n.t('formatting.numberedList'), category: i18n.t('commandPalette.categoryInsert'), icon: 'listOrdered', execute: () => editor && editor.applyOrderedList() },
-        { id: 'insert-task-list', label: i18n.t('formatting.taskList'), category: i18n.t('commandPalette.categoryInsert'), icon: 'listTask', execute: () => editor && editor.applyTaskList() },
-        { id: 'insert-blockquote', label: i18n.t('formatting.blockquote'), category: i18n.t('commandPalette.categoryInsert'), icon: 'quote', execute: () => editor && editor.applyBlockquote() },
-        { id: 'insert-template', label: i18n.t('templates.insert'), category: i18n.t('commandPalette.categoryInsert'), icon: 'template', execute: () => templateUI && templateUI.showTemplateMenu() },
-
-        // Tools commands
-        { id: 'edit-table', label: i18n.t('tableEditor.editTable'), category: i18n.t('commandPalette.categoryTools'), icon: 'table', execute: () => { if (tableEditor && !tableEditor.openAtCursor()) { notificationManager.info(i18n.t('tableEditor.noTableFound')); } } },
-        { id: 'keyboard-shortcuts', label: i18n.t('shortcuts.title'), category: i18n.t('commandPalette.categoryTools'), icon: 'keyboard', execute: () => keyboardShortcutsUI && keyboardShortcutsUI.show() },
-        { id: 'auto-save-settings', label: i18n.t('autoSaveSettings.title'), category: i18n.t('commandPalette.categoryTools'), execute: () => autoSaveSettingsUI && autoSaveSettingsUI.show() },
-        { id: 'advanced-markdown', label: i18n.t('advancedMarkdown.title'), category: i18n.t('commandPalette.categoryTools'), execute: () => advancedMarkdownSettingsUI && advancedMarkdownSettingsUI.show() },
-        { id: 'image-paste-settings', label: i18n.t('imagePasteSettings.title'), category: i18n.t('commandPalette.categoryTools'), execute: () => imagePasteSettingsUI && imagePasteSettingsUI.show() },
-        { id: 'settings', label: i18n.t('settings.title'), category: i18n.t('commandPalette.categoryTools'), icon: 'settings', execute: () => activityBar && activityBar.toggleView('settings') },
-        { id: 'ai-chat', label: i18n.t('activityBar.aiAssistant'), category: i18n.t('commandPalette.categoryTools'), icon: 'ai', execute: () => activityBar && activityBar.toggleView('ai-chat') },
-
-        // Help commands
-        { id: 'whats-new', label: i18n.t('whatsNew.menuLabel'), category: i18n.t('commandPalette.categoryHelp'), execute: () => whatsNewModal && whatsNewModal.show() },
-        { id: 'about', label: i18n.t('about.title'), category: i18n.t('commandPalette.categoryHelp'), execute: () => showAboutDialog() },
-    ];
-
-    commandPalette.registerCommands(commands);
-}
-
-/**
- * Setup IPC event listeners for file operations and menu actions
- */
-function setupIPCListeners() {
-    console.log('Setting up IPC listeners...');
-    console.log('window.electronAPI:', window.electronAPI);
-
-    // Listen for file dropped events
-    removeFileDroppedListener = window.electronAPI.onFileDropped(async (filePath) => {
-        console.log('File dropped:', filePath);
-        // Load the dropped file by reading it and setting content
-        const result = await window.electronAPI.readFile(filePath);
-
-        if (result && result.success) {
-            currentFilePath = filePath;
-            editor.setContent(result.content);
-            // Title is managed by tab bar
-        }
-    });
-
-    // Listen for menu action events
-    removeMenuActionListener = window.electronAPI.onMenuAction(async (action, data) => {
-        console.log('Menu action received:', action, data);
-        await handleMenuAction(action, data);
-    });
-
-    console.log('IPC listeners setup complete');
-}
-
-/**
- * Handle menu actions from the main process
- * @param {string} action - The menu action to handle
- * @param {any} data - Optional data for the action
- */
-async function handleMenuAction(action, data) {
-    try {
-        switch (action) {
-            case 'new':
-                await handleNewFile();
-                break;
-            case 'open':
-                await handleOpenFile();
-                break;
-            case 'open-recent':
-                if (data) {
-                    await handleOpenRecentFile(data);
-                }
-                break;
-            case 'save':
-                await handleSaveFile();
-                break;
-            case 'save-as':
-                await handleSaveFileAs();
-                break;
-            case 'save-all':
-                await handleSaveAll();
-                break;
-            case 'export-html':
-                await handleExportHTML();
-                break;
-            case 'export-pdf':
-                await handleExportPDF();
-                break;
-            case 'undo':
-                editor.undo();
-                break;
-            case 'redo':
-                editor.redo();
-                break;
-            case 'find':
-                searchManager.show();
-                break;
-            case 'find-in-files':
-                if (globalSearchUI) {
-                    globalSearchUI.show();
-                }
-                break;
-            case 'select-theme':
-                if (themeSelector) {
-                    themeSelector.open();
-                }
-                break;
-            case 'toggle-theme':
-                await themeManager.toggleTheme();
-                break;
-            case 'view-mode-editor':
-                await viewModeManager.setViewMode('editor');
-                break;
-            case 'view-mode-preview':
-                await viewModeManager.setViewMode('preview');
-                break;
-            case 'view-mode-split':
-                await viewModeManager.setViewMode('split');
-                break;
-            case 'focus-mode':
-                if (focusMode) {
-                    focusMode.toggle();
-                }
-                break;
-            case 'insert-template':
-                if (templateUI) {
-                    templateUI.showTemplateMenu();
-                }
-                break;
-            case 'toggle-sidebar':
-                if (activityBar) {
-                    activityBar.toggleView('files');
-                }
-                break;
-            case 'toggle-outline':
-                if (activityBar) {
-                    activityBar.toggleView('outline');
-                }
-                break;
-            case 'toggle-typewriter':
-                await toggleTypewriterScrolling();
-                break;
-            case 'toggle-statistics':
-                if (statisticsCalculator) {
-                    await statisticsCalculator.toggleVisibility();
-                }
-                break;
-            case 'toggle-line-numbers':
-                await handleToggleLineNumbers();
-                break;
-            case 'toggle-auto-save':
-                if (autoSaveManager) {
-                    if (autoSaveManager.isEnabled()) {
-                        await autoSaveManager.disable();
-                        console.log('Auto-save disabled');
-                    } else {
-                        await autoSaveManager.enable();
-                        console.log('Auto-save enabled');
-                    }
-                }
-                break;
-            case 'auto-save-settings':
-                if (autoSaveSettingsUI) {
-                    await autoSaveSettingsUI.show();
-                }
-                break;
-            case 'open-keyboard-shortcuts':
-                if (keyboardShortcutsUI) {
-                    await keyboardShortcutsUI.show();
-                }
-                break;
-            case 'advanced-markdown-settings':
-                if (advancedMarkdownSettingsUI) {
-                    await advancedMarkdownSettingsUI.show();
-                }
-                break;
-            case 'image-paste-settings':
-                if (imagePasteSettingsUI) {
-                    await imagePasteSettingsUI.show();
-                }
-                break;
-            case 'open-folder':
-                await handleOpenFolder();
-                break;
-            case 'close-folder':
-                await handleCloseFolder();
-                break;
-            case 'about':
-                showAboutDialog();
-                break;
-            case 'whats-new':
-                if (whatsNewModal) {
-                    await whatsNewModal.show();
-                }
-                break;
-            case 'command-palette':
-                if (commandPalette) {
-                    commandPalette.show();
-                }
-                break;
-            case 'edit-table':
-                if (tableEditor) {
-                    if (!tableEditor.openAtCursor()) {
-                        notificationManager.info(i18n.t('tableEditor.noTableFound'));
-                    }
-                }
-                break;
-            default:
-                console.warn('Unknown menu action:', action);
-        }
-    } catch (error) {
-        console.error('Error handling menu action:', error);
-        notificationManager.error('Error: ' + error.message);
-    }
-}
-
-/**
- * Handle new file action
- */
-async function handleNewFile() {
-    try {
-        // Create a new tab instead of clearing current one
-        await createNewTab();
-    } catch (error) {
-        console.error('Failed to create new file:', error);
-        notificationManager.error(i18n.t('notifications.failedToCreateFile') + ' ' + i18n.t('notifications.tryAgain'));
-    }
-}
-
-/**
- * Handle open file action
- */
-async function handleOpenFile() {
-    try {
-        console.log('handleOpenFile called');
-
-        console.log('Calling window.electronAPI.openFile()...');
-        const result = await window.electronAPI.openFile();
-
-        console.log('openFile result:', result);
-
-        if (result && result.filePath && result.content !== undefined) {
-            // Create a new tab for the opened file
-            await createNewTab(result.filePath, result.content);
-        }
-    } catch (error) {
-        console.error('Error opening file:', error);
-        notificationManager.error(i18n.t('notifications.failedToOpenFile') + ': ' + error.message);
-    }
-}
-
-
-/**
- * Handle open recent file action
- * @param {string} filePath - Path of the recent file to open
- */
-async function handleOpenRecentFile(filePath) {
-    try {
-        console.log('handleOpenRecentFile called with:', filePath);
-
-        const result = await window.electronAPI.openRecentFile(filePath);
-
-        console.log('openRecentFile result:', result);
-
-        if (result && result.filePath && result.content !== undefined) {
-            // Create a new tab for the opened file
-            await createNewTab(result.filePath, result.content);
-        }
-    } catch (error) {
-        console.error('Error opening recent file:', error);
-        notificationManager.error(i18n.t('notifications.failedToOpenFile') + ': ' + error.message);
-    }
-}
-
-/**
- * Handle open folder action
- * Requirements: 1.1, 1.2
- */
-async function handleOpenFolder() {
-    if (!fileTreeSidebar) {
-        console.warn('File tree sidebar not initialized');
-        return;
-    }
-
-    try {
-        const result = await window.electronAPI.openWorkspace();
-
-        if (result.success && result.tree) {
-            await fileTreeSidebar.loadWorkspace(result.tree);
-            // Show sidebar when workspace is opened
-            await fileTreeSidebar.setVisibility(true);
-            console.log('Workspace opened:', result.workspacePath);
-
-            // Invalidate backlinks cache when workspace changes
-            if (backlinksPanel) {
-                backlinksPanel.invalidateCache();
-            }
-        }
-    } catch (error) {
-        console.error('Error opening folder:', error);
-        notificationManager.error(i18n.t('notifications.failedToOpenFolder') + ': ' + error.message);
-    }
-}
-
-/**
- * Handle close folder action
- * Requirements: 1.5
- */
-async function handleCloseFolder() {
-    if (!fileTreeSidebar) {
-        console.warn('File tree sidebar not initialized');
-        return;
-    }
-
-    try {
-        const result = await window.electronAPI.closeWorkspace();
-
-        if (result.success) {
-            fileTreeSidebar.clearWorkspace();
-            console.log('Workspace closed');
-
-            // Clear connection graph on workspace close (Requirement 7.3)
-            if (connectionGraphPanel) {
-                connectionGraphPanel.clear();
-            }
-        }
-    } catch (error) {
-        console.error('Error closing folder:', error);
-        notificationManager.error(i18n.t('notifications.failedToCloseFolder') + ': ' + error.message);
-    }
-}
-
-/**
- * Toggle outline panel visibility
- * Requirements: 1.7, 4.1, 4.3, 5.6
- */
-async function toggleOutlinePanel() {
-    if (!outlinePanel) {
-        console.warn('Outline panel not initialized');
-        return;
-    }
-
-    try {
-        outlinePanel.toggle();
-
-        // Persist visibility state (Requirement: 1.7, 5.6)
-        await window.electronAPI.setConfig('outline.visible', outlinePanel.isVisible);
-
-        console.log('Outline panel:', outlinePanel.isVisible ? 'shown' : 'hidden');
-    } catch (error) {
-        console.error('Error toggling outline panel:', error);
-        notificationManager.error(i18n.t('notifications.failedToToggleOutline') + ': ' + error.message);
-    }
-}
-
-/**
- * Toggle typewriter scrolling mode
- * Requirements: 2.6, 4.1, 4.2, 4.4, 5.6
- */
-async function toggleTypewriterScrolling() {
-    if (!typewriterScrolling) {
-        console.warn('Typewriter scrolling not initialized');
-        return;
-    }
-
-    try {
-        typewriterScrolling.toggle();
-
-        // Persist mode state (Requirement: 2.6, 5.6)
-        await window.electronAPI.setConfig('typewriter.enabled', typewriterScrolling.isEnabled());
-
-        console.log('Typewriter scrolling:', typewriterScrolling.isEnabled() ? 'enabled' : 'disabled');
-    } catch (error) {
-        console.error('Error toggling typewriter scrolling:', error);
-        notificationManager.error(i18n.t('notifications.failedToToggleTypewriter') + ': ' + error.message);
-    }
-}
-
-/**
- * Handle toggle line numbers action
- */
-async function handleToggleLineNumbers() {
-    try {
-        const result = await window.electronAPI.toggleLineNumbers();
-
-        if (result.success && editor) {
-            editor.setLineNumbers(result.enabled);
-            console.log('Line numbers:', result.enabled ? 'enabled' : 'disabled');
-        }
-    } catch (error) {
-        console.error('Error toggling line numbers:', error);
-        notificationManager.error(i18n.t('notifications.failedToToggleLineNumbers') + ': ' + error.message);
-    }
-}
-
-/**
- * Handle save file action
- * Requirements: 9.4, 9.5
- */
-async function handleSaveFile() {
-    try {
-        const content = editor.getValue();
-
-        if (currentFilePath) {
-            // Save to existing file
-            await window.electronAPI.saveFile(currentFilePath, content);
-            lastSavedContent = content;
-            isDirty = false;
-
-            // Update tab state
-            if (currentTabId) {
-                await window.electronAPI.markTabModified(currentTabId, false);
-                tabBar.markTabModified(currentTabId, false);
-            }
-
-            // Update file tree sidebar modified indicator (Requirement 9.4)
-            if (fileTreeSidebar && currentFilePath) {
-                fileTreeSidebar.markFileModified(currentFilePath, false);
-            }
-
-            // Update auto-save manager
-            if (autoSaveManager) {
-                autoSaveManager.setLastSavedContent(content);
-            }
-
-            // Refresh connection graph if visible (Requirement 7.1)
-            if (connectionGraphPanel && activityBar && activityBar.getActiveView() === 'connection-graph') {
-                connectionGraphPanel.refresh().catch(err => {
-                    console.error('Error refreshing connection graph after save:', err);
-                });
-            }
-
-            console.log('File saved:', currentFilePath);
-        } else {
-            // No file path, use save as
-            await handleSaveFileAs();
-        }
-    } catch (error) {
-        console.error('Error saving file:', error);
-        notificationManager.error(i18n.t('notifications.fileSaveFailed') + ': ' + error.message);
-    }
-}
-
-/**
- * Handle save file as action
- * Requirements: 9.4, 9.5
- */
-async function handleSaveFileAs() {
-    try {
-        const content = editor.getValue();
-        const result = await window.electronAPI.saveFileAs(content);
-
-        if (result && result.filePath) {
-            currentFilePath = result.filePath;
-            lastSavedContent = content;
-            isDirty = false;
-
-            // Update tab state
-            if (currentTabId) {
-                await window.electronAPI.updateTabFilePath(currentTabId, result.filePath);
-                await window.electronAPI.markTabModified(currentTabId, false);
-
-                // Update tab title
-                const tabResult = await window.electronAPI.getTab(currentTabId);
-
-                if (tabResult.success && tabResult.tab) {
-                    tabBar.updateTabTitle(currentTabId, tabResult.tab.title);
-                    tabBar.markTabModified(currentTabId, false);
-                }
-            }
-
-            // Update file tree sidebar modified indicator (Requirement 9.4)
-            if (fileTreeSidebar && currentFilePath) {
-                fileTreeSidebar.markFileModified(currentFilePath, false);
-                // Also set as active file since we just saved it
-                fileTreeSidebar.setActiveFile(currentFilePath);
-            }
-
-            // Update auto-save manager
-            if (autoSaveManager) {
-                autoSaveManager.setCurrentFilePath(result.filePath);
-                autoSaveManager.setLastSavedContent(content);
-            }
-
-            console.log('File saved as:', currentFilePath);
-        }
-    } catch (error) {
-        console.error('Error saving file as:', error);
-        notificationManager.error(i18n.t('notifications.fileSaveFailed') + ': ' + error.message);
-    }
-}
-
-/**
- * Handle save all files action
- * Requirements: 9.4, 9.5
- */
-async function handleSaveAll() {
-    try {
-        // Get all modified tabs
-        const result = await window.electronAPI.getModifiedTabs();
-
-        if (!result.success || !result.tabs || result.tabs.length === 0) {
-            notificationManager.info(i18n.t('notifications.noModifiedFiles'));
-            return;
-        }
-
-        const modifiedTabs = result.tabs;
-        let savedCount = 0;
-        let errorCount = 0;
-        const errors = [];
-
-        // Save each modified tab
-        for (const tab of modifiedTabs) {
-            try {
-                if (tab.filePath) {
-                    // Save to existing file
-                    await window.electronAPI.saveFile(tab.filePath, tab.content);
-                    await window.electronAPI.markTabModified(tab.id, false);
-                    tabBar.markTabModified(tab.id, false);
-
-                    // Update file tree sidebar modified indicator (Requirement 9.4)
-                    if (fileTreeSidebar && tab.filePath) {
-                        fileTreeSidebar.markFileModified(tab.filePath, false);
-                    }
-
-                    savedCount++;
-
-                    // Update current tab if it's the one being saved
-                    if (tab.id === currentTabId) {
-                        lastSavedContent = tab.content;
-                        isDirty = false;
-                        if (autoSaveManager) {
-                            autoSaveManager.setLastSavedContent(tab.content);
-                        }
-                    }
-                } else {
-                    // Skip unsaved files (they need Save As)
-                    errors.push(`"${tab.title}" has not been saved yet. Use Save As first.`);
-                    errorCount++;
-                }
-            } catch (error) {
-                console.error(`Error saving tab ${tab.id}:`, error);
-                errors.push(`Failed to save "${tab.title}": ${error.message}`);
-                errorCount++;
-            }
-        }
-
-        // Show result message
-        if (savedCount > 0 && errorCount === 0) {
-            notificationManager.success(i18n.t('notifications.successfullySavedFiles', { count: savedCount }));
-        } else if (savedCount > 0 && errorCount > 0) {
-            notificationManager.warning(i18n.t('notifications.savedWithErrors', { count: savedCount, errors: errors.join('\n') }));
-        } else {
-            notificationManager.error(i18n.t('notifications.failedToSaveFiles') + ':\n' + errors.join('\n'));
-        }
-
-        console.log(`Save All completed: ${savedCount} saved, ${errorCount} errors`);
-    } catch (error) {
-        console.error('Error in save all:', error);
-        notificationManager.error(i18n.t('notifications.failedToSaveFiles') + ': ' + error.message);
-    }
-}
-
-/**
- * Handle export to HTML action
- */
-async function handleExportHTML() {
-    try {
-        const content = editor.getValue();
-        const result = await window.electronAPI.exportHTML(content);
-
-        if (result && result.success) {
-            notificationManager.success(i18n.t('notifications.successfullyExportedHTML') + ': ' + result.filePath);
-        }
-    } catch (error) {
-        console.error('Error exporting to HTML:', error);
-        notificationManager.error(i18n.t('notifications.failedToExportHTML') + ': ' + error.message);
-    }
-}
-
-/**
- * Handle export to PDF action
- */
-async function handleExportPDF() {
-    try {
-        const content = editor.getValue();
-        const result = await window.electronAPI.exportPDF(content);
-
-        if (result && result.success) {
-            notificationManager.success(i18n.t('notifications.successfullyExportedPDF') + ': ' + result.filePath);
-        }
-    } catch (error) {
-        console.error('Error exporting to PDF:', error);
-        notificationManager.error(i18n.t('notifications.failedToExportPDF') + ': ' + error.message);
-    }
-}
-
-/**
- * Update dirty state based on content changes
- * Requirements: 9.4, 9.5
- * @param {string} content - Current editor content
- */
-function updateDirtyState(content) {
-    isDirty = content !== lastSavedContent;
-
-    // Update tab modified indicator
-    if (currentTabId) {
-        window.electronAPI.markTabModified(currentTabId, isDirty).catch(err => {
-            console.error('Error marking tab modified:', err);
-        });
-        tabBar.markTabModified(currentTabId, isDirty);
-
-        // Update file tree sidebar modified indicator (Requirement 9.4, 9.5)
-        if (fileTreeSidebar && currentFilePath) {
-            fileTreeSidebar.markFileModified(currentFilePath, isDirty);
-        }
-    }
-}
-
-/**
- * Setup keyboard shortcuts
- */
-function setupKeyboardShortcuts() {
-    document.addEventListener('keydown', async (e) => {
-        try {
-            // Detect platform (Ctrl on Windows/Linux, Cmd on macOS)
-            const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-            const modifier = isMac ? e.metaKey : e.ctrlKey;
-
-            // Ctrl/Cmd + Tab: Next tab (Requirements: 3.7)
-            if (modifier && e.key === 'Tab' && !e.shiftKey) {
-                e.preventDefault();
-                const result = await window.electronAPI.getNextTab();
-
-                if (result.success && result.tabId) {
-                    await switchToTab(result.tabId);
-                }
-            }
-
-            // Ctrl/Cmd + Shift + Tab: Previous tab
-            if (modifier && e.shiftKey && e.key === 'Tab') {
-                e.preventDefault();
-                const result = await window.electronAPI.getPreviousTab();
-
-                if (result.success && result.tabId) {
-                    await switchToTab(result.tabId);
-                }
-            }
-
-            // Ctrl/Cmd + W: Close tab (Requirements: 3.8)
-            if (modifier && e.key === 'w') {
-                e.preventDefault();
-                if (currentTabId) {
-                    await closeTab(currentTabId);
-                }
-            }
-
-            // Ctrl/Cmd + B: Bold (Requirements: 1.5)
-            if (modifier && e.key === 'b' && !e.shiftKey) {
-                e.preventDefault();
-                editor.applyFormatting('bold');
-            }
-
-            // Ctrl/Cmd + I: Italic (Requirements: 2.5)
-            if (modifier && e.key === 'i') {
-                e.preventDefault();
-                editor.applyFormatting('italic');
-            }
-
-            // Ctrl/Cmd + `: Inline code (Requirements: 7.5)
-            if (modifier && e.key === '`') {
-                e.preventDefault();
-                editor.applyFormatting('code');
-            }
-
-            // Ctrl/Cmd + F: Find
-            if (modifier && e.key === 'f' && !e.shiftKey) {
-                e.preventDefault();
-                searchManager.show();
-            }
-
-            // Ctrl/Cmd + Shift + F: Find in Files (Global Search)
-            if (modifier && e.shiftKey && e.key === 'F') {
-                e.preventDefault();
-                if (activityBar) {
-                    activityBar.toggleView('search');
-                }
-            }
-
-            // Ctrl/Cmd + Shift + E: Toggle Explorer
-            if (modifier && e.shiftKey && e.key === 'E') {
-                e.preventDefault();
-                if (activityBar) {
-                    activityBar.toggleView('files');
-                }
-            }
-
-            // Ctrl/Cmd + Shift + O: Toggle Outline
-            if (modifier && e.shiftKey && e.key === 'O') {
-                e.preventDefault();
-                if (activityBar) {
-                    activityBar.toggleView('outline');
-                }
-            }
-
-            // Ctrl/Cmd + Z: Undo - Let CodeMirror handle it natively via historyKeymap
-            // Ctrl/Cmd + Y or Ctrl/Cmd + Shift + Z: Redo - Let CodeMirror handle it natively via historyKeymap
-
-            // Ctrl/Cmd + S: Save
-            if (modifier && e.key === 's') {
-                e.preventDefault();
-                await handleSaveFile();
-            }
-
-            // Ctrl/Cmd + O: Open
-            if (modifier && e.key === 'o' && !e.shiftKey) {
-                e.preventDefault();
-                await handleOpenFile();
-            }
-
-            // Ctrl/Cmd + N: New
-            if (modifier && e.key === 'n') {
-                e.preventDefault();
-                await handleNewFile();
-            }
-
-            // Escape: Close search if open, or exit focus mode
-            if (e.key === 'Escape') {
-                if (searchManager.isVisible()) {
-                    e.preventDefault();
-                    searchManager.hide();
-                }
-                // Focus mode handles its own Escape key
-            }
-
-            // F11: Toggle focus mode
-            if (e.key === 'F11') {
-                e.preventDefault();
-                if (focusMode) {
-                    focusMode.toggle();
-                }
-            }
-
-            // Ctrl/Cmd + Shift + B: Toggle sidebar
-            if (modifier && e.key === 'B' && e.shiftKey && fileTreeSidebar) {
-                e.preventDefault();
-                await fileTreeSidebar.toggleVisibility();
-            }
-
-            // Ctrl/Cmd + Shift + O: Toggle outline panel
-            if (modifier && e.key === 'O' && e.shiftKey) {
-                e.preventDefault();
-                await toggleOutlinePanel();
-            }
-
-            // Ctrl/Cmd + Shift + T: Toggle typewriter scrolling
-            if (modifier && e.key === 'T' && e.shiftKey) {
-                e.preventDefault();
-                await toggleTypewriterScrolling();
-            }
-
-            // Ctrl/Cmd + Shift + P: Command Palette
-            if (modifier && e.key === 'P' && e.shiftKey) {
-                e.preventDefault();
-                if (commandPalette) {
-                    commandPalette.show();
-                }
-            }
-        } catch (error) {
-            console.error('Keyboard shortcut error:', error);
-        }
-    });
-}
-
-/**
- * Setup drag-and-drop file handling
- */
-function setupDragAndDrop() {
-    const appContainer = document.getElementById('app-container');
-
-    if (!appContainer) {
-        console.error('App container not found for drag-and-drop');
-        return;
-    }
-
-    // Prevent default drag behaviors
-    appContainer.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        appContainer.classList.add('drag-over');
-    });
-
-    appContainer.addEventListener('dragleave', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        appContainer.classList.remove('drag-over');
-    });
-
-    appContainer.addEventListener('drop', async (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        appContainer.classList.remove('drag-over');
-
-        const files = e.dataTransfer.files;
-
-        if (files.length > 0) {
-            const file = files[0];
-
-            // Check if it's a markdown file
-            if (file.name.endsWith('.md') || file.name.endsWith('.markdown')) {
-                // Read file content
-                const reader = new FileReader();
-
-                reader.onload = async (event) => {
-                    try {
-                        const content = event.target.result;
-
-                        // Create a new tab for the dropped file
-                        await createNewTab(file.path, content);
-                        console.log('File loaded via drag-and-drop:', file.path);
-                    } catch (error) {
-                        console.error('Failed to load dropped file:', error);
-                        notificationManager.error(i18n.t('notifications.failedToLoadFile') + ' ' + i18n.t('notifications.tryAgain'));
-                    }
-                };
-                reader.readAsText(file);
-            } else {
-                notificationManager.warning(i18n.t('notifications.pleaseDropMarkdown'));
-            }
-        }
-    });
-}
-
-/**
- * Setup tab bar event handlers
- */
-function setupTabBarHandlers() {
-    // Handle tab clicks
-    tabBar.onTabClick(async (tabId) => {
-        await switchToTab(tabId);
-    });
-
-    // Handle tab close
-    tabBar.onTabClose(async (tabId) => {
-        await closeTab(tabId);
-    });
-}
-
-/**
- * Setup sidebar integration with tab system
- * Requirements: 9.1, 9.2, 9.3, 9.4, 9.5
- */
-function setupSidebarIntegration() {
-    if (!fileTreeSidebar) {
-        return;
-    }
-
-    // Handle file clicks from sidebar - open or switch to tab
-    // Requirements: 9.1, 9.2
-    fileTreeSidebar.onFileClick(async (filePath) => {
-        try {
-            // Check if file is already open in a tab
-            const allTabsResult = await window.electronAPI.getAllTabs();
-
-            if (allTabsResult.success && allTabsResult.tabs) {
-                const existingTab = allTabsResult.tabs.find(tab => tab.filePath === filePath);
-
-                if (existingTab) {
-                    // Tab already exists, switch to it (Requirement 9.2)
-                    await switchToTab(existingTab.id);
-                    return;
-                }
-            }
-
-            // Tab doesn't exist, open the file and create a new tab (Requirement 9.1)
-            const result = await window.electronAPI.readFile(filePath);
-
-            if (result && result.success) {
-                await createNewTab(filePath, result.content);
-            } else {
-                throw new Error('Failed to read file');
-            }
-        } catch (error) {
-            console.error('Error opening file from sidebar:', error);
-            notificationManager.error(i18n.t('notifications.failedToOpenFile') + ': ' + error.message);
-        }
-    });
-
-    // Handle folder toggle - persist expansion state
-    fileTreeSidebar.onFolderToggle(async (folderPath, isExpanded) => {
-        try {
-            // Get current expanded folders
-            const result = await window.electronAPI.getConfig('workspace.expandedFolders');
-            const expandedFolders = result?.value || [];
-
-            if (isExpanded) {
-                // Add to expanded folders if not already present
-                if (!expandedFolders.includes(folderPath)) {
-                    expandedFolders.push(folderPath);
-                }
-            } else {
-                // Remove from expanded folders
-                const index = expandedFolders.indexOf(folderPath);
-                if (index !== -1) {
-                    expandedFolders.splice(index, 1);
-                }
-            }
-
-            // Persist the updated list
-            await window.electronAPI.setConfig('workspace.expandedFolders', expandedFolders);
-        } catch (error) {
-            console.error('Error persisting folder expansion state:', error);
-        }
-    });
-}
-
-/**
- * Restore workspace from previous session
- * Requirements: 1.4
- */
-async function restoreWorkspace() {
-    if (!fileTreeSidebar) {
-        return;
-    }
-
-    try {
-        const result = await window.electronAPI.restoreWorkspace();
-
-        if (result.success && result.tree && result.tree.length > 0) {
-            await fileTreeSidebar.loadWorkspace(result.tree);
-
-            // Check if sidebar should be visible (default to true if workspace exists)
-            const sidebarVisibleResult = await window.electronAPI.getConfig('workspace.sidebarVisible');
-            if (sidebarVisibleResult?.value !== false) {
-                await fileTreeSidebar.setVisibility(true);
-            }
-
-            console.log('Workspace restored:', result.workspacePath);
-        }
-    } catch (error) {
-        console.error('Error restoring workspace:', error);
-        // Don't show alert - workspace restoration is optional
-    }
-}
-
-/**
- * Restore tabs from previous session
- */
-async function restoreTabsFromSession() {
-    try {
-        const result = await window.electronAPI.restoreTabs();
-
-        if (result.success) {
-            const tabsResult = await window.electronAPI.getAllTabs();
-
-            if (tabsResult.success && tabsResult.tabs.length > 0) {
-                // Add tabs to UI
-                for (const tab of tabsResult.tabs) {
-                    tabBar.addTab(tab.id, tab.title, false, tab.isModified);
-                    // Attach tooltip to each tab's close button
-                    attachTooltipToTabCloseButton(tab.id, tab.title);
-                }
-
-                // Switch to active tab
-                const activeResult = await window.electronAPI.getActiveTab();
-
-                if (activeResult.success && activeResult.tab) {
-                    await switchToTab(activeResult.tab.id);
-                }
-
-                document.body.classList.add('has-tabs');
-                return;
-            }
-        }
-
-        // If no tabs restored, create a new empty tab
-        await createNewTab();
-    } catch (error) {
-        console.error('Error restoring tabs:', error);
-        // Create a new empty tab on error
-        await createNewTab();
-    }
-}
-
-/**
- * Create a new tab
- * Requirements: 9.1, 9.5
- * @param {string|null} filePath - File path or null for new document
- * @param {string} content - Document content
- */
-async function createNewTab(filePath = null, content = '') {
-    try {
-        const result = await window.electronAPI.createTab(filePath, content);
-
-        if (result.success && result.tab) {
-            const tab = result.tab;
-
-            tabBar.addTab(tab.id, tab.title, true, tab.isModified);
-            currentTabId = tab.id;
-
-            // Attach tooltip to the tab's close button
-            attachTooltipToTabCloseButton(tab.id, tab.title);
-
-            // Load content into editor
-            editor.setValue(content);
-            currentFilePath = filePath;
-            isDirty = false;
-            lastSavedContent = content;
-
-            if (autoSaveManager) {
-                autoSaveManager.setCurrentFilePath(filePath);
-                autoSaveManager.setLastSavedContent(content);
-            }
-
-            // Update file tree sidebar active file highlight (Requirement 9.5)
-            if (fileTreeSidebar && filePath) {
-                fileTreeSidebar.setActiveFile(filePath);
-            }
-
-            // Update markdown parser with current file path for image resolution
-            if (markdownParser && filePath) {
-                markdownParser.setCurrentFilePath(filePath);
-            }
-
-            preview.render(content);
-            document.body.classList.add('has-tabs');
-        }
-    } catch (error) {
-        console.error('Error creating tab:', error);
-        notificationManager.error(i18n.t('notifications.failedToCreateTab') + ': ' + error.message);
-    }
-}
-
-/**
- * Switch to a different tab
- * Requirements: 9.3, 9.5
- * @param {string} tabId - Tab ID to switch to
- */
-async function switchToTab(tabId) {
-    try {
-        // Save current tab state before switching
-        if (currentTabId) {
-            const scrollPos = editor.getScrollPosition();
-
-            await window.electronAPI.updateTabScroll(currentTabId, scrollPos);
-        }
-
-        const result = await window.electronAPI.switchTab(tabId);
-
-        if (result.success && result.tab) {
-            const tab = result.tab;
-
-            // Update UI
-            tabBar.setActiveTab(tabId);
-            currentTabId = tabId;
-
-            // Load tab content
-            editor.setValue(tab.content);
-            currentFilePath = tab.filePath;
-            isDirty = tab.isModified;
-            lastSavedContent = tab.isModified ? '' : tab.content;
-
-            if (autoSaveManager) {
-                autoSaveManager.setCurrentFilePath(tab.filePath);
-                autoSaveManager.setLastSavedContent(tab.isModified ? '' : tab.content);
-            }
-
-            // Update file tree sidebar active file highlight (Requirement 9.5)
-            if (fileTreeSidebar && tab.filePath) {
-                fileTreeSidebar.setActiveFile(tab.filePath);
-            }
-
-            // Update markdown parser with current file path for image resolution
-            if (markdownParser && tab.filePath) {
-                markdownParser.setCurrentFilePath(tab.filePath);
-            }
-
-            // Update connection graph active document highlight (Requirement 7.2)
-            if (connectionGraphPanel && activityBar && activityBar.getActiveView() === 'connection-graph') {
-                connectionGraphPanel.setActiveDocument(tab.filePath);
-            }
-
-            // Update backlinks panel for the new active document
-            if (backlinksPanel && tab.filePath) {
-                const wpResult = await window.electronAPI.getWorkspacePath();
-                const workspacePath = wpResult && wpResult.success ? wpResult.workspacePath : null;
-                backlinksPanel.setActiveDocument(tab.filePath, workspacePath);
-            }
-
-            // Restore scroll position
-            if (tab.scrollPosition) {
-                editor.setScrollPosition(tab.scrollPosition);
-            }
-
-            preview.render(tab.content, true);
-        }
-    } catch (error) {
-        console.error('Error switching tab:', error);
-        notificationManager.error(i18n.t('notifications.failedToSwitchTab') + ': ' + error.message);
-    }
-}
-
-/**
- * Close a tab
- * Requirements: 9.3, 9.5
- * @param {string} tabId - Tab ID to close
- */
-async function closeTab(tabId) {
-    try {
-        // Check if tab is modified
-        const tabResult = await window.electronAPI.getTab(tabId);
-
-        if (tabResult.success && tabResult.tab && tabResult.tab.isModified) {
-            const confirmed = await tabBar.showCloseConfirmation(tabResult.tab.title);
-
-            if (!confirmed) {
-                return;
-            }
-        }
-
-        // Store the file path before closing for sidebar cleanup
-        const closedFilePath = tabResult.success && tabResult.tab ? tabResult.tab.filePath : null;
-
-        // Close the tab
-        const result = await window.electronAPI.closeTab(tabId);
-
-        if (result.success) {
-            tabBar.removeTab(tabId);
-
-            // Clear file tree sidebar indicators for the closed file (Requirement 9.3)
-            if (fileTreeSidebar && closedFilePath) {
-                // Remove modified indicator
-                fileTreeSidebar.markFileModified(closedFilePath, false);
-
-                // If this was the active file and we're switching to another tab,
-                // the active highlight will be updated in switchToTab
-            }
-
-            // If this was the current tab, switch to another
-            if (currentTabId === tabId) {
-                const activeResult = await window.electronAPI.getActiveTab();
-
-                if (activeResult.success && activeResult.tab) {
-                    await switchToTab(activeResult.tab.id);
-                } else {
-                    // No tabs left, create a new one
-                    await createNewTab();
-                }
-            }
-
-            // Save tabs state
-            await window.electronAPI.saveTabs();
-        }
-    } catch (error) {
-        console.error('Error closing tab:', error);
-        notificationManager.error(i18n.t('notifications.failedToCloseTab') + ': ' + error.message);
-    }
-}
-
-/**
- * Show About dialog
- */
-async function showAboutDialog() {
-    // Get app version from package.json
-    let appVersion = '1.0.5'; // fallback
-    try {
-        const result = await window.electronAPI.getAppVersion();
-        if (result.success) {
-            appVersion = result.version;
-        }
-    } catch (error) {
-        console.error('Failed to get app version:', error);
-    }
-
-    // Create modal overlay
-    const overlay = document.createElement('div');
-
-    overlay.className = 'about-dialog-overlay';
-    overlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 10000;
-    `;
-
-    // Create dialog
-    const dialog = document.createElement('div');
-
-    dialog.className = 'about-dialog';
-    dialog.style.cssText = `
-        background: var(--bg-primary, #ffffff);
-        color: var(--text-primary, #000000);
-        border-radius: 8px;
-        padding: 32px;
-        max-width: 400px;
-        width: 90%;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-        text-align: center;
-    `;
-
-    dialog.innerHTML = `
-        <h2 style="margin: 0 0 16px 0; font-size: 24px;">MD Editor Pro</h2>
-        <p style="margin: 0 0 8px 0; font-size: 18px; color: var(--text-secondary, #666);">Version ${appVersion}</p>
-        <p style="margin: 0 0 24px 0; font-size: 14px; color: var(--text-secondary, #666);">
-            A cross-platform markdown editor built with Electron
-        </p>
-        <div style="margin: 24px 0; padding: 16px; background: var(--bg-secondary, #f5f5f5); border-radius: 4px;">
-            <p style="margin: 0 0 8px 0; font-size: 12px; color: var(--text-secondary, #666);">
-                <strong>Electron:</strong> ${window.electronAPI.getVersions().electron}
-            </p>
-            <p style="margin: 0 0 8px 0; font-size: 12px; color: var(--text-secondary, #666);">
-                <strong>Chrome:</strong> ${window.electronAPI.getVersions().chrome}
-            </p>
-            <p style="margin: 0; font-size: 12px; color: var(--text-secondary, #666);">
-                <strong>Node.js:</strong> ${window.electronAPI.getVersions().node}
-            </p>
-        </div>
-        <div style="margin: 0 0 24px 0;">
-            <p style="margin: 0 0 12px 0; font-size: 12px; color: var(--text-secondary, #666);">
-                © 2026 MD Editor Pro. All rights reserved.
-            </p>
-            <div style="display: flex; gap: 16px; justify-content: center; align-items: center;">
-                <a id="github-link" href="#" style="
-                    color: var(--accent-color, #007acc);
-                    text-decoration: none;
-                    font-size: 13px;
-                    display: flex;
-                    align-items: center;
-                    gap: 4px;
-                ">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
-                    </svg>
-                    GitHub
-                </a>
-                <span style="color: var(--text-secondary, #666);">•</span>
-                <a id="linkedin-link" href="#" style="
-                    color: var(--accent-color, #007acc);
-                    text-decoration: none;
-                    font-size: 13px;
-                    display: flex;
-                    align-items: center;
-                    gap: 4px;
-                ">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                        <path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854V1.146zm4.943 12.248V6.169H2.542v7.225h2.401zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248-.822 0-1.359.54-1.359 1.248 0 .694.521 1.248 1.327 1.248h.016zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016a5.54 5.54 0 0 1 .016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225h2.4z"/>
-                    </svg>
-                    Author
-                </a>
-            </div>
-        </div>
-        <button id="about-close-btn" style="
-            background: var(--accent-color, #007acc);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 10px 24px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: opacity 0.2s;
-        ">Close</button>
-    `;
-
-    overlay.appendChild(dialog);
-    document.body.appendChild(overlay);
-
-    // Close handlers
-    const closeDialog = () => {
-        document.body.removeChild(overlay);
-    };
-
-    document.getElementById('about-close-btn').addEventListener('click', closeDialog);
-
-    // Open external links
-    document.getElementById('github-link').addEventListener('click', async (e) => {
-        try {
-            e.preventDefault();
-            await window.electronAPI.openExternal('https://github.com/leandrolsouza/MD-Editor-Pro');
-        } catch (error) {
-            console.error('Failed to open external link:', error);
-        }
-    });
-
-    document.getElementById('linkedin-link').addEventListener('click', async (e) => {
-        try {
-            e.preventDefault();
-            await window.electronAPI.openExternal('https://www.linkedin.com/in/leandrolsouza/');
-        } catch (error) {
-            console.error('Failed to open external link:', error);
-        }
-    });
-
-    overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) {
-            closeDialog();
-        }
-    });
-
-    // Close on Escape key
-    const handleEscape = (e) => {
-        if (e.key === 'Escape') {
-            closeDialog();
-            document.removeEventListener('keydown', handleEscape);
-        }
-    };
-
-    document.addEventListener('keydown', handleEscape);
-}
-
-/**
- * Handle template insertion
- * Requirements: 6.1, 6.2, 6.3
- * @param {Object} template - Template object
- * @param {string} mode - 'insert' or 'replace'
- */
-async function handleTemplateInsert(template, mode) {
-    try {
-        // Insert template into editor
-        editor.insertTemplate(template.content, mode);
-
-        // Mark template as used
-        await window.electronAPI.markTemplateUsed(template.id);
-
-        // Mark document as modified
-        const content = editor.getValue();
-
-        updateDirtyState(content);
-
-        console.log('Template inserted:', template.name, 'mode:', mode);
-    } catch (error) {
-        console.error('Error inserting template:', error);
-        notificationManager.error(i18n.t('notifications.failedToInsertTemplate') + ': ' + error.message);
     }
 }
 
@@ -2337,113 +370,51 @@ async function handleTemplateInsert(template, mode) {
  * Cleanup function for when the window is closed
  */
 function cleanup() {
-    // Save tabs before closing
     if (window.electronAPI && window.electronAPI.saveTabs) {
-        window.electronAPI.saveTabs().catch(err => {
-            console.error('Error saving tabs on cleanup:', err);
-        });
+        window.electronAPI.saveTabs().catch(err => console.error('Error saving tabs on cleanup:', err));
     }
 
-    // Remove event listeners
-    if (removeFileDroppedListener) {
-        removeFileDroppedListener();
-    }
-    if (removeMenuActionListener) {
-        removeMenuActionListener();
-    }
+    const refs = handlers.getCleanupRefs();
+    if (refs.removeFileDroppedListener) refs.removeFileDroppedListener();
+    if (refs.removeMenuActionListener) refs.removeMenuActionListener();
 
-    // Destroy components
-    if (editor) {
-        editor.destroy();
-    }
-    if (preview) {
-        preview.destroy();
-    }
-    if (formattingToolbar) {
-        formattingToolbar.destroy();
-    }
-    if (autoSaveManager) {
-        autoSaveManager.destroy();
-    }
-    if (statisticsCalculator) {
-        statisticsCalculator.destroy();
-    }
-    if (statusBarInfo) {
-        statusBarInfo.destroy();
-    }
-    if (tabBar) {
-        tabBar.destroy();
-    }
-    if (focusMode) {
-        focusMode.destroy();
-    }
-    if (tooltipManager) {
-        tooltipManager.cleanup();
-    }
-    if (templateUI) {
-        // TemplateUI doesn't have a destroy method, but we could add one if needed
-    }
-    if (snippetManager) {
-        // SnippetManager doesn't need cleanup
-    }
-    if (fileTreeSidebar) {
-        fileTreeSidebar.destroy();
-    }
-    if (outlinePanel) {
-        outlinePanel.destroy();
-    }
-    if (typewriterScrolling) {
-        typewriterScrolling.disable();
-    }
-    if (imagePaste) {
-        imagePaste.cleanup();
-    }
-    if (imagePasteSettingsUI) {
-        imagePasteSettingsUI.destroy();
-    }
-    if (aiEditCommands) {
-        aiEditCommands.destroy();
-    }
-    if (contextMenu) {
-        contextMenu.destroy();
-    }
-    if (connectionGraphPanel) {
-        connectionGraphPanel.destroy();
-    }
+    // Destroy components that have destroy/cleanup methods
+    const destroyable = ['editor', 'preview', 'formattingToolbar', 'autoSaveManager',
+        'statisticsCalculator', 'statusBarInfo', 'tabBar', 'focusMode', 'fileTreeSidebar',
+        'outlinePanel', 'imagePasteSettingsUI', 'aiEditCommands', 'contextMenu', 'connectionGraphPanel'];
+    destroyable.forEach(name => {
+        const c = registry.get(name);
+        if (c && typeof c.destroy === 'function') c.destroy();
+    });
+
+    const tooltipManager = registry.get('tooltipManager');
+    if (tooltipManager) tooltipManager.cleanup();
+    const typewriterScrolling = registry.get('typewriterScrolling');
+    if (typewriterScrolling) typewriterScrolling.disable();
+    const imagePaste = registry.get('imagePaste');
+    if (imagePaste) imagePaste.cleanup();
+
+    registry.clear();
+    eventBus.clear();
 }
 
-// Expose functions for main process to check unsaved changes
+// Expose functions for main process
 window.hasUnsavedChanges = async () => {
-    // Check current tab's dirty state
-    if (isDirty) {
-        return true;
-    }
-    // Also check other tabs that may have unsaved changes
+    if (state.isDirty) return true;
     try {
         const result = await window.electronAPI.getModifiedTabs();
-        if (result.success && result.tabs && result.tabs.length > 0) {
-            return true;
-        }
-    } catch (error) {
-        console.error('Error checking modified tabs:', error);
-    }
+        if (result.success && result.tabs && result.tabs.length > 0) return true;
+    } catch (error) { console.error('Error checking modified tabs:', error); }
     return false;
 };
 
 window.saveBeforeClose = async () => {
-    try {
-        await handleSaveAll();
-        return true;
-    } catch (error) {
-        console.error('Error saving before close:', error);
-        return false;
-    }
+    try { await handlers.handleSaveAll(); return true; }
+    catch (error) { console.error('Error saving before close:', error); return false; }
 };
 
-// Cleanup on window unload
 window.addEventListener('unload', cleanup);
 
-// Initialize when DOM is ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initialize);
 } else {

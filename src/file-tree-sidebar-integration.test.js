@@ -6,9 +6,9 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import FileTreeSidebar from './renderer/file-tree-sidebar.js';
-import TabBar from './renderer/tab-bar.js';
-import Editor from './renderer/editor.js';
+import FileTreeSidebar from './renderer/panels/file-tree-sidebar.js';
+import TabBar from './renderer/core/tab-bar.js';
+import Editor from './renderer/core/editor.js';
 import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';

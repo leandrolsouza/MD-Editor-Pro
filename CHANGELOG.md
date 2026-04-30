@@ -7,6 +7,55 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.9.0] - 2026-04-30
+
+### 🏗️ Refactored
+
+#### Arquitetura do Main Process
+- Extraídos IPC handlers de `src/main/index.js` para módulos por domínio em `src/main/ipc/`
+  - `file-handlers.js`, `export-handlers.js`, `config-handlers.js`, `tab-handlers.js`, `template-handlers.js`, `shortcut-handlers.js`, `workspace-handlers.js`, `search-handlers.js`, `ai-handlers.js`, `advanced-markdown-handlers.js`, `updater-handlers.js`, `whats-new-handlers.js`, `link-analyzer-handlers.js`, `issue-reporter-handlers.js`, `image-handlers.js`, `snippet-handlers.js`
+- Criado `src/main/utils/ipc-utils.js` com `createIPCHandler` para wrapping padronizado de handlers com try-catch e logging contextual
+- Extraído `SnippetManager` para `src/main/snippet-manager.js` como classe independente
+- `src/main/index.js` reduzido de ~800 linhas para menos de 200 linhas efetivas
+
+#### Reorganização do Renderer
+- Reorganizada estrutura de diretórios do renderer em subpastas por responsabilidade:
+  - `src/renderer/core/` — Editor, Preview, Search, TabBar, MarkdownParser
+  - `src/renderer/panels/` — FileTreeSidebar, OutlinePanel, BacklinksPanel, ConnectionGraphPanel, GlobalSearchUI
+  - `src/renderer/ai/` — AIChatPanel, AIAutocomplete, AIEditCommands, AIAutocompleteSettingsUI
+  - `src/renderer/settings/` — SettingsPanel, ThemeSelector, KeyboardShortcutsUI, LanguageSelector
+  - `src/renderer/features/` — FocusMode, SnippetManager, TemplateUI, AutoSave, ImagePaste, HtmlToMarkdown, Statistics, TableEditor, TypewriterScrolling
+  - `src/renderer/ui/` — ActivityBar, FormattingToolbar, ContextMenu, Tooltip, Notification, CommandPalette, PanelResizer, StatusBarInfo, Icons
+  - `src/renderer/managers/` — Theme, ViewMode, AdvancedMarkdownManagerClient
+
+#### Component Registry e Event Bus
+- Criado `ComponentRegistry` (`src/renderer/core/component-registry.js`) para gerenciamento centralizado de componentes, substituindo ~40 variáveis globais no `index.js`
+- Criado `EventBus` (`src/renderer/core/event-bus.js`) para comunicação desacoplada entre componentes
+  - Eventos: `editor:content-changed`, `editor:cursor-changed`, `tab:switched`, `tab:closed`, `theme:changed`, `view-mode:changed`, `file:saved`, `file:opened`
+- Criados módulos de inicialização por domínio: `init-core.js`, `init-panels.js`, `init-ai.js`, `init-settings.js`, `init-features.js`, `init-ui.js`, `init-managers.js`, `init-activity-bar.js`
+- `src/renderer/index.js` reduzido de ~1200 linhas para menos de 300 linhas efetivas
+
+#### Padronização de Erros
+- Migrados `GlobalSearchManager` e `WorkspaceManager` para padrão throw (em vez de `return { success: false }`)
+- Todos os IPC handlers migrados para usar `createIPCHandler`
+- Adicionado try-catch em chamadas `window.electronAPI.*` no renderer com notificações de erro contextuais
+
+#### Eliminação de Duplicação
+- Unificados `keyboard-shortcuts-manager.js` e `keyboard-shortcuts-integration.js` em um único módulo
+- Extraído `keyword-matcher.js` do `mermaid-codemirror-lang.js` para matching genérico de keywords
+- Extraído `katex-renderer.js` do `post-processor.js` para rendering KaTeX compartilhado
+- Extraído CSS do `exporter.js` para `src/main/export-styles.js`
+- Extraída lógica compartilhada de find/findNext/findPrevious no `search.js`
+
+### 🧪 Tests
+
+- Adicionados testes para EventBus, ComponentRegistry e createIPCHandler
+- Adicionados testes para todos os módulos IPC extraídos (`src/main/ipc/*.test.js`)
+- Adicionados testes para SnippetManager, keyword-matcher e katex-renderer
+- Atualizados testes de integração para novos caminhos de import
+
+---
+
 ## [1.8.0] - 2026-04-29
 
 ### ✨ Added

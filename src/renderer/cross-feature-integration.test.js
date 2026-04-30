@@ -5,9 +5,9 @@
  */
 
 const { JSDOM } = require('jsdom');
-const Editor = require('./editor');
-const OutlinePanel = require('./outline-panel');
-const TypewriterScrolling = require('./typewriter-scrolling');
+const Editor = require('./core/editor');
+const OutlinePanel = require('./panels/outline-panel');
+const TypewriterScrolling = require('./features/typewriter-scrolling');
 
 describe('Cross-Feature Integration Tests', () => {
     let dom;

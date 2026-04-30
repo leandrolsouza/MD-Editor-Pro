@@ -22,87 +22,72 @@ class WorkspaceManager {
 
     /**
      * Opens a folder selection dialog and loads the selected folder as workspace
-     * @returns {Promise<{success: boolean, workspacePath?: string, tree?: Array, error?: string}>}
+     * @returns {Promise<{success: boolean, workspacePath?: string, tree?: Array}>}
+     * @throws {Error} If no folder selected, path is invalid, or access fails
      */
     async openWorkspace() {
-        try {
-            const result = await dialog.showOpenDialog({
-                properties: ['openDirectory']
-            });
+        const result = await dialog.showOpenDialog({
+            properties: ['openDirectory']
+        });
 
-            if (result.canceled || !result.filePaths || result.filePaths.length === 0) {
-                return { success: false, error: 'No folder selected' };
-            }
-
-            const selectedPath = result.filePaths[0];
-
-            // Validate the path
-            if (!this.isValidPath(selectedPath)) {
-                console.error(`Invalid folder path: ${selectedPath}`);
-                return { success: false, error: 'Invalid folder path. Please select a valid directory.' };
-            }
-
-            // Check if path exists and is accessible
-            try {
-                await fs.access(selectedPath, fs.constants.R_OK);
-            } catch (accessError) {
-                this._handleFileSystemError(accessError, selectedPath);
-                return {
-                    success: false,
-                    error: 'Cannot access the selected folder. Please check permissions.'
-                };
-            }
-
-            this.workspacePath = selectedPath;
-
-            // Persist workspace path
-            try {
-                this.configStore.set('workspace.currentPath', selectedPath);
-            } catch (configError) {
-                console.error('Error persisting workspace path:', configError);
-                // Continue anyway - this is not critical
-            }
-
-            // Scan the directory to build tree structure
-            const tree = await this.scanDirectory(selectedPath);
-
-            return {
-                success: true,
-                workspacePath: selectedPath,
-                tree: tree
-            };
-        } catch (error) {
-            console.error('Error opening workspace:', error);
-            this._handleFileSystemError(error, 'workspace');
-            return {
-                success: false,
-                error: `Failed to open workspace: ${error.message}`
-            };
+        if (result.canceled || !result.filePaths || result.filePaths.length === 0) {
+            throw new Error('No folder selected');
         }
+
+        const selectedPath = result.filePaths[0];
+
+        // Validate the path
+        if (!this.isValidPath(selectedPath)) {
+            console.error(`Invalid folder path: ${selectedPath}`);
+            throw new Error('Invalid folder path. Please select a valid directory.');
+        }
+
+        // Check if path exists and is accessible
+        try {
+            await fs.access(selectedPath, fs.constants.R_OK);
+        } catch (accessError) {
+            this._handleFileSystemError(accessError, selectedPath);
+            throw new Error('Cannot access the selected folder. Please check permissions.');
+        }
+
+        this.workspacePath = selectedPath;
+
+        // Persist workspace path
+        try {
+            this.configStore.set('workspace.currentPath', selectedPath);
+        } catch (configError) {
+            console.error('Error persisting workspace path:', configError);
+            // Continue anyway - this is not critical
+        }
+
+        // Scan the directory to build tree structure
+        const tree = await this.scanDirectory(selectedPath);
+
+        return {
+            success: true,
+            workspacePath: selectedPath,
+            tree: tree
+        };
     }
 
     /**
      * Closes the current workspace and clears state
      * @returns {{success: boolean}}
+     * @throws {Error} If closing workspace fails
      */
     closeWorkspace() {
-        try {
-            this.workspacePath = null;
-            this.expandedFolders.clear();
+        this.workspacePath = null;
+        this.expandedFolders.clear();
 
-            // Clear caches
-            this.directoryCache.clear();
-            this.cacheTimestamps.clear();
+        // Clear caches
+        this.directoryCache.clear();
+        this.cacheTimestamps.clear();
 
-            // Remove workspace path from config
-            this.configStore.delete('workspace.currentPath');
-            this.configStore.delete('workspace.expandedFolders');
+        // Remove workspace path from config
+        this.configStore.delete('workspace.currentPath');
+        this.configStore.delete('workspace.expandedFolders');
 
-            return { success: true };
-        } catch (error) {
-            console.error('Error closing workspace:', error);
-            return { success: false, error: error.message };
-        }
+        return { success: true };
     }
 
     /**
@@ -276,124 +261,97 @@ class WorkspaceManager {
 
     /**
      * Restores workspace from saved configuration
-     * @returns {Promise<{success: boolean, workspacePath?: string, tree?: Array, error?: string}>}
+     * @returns {Promise<{success: boolean, workspacePath?: string, tree?: Array}>}
+     * @throws {Error} If no saved workspace or path is inaccessible
      */
     async restoreWorkspace() {
-        try {
-            const savedPath = this.configStore.get('workspace.currentPath');
+        const savedPath = this.configStore.get('workspace.currentPath');
 
-            if (!savedPath) {
-                return { success: false, error: 'No saved workspace found' };
-            }
-
-            // Validate the saved path still exists and is accessible
-            try {
-                await fs.access(savedPath, fs.constants.R_OK);
-            } catch (accessError) {
-                // Path no longer exists or is not accessible, clear it from config
-                console.warn(`Saved workspace path is not accessible: ${savedPath}`);
-                this._handleFileSystemError(accessError, savedPath);
-
-                try {
-                    this.configStore.delete('workspace.currentPath');
-                    this.configStore.delete('workspace.expandedFolders');
-                } catch (configError) {
-                    console.error('Error clearing invalid workspace from config:', configError);
-                }
-
-                return {
-                    success: false,
-                    error: 'Saved workspace is no longer accessible. It may have been moved or deleted.'
-                };
-            }
-
-            this.workspacePath = savedPath;
-
-            // Restore expanded folders
-            try {
-                const expandedFolders = this.configStore.get('workspace.expandedFolders', []);
-                this.expandedFolders = new Set(expandedFolders);
-            } catch (configError) {
-                console.error('Error restoring expanded folders:', configError);
-                // Continue with empty set
-                this.expandedFolders = new Set();
-            }
-
-            // Scan the directory
-            const tree = await this.scanDirectory(savedPath);
-
-            return {
-                success: true,
-                workspacePath: savedPath,
-                tree: tree
-            };
-        } catch (error) {
-            console.error('Error restoring workspace:', error);
-            this._handleFileSystemError(error, 'workspace restore');
-            return {
-                success: false,
-                error: `Failed to restore workspace: ${error.message}`
-            };
+        if (!savedPath) {
+            throw new Error('No saved workspace found');
         }
+
+        // Validate the saved path still exists and is accessible
+        try {
+            await fs.access(savedPath, fs.constants.R_OK);
+        } catch (accessError) {
+            // Path no longer exists or is not accessible, clear it from config
+            console.warn(`Saved workspace path is not accessible: ${savedPath}`);
+            this._handleFileSystemError(accessError, savedPath);
+
+            try {
+                this.configStore.delete('workspace.currentPath');
+                this.configStore.delete('workspace.expandedFolders');
+            } catch (configError) {
+                console.error('Error clearing invalid workspace from config:', configError);
+            }
+
+            throw new Error('Saved workspace is no longer accessible. It may have been moved or deleted.');
+        }
+
+        this.workspacePath = savedPath;
+
+        // Restore expanded folders
+        try {
+            const expandedFolders = this.configStore.get('workspace.expandedFolders', []);
+            this.expandedFolders = new Set(expandedFolders);
+        } catch (configError) {
+            console.error('Error restoring expanded folders:', configError);
+            // Continue with empty set
+            this.expandedFolders = new Set();
+        }
+
+        // Scan the directory
+        const tree = await this.scanDirectory(savedPath);
+
+        return {
+            success: true,
+            workspacePath: savedPath,
+            tree: tree
+        };
     }
 
     /**
      * Toggles folder expansion state and loads contents on-demand
      * @param {string} folderPath - Path of folder to toggle
      * @param {boolean} isExpanded - New expansion state
-     * @returns {Promise<{success: boolean, children?: Array, error?: string}>}
+     * @returns {Promise<{success: boolean, children?: Array}>}
+     * @throws {Error} If folder path is invalid, outside workspace, or loading fails
      */
     async toggleFolder(folderPath, isExpanded) {
-        try {
-            // Validate folder path
-            if (!folderPath || typeof folderPath !== 'string') {
-                return { success: false, error: 'Invalid folder path' };
-            }
-
-            // Check if folder is within workspace
-            if (!this.isPathInWorkspace(folderPath)) {
-                console.error(`Folder path is not within workspace: ${folderPath}`);
-                return { success: false, error: 'Folder is not within the current workspace' };
-            }
-
-            // Update expansion state
-            if (isExpanded) {
-                this.expandedFolders.add(folderPath);
-            } else {
-                this.expandedFolders.delete(folderPath);
-            }
-
-            // Persist expanded folders
-            try {
-                this.configStore.set('workspace.expandedFolders', Array.from(this.expandedFolders));
-            } catch (configError) {
-                console.error('Error persisting expanded folders:', configError);
-                // Continue anyway - this is not critical
-            }
-
-            // Load folder contents on-demand when expanding
-            let children = [];
-            if (isExpanded) {
-                try {
-                    children = await this.loadFolderContents(folderPath);
-                } catch (loadError) {
-                    this._handleFileSystemError(loadError, folderPath);
-                    return {
-                        success: false,
-                        error: `Failed to load folder contents: ${loadError.message}`
-                    };
-                }
-            }
-
-            return { success: true, children: children };
-        } catch (error) {
-            console.error('Error toggling folder:', error);
-            this._handleFileSystemError(error, folderPath);
-            return {
-                success: false,
-                error: `Failed to toggle folder: ${error.message}`
-            };
+        // Validate folder path
+        if (!folderPath || typeof folderPath !== 'string') {
+            throw new Error('Invalid folder path');
         }
+
+        // Check if folder is within workspace
+        if (!this.isPathInWorkspace(folderPath)) {
+            console.error(`Folder path is not within workspace: ${folderPath}`);
+            throw new Error('Folder is not within the current workspace');
+        }
+
+        // Update expansion state
+        if (isExpanded) {
+            this.expandedFolders.add(folderPath);
+        } else {
+            this.expandedFolders.delete(folderPath);
+        }
+
+        // Persist expanded folders
+        try {
+            this.configStore.set('workspace.expandedFolders', Array.from(this.expandedFolders));
+        } catch (configError) {
+            console.error('Error persisting expanded folders:', configError);
+            // Continue anyway - this is not critical
+        }
+
+        // Load folder contents on-demand when expanding
+        let children = [];
+        if (isExpanded) {
+            children = await this.loadFolderContents(folderPath);
+        }
+
+        return { success: true, children: children };
     }
 
     /**

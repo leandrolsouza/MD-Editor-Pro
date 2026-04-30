@@ -5,8 +5,8 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import Editor from './renderer/editor.js';
-import Preview from './renderer/preview.js';
+import Editor from './renderer/core/editor.js';
+import Preview from './renderer/core/preview.js';
 
 describe('Performance Tests', () => {
     let editor;

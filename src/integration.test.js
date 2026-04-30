@@ -5,11 +5,11 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import Editor from './renderer/editor.js';
-import Preview from './renderer/preview.js';
-import SearchManager from './renderer/search.js';
-import ThemeManager from './renderer/theme.js';
-import ViewModeManager from './renderer/view-mode.js';
+import Editor from './renderer/core/editor.js';
+import Preview from './renderer/core/preview.js';
+import SearchManager from './renderer/core/search.js';
+import ThemeManager from './renderer/managers/theme.js';
+import ViewModeManager from './renderer/managers/view-mode.js';
 
 describe('End-to-End Integration Tests', () => {
     let editor;

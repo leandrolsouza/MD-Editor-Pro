@@ -69,31 +69,25 @@ describe('GlobalSearchManager', () => {
     });
 
     describe('searchInWorkspace', () => {
-        it('should return error when no workspace is open', async () => {
+        it('should throw when no workspace is open', async () => {
             mockWorkspaceManager.getWorkspacePath.mockReturnValue(null);
 
-            const result = await globalSearchManager.searchInWorkspace('test');
-
-            expect(result.success).toBe(false);
-            expect(result.error).toBe('No workspace is currently open');
+            await expect(globalSearchManager.searchInWorkspace('test'))
+                .rejects.toThrow('No workspace is currently open');
         });
 
-        it('should return error when search text is empty', async () => {
+        it('should throw when search text is empty', async () => {
             mockWorkspaceManager.getWorkspacePath.mockReturnValue('/some/path');
 
-            const result = await globalSearchManager.searchInWorkspace('');
-
-            expect(result.success).toBe(false);
-            expect(result.error).toBe('Search text cannot be empty');
+            await expect(globalSearchManager.searchInWorkspace(''))
+                .rejects.toThrow('Search text cannot be empty');
         });
 
-        it('should return error when search text is only whitespace', async () => {
+        it('should throw when search text is only whitespace', async () => {
             mockWorkspaceManager.getWorkspacePath.mockReturnValue('/some/path');
 
-            const result = await globalSearchManager.searchInWorkspace('   ');
-
-            expect(result.success).toBe(false);
-            expect(result.error).toBe('Search text cannot be empty');
+            await expect(globalSearchManager.searchInWorkspace('   '))
+                .rejects.toThrow('Search text cannot be empty');
         });
     });
 });

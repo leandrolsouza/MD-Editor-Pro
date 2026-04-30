@@ -2,7 +2,7 @@
  * Tests for Editor HTML to Markdown paste functionality
  */
 
-const Editor = require('./editor');
+const Editor = require('./core/editor');
 
 describe('Editor - HTML to Markdown Paste', () => {
     let editor;

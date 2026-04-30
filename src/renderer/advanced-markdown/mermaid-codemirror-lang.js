@@ -4,6 +4,7 @@
  */
 
 const { StreamLanguage } = require('@codemirror/language');
+const { matchKeywordSet } = require('./keyword-matcher');
 
 /**
  * Mermaid diagram keywords and identifiers
@@ -198,96 +199,21 @@ const mermaidLanguage = StreamLanguage.define({
             }
         }
 
-        // Check for sequence diagram keywords
-        for (const keyword of SEQUENCE_KEYWORDS) {
-            if (stream.match(keyword, false)) {
-                const next = stream.string.charAt(stream.pos + keyword.length);
+        // Check for diagram-specific keywords using shared matcher
+        const keywordSets = [
+            SEQUENCE_KEYWORDS,
+            CLASS_KEYWORDS,
+            STATE_KEYWORDS,
+            ER_KEYWORDS,
+            GANTT_KEYWORDS,
+            JOURNEY_KEYWORDS,
+            PIE_KEYWORDS,
+            GIT_KEYWORDS
+        ];
 
-                if (!next || /\s/.test(next) || /[:[\]]/.test(next)) {
-                    stream.match(keyword);
-                    return 'keyword';
-                }
-            }
-        }
-
-        // Check for class diagram keywords
-        for (const keyword of CLASS_KEYWORDS) {
-            if (stream.match(keyword, false)) {
-                const next = stream.string.charAt(stream.pos + keyword.length);
-
-                if (!next || /\s/.test(next) || /[:[\]]/.test(next)) {
-                    stream.match(keyword);
-                    return 'keyword';
-                }
-            }
-        }
-
-        // Check for state diagram keywords
-        for (const keyword of STATE_KEYWORDS) {
-            if (stream.match(keyword, false)) {
-                const next = stream.string.charAt(stream.pos + keyword.length);
-
-                if (!next || /\s/.test(next) || /[:[\]]/.test(next)) {
-                    stream.match(keyword);
-                    return 'keyword';
-                }
-            }
-        }
-
-        // Check for ER diagram keywords
-        for (const keyword of ER_KEYWORDS) {
-            if (stream.match(keyword, false)) {
-                stream.match(keyword);
-                return 'keyword';
-            }
-        }
-
-        // Check for Gantt keywords
-        for (const keyword of GANTT_KEYWORDS) {
-            if (stream.match(keyword, false)) {
-                const next = stream.string.charAt(stream.pos + keyword.length);
-
-                if (!next || /\s/.test(next) || /[:[\]]/.test(next)) {
-                    stream.match(keyword);
-                    return 'keyword';
-                }
-            }
-        }
-
-        // Check for journey keywords
-        for (const keyword of JOURNEY_KEYWORDS) {
-            if (stream.match(keyword, false)) {
-                const next = stream.string.charAt(stream.pos + keyword.length);
-
-                if (!next || /\s/.test(next) || /[:[\]]/.test(next)) {
-                    stream.match(keyword);
-                    return 'keyword';
-                }
-            }
-        }
-
-        // Check for pie keywords
-        for (const keyword of PIE_KEYWORDS) {
-            if (stream.match(keyword, false)) {
-                const next = stream.string.charAt(stream.pos + keyword.length);
-
-                if (!next || /\s/.test(next) || /[:[\]]/.test(next)) {
-                    stream.match(keyword);
-                    return 'keyword';
-                }
-            }
-        }
-
-        // Check for git keywords
-        for (const keyword of GIT_KEYWORDS) {
-            if (stream.match(keyword, false)) {
-                const next = stream.string.charAt(stream.pos + keyword.length);
-
-                if (!next || /\s/.test(next) || /[:[\]]/.test(next)) {
-                    stream.match(keyword);
-                    return 'keyword';
-                }
-            }
+        for (const keywords of keywordSets) {
+            const result = matchKeywordSet(stream, keywords);
+            if (result) return result;
         }
 
         // Check for special characters and operators

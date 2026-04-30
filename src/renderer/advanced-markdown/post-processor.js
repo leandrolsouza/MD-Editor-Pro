@@ -7,6 +7,8 @@
  * respective libraries.
  */
 
+const { renderKatexElement } = require('./katex-renderer');
+
 /**
  * Escapes HTML special characters to prevent XSS
  * @param {string} text - Text to escape
@@ -150,62 +152,14 @@ class AdvancedMarkdownPostProcessor {
     processKatex(container) {
         // Process inline math
         const inlineMath = container.querySelectorAll('.katex-inline');
-
         inlineMath.forEach(element => {
-            // Skip if already rendered
-            if (element.classList.contains('katex-rendered') ||
-                element.classList.contains('katex-error')) {
-                return;
-            }
-
-            const latex = element.getAttribute('data-katex');
-
-            if (!latex) {
-                return;
-            }
-
-            try {
-                this.katex.render(latex, element, {
-                    throwOnError: false,
-                    displayMode: false
-                });
-                element.classList.add('katex-rendered');
-            } catch (error) {
-                // Fallback to displaying original text
-                element.textContent = '$' + latex + '$';
-                element.classList.add('katex-error');
-                console.error('KaTeX inline rendering error:', error);
-            }
+            renderKatexElement(element, this.katex, { displayMode: false });
         });
 
         // Process block math
         const blockMath = container.querySelectorAll('.katex-block');
-
         blockMath.forEach(element => {
-            // Skip if already rendered
-            if (element.classList.contains('katex-rendered') ||
-                element.classList.contains('katex-error')) {
-                return;
-            }
-
-            const latex = element.getAttribute('data-katex');
-
-            if (!latex) {
-                return;
-            }
-
-            try {
-                this.katex.render(latex, element, {
-                    throwOnError: false,
-                    displayMode: true
-                });
-                element.classList.add('katex-rendered');
-            } catch (error) {
-                // Fallback to displaying original text
-                element.textContent = '$' + latex + '$';
-                element.classList.add('katex-error');
-                console.error('KaTeX block rendering error:', error);
-            }
+            renderKatexElement(element, this.katex, { displayMode: true });
         });
     }
 
